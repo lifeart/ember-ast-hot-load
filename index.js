@@ -6,7 +6,10 @@ module.exports = {
   init() {
     this._super.init && this._super.init.apply(this, arguments);
   },
-
+  serverMiddleware: function (config){
+    var lsReloader = require('./lib/hot-reloader')(config.options, ['components']);
+    lsReloader.run();
+  },
   setupPreprocessorRegistry(type, registry) {
 
       let pluginObj = this._buildPlugin();

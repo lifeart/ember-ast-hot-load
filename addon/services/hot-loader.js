@@ -53,8 +53,16 @@ function clearContainerCache(context, componentName) {
 }
 
 export default Service.extend(Evented, {
+  forgetComponent(name) {
+    clearContainerCache(this, name);
+    requireUnsee("dummy/components/" + name);
+    requireUnsee("dummy/templates/components/" + name);
+  },
+  clearRequire(name) {
+    clearContainerCache(this, name);
+  },
   reload(name = "test-component") {
-	clearContainerCache(this, name);
+    clearContainerCache(this, name);
     requireUnsee("dummy/components/" + name);
     requireUnsee("dummy/templates/components/" + name);
     this.trigger("reload");
