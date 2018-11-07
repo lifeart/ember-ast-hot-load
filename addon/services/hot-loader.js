@@ -2,9 +2,6 @@ import Service from "@ember/service";
 import Evented from "@ember/object/evented";
 import { getOwner } from "@ember/application";
 
-var templateOptionsKey = null;
-var templateCompilerKey = null;
-
 function clearIfHasProperty(obj, propertyName) {
   if (obj && Object.hasOwnProperty.call(obj, propertyName)) {
     obj[propertyName] = undefined;
@@ -12,15 +9,15 @@ function clearIfHasProperty(obj, propertyName) {
 }
 
 function clear(owner, name) {
-  if (templateCompilerKey) {
+  if (window.templateCompilerKey) {
     // Ember v3.2
-    var templateCompiler = owner.lookup(templateCompilerKey);
+    var templateCompiler = owner.lookup(window.templateCompilerKey);
     var compileTimeLookup = templateCompiler.resolver;
     var compileRuntimeResolver = compileTimeLookup.resolver;
     compileRuntimeResolver.componentDefinitionCache.clear();
-  } else if (templateOptionsKey) {
+  } else if (window.templateOptionsKey) {
     // Ember v3.1.1
-    var templateOptions = owner.lookup(templateOptionsKey);
+    var templateOptions = owner.lookup(window.templateOptionsKey);
     var optionsTimeLookup = templateOptions.resolver;
     var optionsRuntimeResolver = optionsTimeLookup.resolver;
     optionsRuntimeResolver.componentDefinitionCache.clear();
@@ -57,9 +54,9 @@ function clearContainerCache(context, componentName) {
 
 export default Service.extend(Evented, {
   reload(name = "test-component") {
+	clearContainerCache(this, name);
     requireUnsee("dummy/components/" + name);
     requireUnsee("dummy/templates/components/" + name);
-    clearContainerCache(this, name);
     this.trigger("reload");
   }
 });
