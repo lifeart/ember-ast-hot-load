@@ -1,13 +1,13 @@
 {
   "name": "ember-ast-hot-load",
   "version": "0.0.1",
-  "description": "The default blueprint for ember-cli addons.",
+  "description": "Ember components hot-reload addon",
   "keywords": [
     "ember-addon"
   ],
-  "repository": "",
+  "repository": "https://github.com/lifeart/ember-ast-hot-load",
   "license": "MIT",
-  "author": "",
+  "author": "Aleksandr Kanunnikov <lifeart92@gmail.com>, Toran Billups <toranb@gmail.com>",
   "directories": {
     "doc": "doc",
     "test": "tests"
@@ -21,15 +21,13 @@
     "test:all": "ember try:each"
   },
   "dependencies": {
-    "broccoli-stew": "^2.0.1",
-    "ember-cli-babel": "^6.16.0",
-    "ember-cli-htmlbars": "^3.0.1",
-    "ember-template-recast": "^1.2.0"
+	"ember-cli-htmlbars": "*",
+	"ember-cli-babel": "*"
   },
   "devDependencies": {
     "@ember/optional-features": "^0.6.3",
     "broccoli-asset-rev": "^2.7.0",
-    "ember-ajax": "^3.1.0",
+	"ember-cli-babel": "^6.16.0",
     "ember-cli": "~3.5.0",
     "ember-cli-dependency-checker": "^3.0.0",
     "ember-cli-eslint": "^4.2.3",
