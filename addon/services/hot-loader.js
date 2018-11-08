@@ -74,11 +74,5 @@ export default Service.extend(Evented, {
     const owner = getOwner(this);
     const config = owner.resolveRegistration("config:environment");
     clearRequirejsCache(config, name);
-  },
-  reload(name = "test-component") {
-    // clearContainerCache(this, name);
-    // requireUnsee("dummy/components/" + name);
-    // requireUnsee("dummy/templates/components/" + name);
-    // this.trigger("reload");
   }
 });

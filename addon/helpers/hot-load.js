@@ -1,52 +1,49 @@
 import Helper from "@ember/component/helper";
 import { inject as service } from "@ember/service";
-import { later } from "@ember/runloop";
+import { later, cancel } from "@ember/runloop";
+
+function matchingComponent(componentName, path) {
+  let normalizedPath = path.split("\\").join("/");
+  let possibleExtensions = [".ts", ".js", ".hbs"];
+  let possibleEndings = possibleExtensions.map(ext => componentName + ext);
+  return possibleEndings.filter(name => {
+    return normalizedPath.endsWith(name);
+  }).length;
+}
+
 export default Helper.extend({
-  // reloader: injectService(),
   hotLoader: service(),
 
   init() {
     this._super(...arguments);
-
-    this.hotLoader.on("reload", this, "recompute");
     this.hotLoader.on("willHotReload", this, "__rerenderOnTemplateUpdate");
     this.hotLoader.on("willLiveReload", this, "__willLiveReload");
-    //   this.reloader.onReload(() => this.recompute());
   },
-  __rerenderOnTemplateUpdate() {
-	this.hotLoader.forgetComponent(this.firstComputeName);
-	later(()=>{
-		this.recompute();
-	});
-    // firstComputeName
-    console.log("__rerenderOnTemplateUpdate", this.firstComputeName);
+  __rerenderOnTemplateUpdate(path) {
+    if (matchingComponent(this.firstComputeName, path)) {
+      this.hotLoader.forgetComponent(this.firstComputeName);
+      cancel(this.timer);
+      this.timer = later(() => {
+        this.recompute();
+      });
+    }
   },
   __willLiveReload(event) {
-	console.log("__willLiveReload");
-	// debugger;
-    // debugger;
-	// const baseComponentName = this.get("baseComponentName");
-	console.log('event.modulePath', event.modulePath);
-	if (event.modulePath.includes('test-')) {
-		event.cancel = true;
-		this.hotLoader.clearRequirejs(this.firstComputeName);
-	}
-    // if (matchingComponent(this.firstComputeName, event.modulePath)) {
-    //   event.cancel = true;
-    //   clearRequirejs(this, this.firstComputeName);
-    // }
+    if (matchingComponent(this.firstComputeName, event.modulePath)) {
+      event.cancel = true;
+      this.hotLoader.clearRequirejs(this.firstComputeName);
+    }
   },
   willDestroy() {
     this._super(...arguments);
-    this.hotLoader.off("reload", this, "recompute");
+    cancel(this.timer);
+    this.hotLoader.off("willHotReload", this, "__rerenderOnTemplateUpdate");
+    this.hotLoader.off("willLiveReload", this, "__willLiveReload");
   },
   compute([name]) {
-    //   debugger;
-    console.log("compute", name);
-    // let revision = this.reloader.revisionFor(name);
     if (name === this.firstCompute) {
       this.firstCompute = false;
-      later(() => {
+      this.timer = later(() => {
         this.recompute();
       });
       return "hot-placeholder";
@@ -55,10 +52,11 @@ export default Helper.extend({
       this.firstCompute = name;
       this.firstComputeName = name;
     }
-    // if (revision === undefined) {
+
+    if (this.firstComputeName !== name) {
+      this.firstComputeName = name;
+    }
+
     return name;
-    // } else {
-    //   return `${name}--hot-reload-${revision}`;
-    // }
   }
 });
