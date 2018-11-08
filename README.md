@@ -61,6 +61,22 @@ Usage
 [Longer description of how to use the addon in apps.]
 
 
+Helpers looks like components, but we don't support component-like helpers hot-reload.
+So, you need to exclude helpers from hot-loader pipeline.
+
+
+Let's copy all applcation's hot-reload confusing helpers. 
+```js
+var componentLikeHelpers = Object.keys(require.entries)
+	.filter(name=>(name.includes('/helpers/')|| name.includes('/helper')))
+	.filter(name=>!name.includes('/-')).map(name=>{
+		let path = name.split('/helpers/');
+		return path.pop();
+	}).filter(name=>!name.includes('/')).filter(name=>name.includes('-'));
+	
+copy(JSON.stringify(componentLikeHelpers))
+```
+
 Contributing
 ------------------------------------------------------------------------------
 
