@@ -24,7 +24,7 @@ module.exports = {
 
   _buildPlugin() {
     return {
-      name: 'component-attributes',
+      name: 'ember-ast-hot-load-babel-plugin',
       plugin: require('./lib/ast-transform'),
       baseDir() {
         return __dirname;
