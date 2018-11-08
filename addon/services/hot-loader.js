@@ -9,16 +9,16 @@ function clearIfHasProperty(obj, propertyName) {
   }
 }
 
-function clear(owner, name) {
-  if (window.templateCompilerKey) {
+function clear(context, owner, name) {
+  if (context.templateCompilerKey) {
     // Ember v3.2
-    var templateCompiler = owner.lookup(window.templateCompilerKey);
+    var templateCompiler = owner.lookup(context.templateCompilerKey);
     var compileTimeLookup = templateCompiler.resolver;
     var compileRuntimeResolver = compileTimeLookup.resolver;
     compileRuntimeResolver.componentDefinitionCache.clear();
-  } else if (window.templateOptionsKey) {
+  } else if (context.templateOptionsKey) {
     // Ember v3.1.1
-    var templateOptions = owner.lookup(window.templateOptionsKey);
+    var templateOptions = owner.lookup(context.templateOptionsKey);
     var optionsTimeLookup = templateOptions.resolver;
     var optionsRuntimeResolver = optionsTimeLookup.resolver;
     optionsRuntimeResolver.componentDefinitionCache.clear();
@@ -40,6 +40,9 @@ function clear(owner, name) {
 }
 
 function requireUnsee(module) {
+  if (typeof window !== "object") {
+    return;
+  }
   if (window.requirejs.has(module)) {
     window.requirejs.unsee(module);
   }
@@ -49,8 +52,8 @@ function clearContainerCache(context, componentName) {
   const componentFullName = `component:${componentName}`;
   const templateFullName = `template:components/${componentName}`;
   const owner = getOwner(context);
-  clear(owner, componentFullName);
-  clear(owner, templateFullName);
+  clear(context, owner, componentFullName);
+  clear(context, owner, templateFullName);
 }
 
 export function clearRequirejsCache(config, componentName) {
@@ -67,6 +70,8 @@ export function clearRequirejsCache(config, componentName) {
 }
 
 export default Service.extend(Evented, {
+  templateOptionsKey: null,
+  templateCompilerKey: null,
   forgetComponent(name) {
     clearContainerCache(this, name);
   },
