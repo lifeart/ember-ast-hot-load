@@ -14,18 +14,22 @@ export default Helper.extend({
     //   this.reloader.onReload(() => this.recompute());
   },
   __rerenderOnTemplateUpdate() {
-    this.hotLoader.forgetComponent(this.firstComputeName);
+	this.hotLoader.forgetComponent(this.firstComputeName);
+	later(()=>{
+		this.recompute();
+	});
     // firstComputeName
     console.log("__rerenderOnTemplateUpdate", this.firstComputeName);
   },
   __willLiveReload(event) {
-    console.log("__willLiveReload");
+	console.log("__willLiveReload");
+	// debugger;
     // debugger;
 	// const baseComponentName = this.get("baseComponentName");
 	console.log('event.modulePath', event.modulePath);
 	if (event.modulePath.includes('test-')) {
 		event.cancel = true;
-		this.hotLoader.clearRequire(this.firstComputeName);
+		this.hotLoader.clearRequirejs(this.firstComputeName);
 	}
     // if (matchingComponent(this.firstComputeName, event.modulePath)) {
     //   event.cancel = true;
@@ -34,7 +38,6 @@ export default Helper.extend({
   },
   willDestroy() {
     this._super(...arguments);
-    console.log("willDestroy");
     this.hotLoader.off("reload", this, "recompute");
   },
   compute([name]) {

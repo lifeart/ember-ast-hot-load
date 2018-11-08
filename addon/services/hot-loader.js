@@ -1,6 +1,7 @@
 import Service from "@ember/service";
 import Evented from "@ember/object/evented";
 import { getOwner } from "@ember/application";
+import { get } from "@ember/object";
 
 function clearIfHasProperty(obj, propertyName) {
   if (obj && Object.hasOwnProperty.call(obj, propertyName)) {
@@ -52,19 +53,32 @@ function clearContainerCache(context, componentName) {
   clear(owner, templateFullName);
 }
 
+export function clearRequirejsCache(config, componentName) {
+  const modulePrefix = get(config, "modulePrefix") || "dummy";
+  const podModulePrefix = get(config, "podModulePrefix") || modulePrefix;
+
+  // Invalidate regular module
+  requireUnsee(`${modulePrefix}/components/${componentName}`);
+  requireUnsee(`${modulePrefix}/templates/components/${componentName}`);
+
+  // Invalidate pod modules
+  requireUnsee(`${podModulePrefix}/components/${componentName}/component`);
+  requireUnsee(`${podModulePrefix}/components/${componentName}/template`);
+}
+
 export default Service.extend(Evented, {
   forgetComponent(name) {
     clearContainerCache(this, name);
-    requireUnsee("dummy/components/" + name);
-    requireUnsee("dummy/templates/components/" + name);
   },
-  clearRequire(name) {
-    clearContainerCache(this, name);
+  clearRequirejs(name) {
+    const owner = getOwner(this);
+    const config = owner.resolveRegistration("config:environment");
+    clearRequirejsCache(config, name);
   },
   reload(name = "test-component") {
-    clearContainerCache(this, name);
-    requireUnsee("dummy/components/" + name);
-    requireUnsee("dummy/templates/components/" + name);
-    this.trigger("reload");
+    // clearContainerCache(this, name);
+    // requireUnsee("dummy/components/" + name);
+    // requireUnsee("dummy/templates/components/" + name);
+    // this.trigger("reload");
   }
 });
