@@ -58,8 +58,6 @@ ember install ember-ast-hot-load
 Usage
 ------------------------------------------------------------------------------
 
-[Longer description of how to use the addon in apps.]
-
 
 Helpers looks like components, but we don't support component-like helpers hot-reload.
 So, you need to exclude helpers from hot-loader pipeline.
@@ -75,6 +73,17 @@ var componentLikeHelpers = Object.keys(require.entries)
 	}).filter(name=>!name.includes('/')).filter(name=>name.includes('-'));
 	
 copy(JSON.stringify(componentLikeHelpers))
+```
+
+in `ember-cli-build.js` you need to specify this helpers
+
+```js
+new EmberApp(defaults, {
+  'ember-ast-hot-load': {
+    helpers: ["foo-bar", "liquid-if", ... ]
+  }
+});
+
 ```
 
 Contributing
