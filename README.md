@@ -80,7 +80,8 @@ in `ember-cli-build.js` you need to specify this helpers
 ```js
 new EmberApp(defaults, {
   'ember-ast-hot-load': {
-    helpers: ["foo-bar", "liquid-if", ... ]
+    helpers: ["foo-bar", "liquid-if", ... ],
+    enabled: true
   }
 });
 
