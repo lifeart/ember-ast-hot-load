@@ -48,6 +48,14 @@ function requireUnsee(module) {
   }
 }
 
+function scopedComponents() {
+	return Object.keys(window.require.entries).filter(name=>name.includes('/-components/'));
+}
+
+function addonComponents(modulePrefix) {
+	return Object.keys(window.require.entries).filter(name=>!name.startsWith(modulePrefix));
+}
+
 function clearContainerCache(context, componentName) {
   const componentFullName = `component:${componentName}`;
   const templateFullName = `template:components/${componentName}`;
@@ -59,7 +67,6 @@ function clearContainerCache(context, componentName) {
 export function clearRequirejsCache(config, componentName) {
   const modulePrefix = get(config, "modulePrefix") || "dummy";
   const podModulePrefix = get(config, "podModulePrefix") || modulePrefix;
-
   // Invalidate regular module
   requireUnsee(`${modulePrefix}/components/${componentName}`);
   requireUnsee(`${modulePrefix}/templates/components/${componentName}`);
@@ -67,6 +74,18 @@ export function clearRequirejsCache(config, componentName) {
   // Invalidate pod modules
   requireUnsee(`${podModulePrefix}/components/${componentName}/component`);
   requireUnsee(`${podModulePrefix}/components/${componentName}/template`);
+
+  // Invalidate MU modules
+  requireUnsee(`${podModulePrefix}/src/ui/components/${componentName}/component`);
+  requireUnsee(`${podModulePrefix}/src/ui/components/${componentName}/template`);
+
+  scopedComponents().filter((name)=>name.includes(componentName)).forEach((item)=>{
+	requireUnsee(item);
+  });
+
+  addonComponents(modulePrefix).filter((name)=>name.includes(componentName)).forEach((item)=>{
+	requireUnsee(item);
+  });
 }
 
 export default Service.extend(Evented, {
