@@ -4,12 +4,22 @@ import { later, cancel } from "@ember/runloop";
 
 function matchingComponent(componentName, path) {
   let normalizedPath = path.split("\\").join("/");
-  let possibleExtensions = [".ts", ".js", ".hbs"];
+  let possibleExtensions = [
+		".ts", 
+		".js", 
+		".hbs",
+		"/component.ts",
+		"/component.js",
+		"/template.hbs",
+	];
   let possibleEndings = possibleExtensions.map(ext => componentName + ext);
-  return possibleEndings.filter(name => {
+  let result =  possibleEndings.filter(name => {
     return normalizedPath.endsWith(name);
-  }).length;
+	}).length;
+	
+	return result;
 }
+
 
 export default Helper.extend({
   hotLoader: service(),
