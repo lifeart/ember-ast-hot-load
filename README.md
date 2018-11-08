@@ -81,7 +81,10 @@ in `ember-cli-build.js` you need to specify this helpers
 new EmberApp(defaults, {
   'ember-ast-hot-load': {
     helpers: ["foo-bar", "liquid-if", ... ],
-    enabled: true
+    enabled: true,
+    aliases: {
+      'foo-bar': 'boo-doo' // allow component aliasing (if see `foo-bar`, replace to `boo-doo`)
+    }
   }
 });
 
