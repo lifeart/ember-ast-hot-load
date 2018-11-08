@@ -1,6 +1,8 @@
 ember-ast-hot-load
 ==============================================================================
 
+### Components hot-reloading
+
 Main Idea of this addon - ad-hock components transformation.
 
 [glimmer hot-reload test #1](https://github.com/emberjs/ember.js/blob/master/packages/%40ember/-internals/glimmer/tests/integration/application/hot-reload-test.js)
