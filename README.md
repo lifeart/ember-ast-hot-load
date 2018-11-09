@@ -68,11 +68,11 @@ So, you need to exclude helpers from hot-loader pipeline.
 Let's copy all applcation's hot-reload confusing helpers. 
 ```js
 var componentLikeHelpers = Object.keys(require.entries)
-	.filter(name=>(name.includes('/helpers/')|| name.includes('/helper')))
-	.filter(name=>!name.includes('/-')).map(name=>{
-		let path = name.split('/helpers/');
-		return path.pop();
-	}).filter(name=>!name.includes('/')).filter(name=>name.includes('-'));
+    .filter(name=>(name.includes('/helpers/')|| name.includes('/helper')))
+    .filter(name=>!name.includes('/-')).map(name=>{
+        let path = name.split('/helpers/');
+        return path.pop();
+    }).filter(name=>!name.includes('/')).uniq();
 	
 copy(JSON.stringify(componentLikeHelpers))
 ```
