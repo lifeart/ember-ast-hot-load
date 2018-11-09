@@ -1,4 +1,6 @@
 "use strict";
+const path = require("path");
+const fs = require("fs");
 
 const ADDON_NAME = "ember-ast-hot-load";
 
@@ -60,26 +62,56 @@ module.exports = {
       }
     };
   },
+  _getTemplateCompilerPath() {
+    const npmCompilerPath = path.join(
+      "ember-source",
+      "dist",
+      "ember-template-compiler.js"
+    );
+    return path.relative(this.project.root, require.resolve(npmCompilerPath));
+  },
   _assignOptions(app) {
     let appOptions = app.options || {};
     let addonOptions = appOptions[ADDON_NAME] || {};
     let currentOptions = Object.assign(
-      { enabled: true, helpers: [], watch: ["components"] },
+      {
+        enabled: true,
+        helpers: [],
+        watch: ["components"],
+        templateCompilerPath: undefined
+      },
       addonOptions
     );
-    let { enabled, helpers, watch } = currentOptions;
+    let {
+      enabled,
+      helpers,
+      watch,
+      templateCompilerPath = undefined
+    } = currentOptions;
     this._OPTIONS = {
       helpers,
       enabled,
-      watch
+      watch,
+      templateCompilerPath
     };
     this._isDisabled = !enabled;
   },
 
-  included() {
+  included(app) {
     this._super.included.apply(this, arguments);
     let host = this._findHost();
     this._assignOptions(host);
+    // Require template compiler as in CLI this is only used in build, we need it at runtime
+    const npmPath =
+	  this._OPTIONS["templateCompilerPath"] || this._getTemplateCompilerPath();
+	  console.log('npmPath', npmPath);
+    if (fs.existsSync(npmPath)) {
+      app.import(npmPath);
+    } else {
+      throw new Error(
+        "Unable to locate ember-template-compiler.js. ember/ember-source not found in node_modules"
+      );
+    }
   },
 
   isEnabled() {
