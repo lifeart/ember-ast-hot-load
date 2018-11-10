@@ -12,7 +12,7 @@ var willLiveReloadCallbacks = [];
 export default Service.extend(Evented, {
   templateOptionsKey: null,
   templateCompilerKey: null,
-  triggerInRunloop(name, attrs) {
+  triggerInRunLoop(name, attrs) {
     if (name === "willHotReload") {
       willHotReloadCallbacks.forEach(cb => cb(attrs));
     } else if (name === "willLiveReload") {
