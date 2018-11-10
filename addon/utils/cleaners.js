@@ -1,13 +1,33 @@
 import { getOwner } from "@ember/application";
 import { get } from "@ember/object";
 
-function clearIfHasProperty(obj, propertyName) {
-  if (obj && Object.hasOwnProperty.call(obj, propertyName)) {
-    obj[propertyName] = undefined;
+function isMUTemplateOrComponent(name, componentName) {
+  if (!name.includes("component:")) {
+    return false;
+  }
+  if (!name.includes("template:")) {
+    return false;
+  }
+  return name.endsWith("/" + componentName);
+}
+
+function clearIfHasProperty(obj, propertyName, componentName) {
+  if (obj) {
+    const itemsToForget = Object.keys(obj).filter(name => {
+      return (
+        propertyName === name || isMUTemplateOrComponent(name, componentName)
+      );
+    });
+
+    //component:/emberfest/routes/application/-components/footer-prompt
+    //template:/emberfest/routes/index/-components/conference-day/conference-session: FactoryManager
+    itemsToForget.forEach(propertyName => {
+      obj[propertyName] = undefined;
+    });
   }
 }
 
-function clear(context, owner, name) {
+function clear(context, owner, name, originalName) {
   if (context.templateCompilerKey) {
     // Ember v3.2
     var templateCompiler = owner.lookup(context.templateCompilerKey);
@@ -30,10 +50,22 @@ function clear(context, owner, name) {
   }
 
   if (owner.__container__) {
-    clearIfHasProperty(owner.base.__container__.cache, name);
-    clearIfHasProperty(owner.base.__container__.factoryCache, name);
-    clearIfHasProperty(owner.base.__container__.factoryManagerCache, name);
-    clearIfHasProperty(owner.base.__registry__._resolveCache, name);
+    clearIfHasProperty(owner.base.__container__.cache, name, originalName);
+    clearIfHasProperty(
+      owner.base.__container__.factoryCache,
+      name,
+      originalName
+    );
+    clearIfHasProperty(
+      owner.base.__container__.factoryManagerCache,
+      name,
+      originalName
+    );
+    clearIfHasProperty(
+      owner.base.__registry__._resolveCache,
+      name,
+      originalName
+    );
   }
 }
 
@@ -61,9 +93,11 @@ function addonComponents(modulePrefix) {
 export function clearContainerCache(context, componentName) {
   const componentFullName = `component:${componentName}`;
   const templateFullName = `template:components/${componentName}`;
+  //component:/emberfest/routes/application/-components/footer-prompt
+  //template:/emberfest/routes/index/-components/conference-day/conference-session: FactoryManager
   const owner = getOwner(context);
-  clear(context, owner, componentFullName);
-  clear(context, owner, templateFullName);
+  clear(context, owner, componentFullName, componentName);
+  clear(context, owner, templateFullName, componentName);
 }
 
 export function clearRequirejsCache(context, componentName) {
@@ -89,13 +123,23 @@ export function clearRequirejsCache(context, componentName) {
   );
 
   scopedComponents()
-    .filter(name => name.includes(componentName))
+    .filter(
+      name =>
+        name.endsWith(componentName + "/component") ||
+        name.endsWith(componentName + "/template") ||
+        name.endsWith(componentName)
+    )
     .forEach(item => {
       requireUnsee(item);
     });
 
   addonComponents(modulePrefix)
-    .filter(name => name.includes(componentName))
+    .filter(
+      name =>
+        name.endsWith(componentName + "/component") ||
+        name.endsWith(componentName + "/template") ||
+        name.endsWith(componentName)
+    )
     .forEach(item => {
       requireUnsee(item);
     });
