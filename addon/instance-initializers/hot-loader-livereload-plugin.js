@@ -8,7 +8,7 @@ function createPlugin(appName, hotReloadService, rootURL) {
   Plugin.identifier = "ember-hot-reload";
   Plugin.version = "1.0"; // Just following the example, this might not be even used
   Plugin.prototype.reload = function(path) {
-    const cancelableEvent = { modulePath: path, cancel: false };
+    const cancelableEvent = { modulePath: path, cancel: false, components: [] };
     hotReloadService.triggerInRunLoop("willLiveReload", cancelableEvent);
     if (cancelableEvent.cancel) {
       // Only hotreload if someone canceled the regular reload
@@ -32,7 +32,7 @@ function createPlugin(appName, hotReloadService, rootURL) {
         }, 10);
       };
       script.type = "text/javascript";
-      script.src = `${rootURL}assets/${appName}.js?t=${Date.now()}`;
+      script.src = `${rootURL}hot-load/${appName}.js?t=${Date.now()}&components=${encodeURIComponent(cancelableEvent.components.join(','))}&file=${encodeURIComponent(path.split('\\').join('/'))}`;
       document.body.appendChild(script);
 
       return true;

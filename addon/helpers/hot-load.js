@@ -54,6 +54,9 @@ export default Helper.extend({
   __willLiveReload(event) {
     if (matchingComponent(this.firstComputeName, event.modulePath)) {
       event.cancel = true;
+      if (!event.components.includes(this.firstComputeName)) {
+        event.components.push(this.firstComputeName);
+      }
       this.hotLoader.clearRequirejs(this.firstComputeName);
     }
   },

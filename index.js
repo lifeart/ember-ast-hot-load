@@ -10,6 +10,57 @@ module.exports = {
     if (!this._OPTIONS.enabled) {
       return;
     }
+
+    config.app.get("/hot-load/:name", (req, res) => {
+      var fs = require("fs");
+      fs.readFile("dist/assets/" + req.params.name, "utf8", function(
+        err,
+        data
+      ) {
+        if (err) throw err;
+		const definer = ";define";
+        res.setHeader("Content-Type", "application/javascript; charset=utf-8");
+        function cleanupString(a) {
+          return a.replace(/[\r\n]+/g, " ");
+        }
+        const exports = data.split(definer).map(cleanupString);
+        const components = req.query.components.split(",").filter(name => name);
+        const result = {
+          file: req.query.file,
+          components: components,
+          items: exports
+            .map(item => {
+              let name = item
+                .split("[")[0]
+                .replace("(", "")
+                .replace(",", "")
+                .split("'")
+                .join("")
+                .trim();
+
+              return {
+                file: definer + item.split("↵").join(" "),
+                name: name
+              };
+            })
+            .filter(item => {
+              let hasComponent = false;
+              components.forEach(componentName => {
+                if (item.name.includes(componentName)) {
+                  hasComponent = true;
+                }
+              });
+              return hasComponent;
+            }),
+          splitter: definer
+        };
+
+        res.send(
+          "'use strict';" + result.items.map(item => item.file).join("")
+        );
+      });
+    });
+
     var lsReloader = require("./lib/hot-reloader")(
       config.options,
       this._OPTIONS.watch
