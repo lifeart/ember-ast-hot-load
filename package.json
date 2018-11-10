@@ -1,6 +1,6 @@
 {
   "name": "ember-ast-hot-load",
-  "version": "0.0.28",
+  "version": "0.0.29",
   "description": "Ember components hot-reload addon",
   "keywords": [
     "ember-addon"
@@ -57,8 +57,8 @@
   "ember-addon": {
     "configPath": "tests/dummy/config",
     "after": [
-		"ember-angle-bracket-invocation-polyfill",
-		"ember-holy-futuristic-template-namespacing-batman"
-	]
+      "ember-angle-bracket-invocation-polyfill",
+      "ember-holy-futuristic-template-namespacing-batman"
+    ]
   }
 }
