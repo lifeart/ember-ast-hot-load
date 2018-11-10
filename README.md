@@ -1,18 +1,22 @@
 ember-ast-hot-load
 ==============================================================================
 
-### Components hot-reloading
+### Any ember components hot-reloading
 
 Main Idea of this addon - ability to reload changed comopnents without application reloading.
 
 
-This addon is continuation of the project [ember-cli-hot-loader](https://github.com/adopted-ember-addons/ember-cli-hot-loader) and  includes part of it's codebase. Many thanks to [Toran Billups / @toranb](https://github.com/toranb) for huge work and inspiration!
+This addon is continuation of the project [ember-cli-hot-loader](https://github.com/adopted-ember-addons/ember-cli-hot-loader) and  includes part of it's codebase. 
+Many thanks to [Toran Billups / @toranb](https://github.com/toranb) for this huge work, support and inspiration!
 
 * `ember-cli-hot-loader` implemented using middleware for  `ember-resolver` and `wrapping` components. 
-* `ember-as-hot-load` implemented using compile-time templates `ast` transformations, to get control on components invokation style.
+* `ember-as-hot-load` implemented using compile-time templates `ast` transformations, to get control on components invocation style.
 
 | Point  		     | ember-ast-hot-load | ember-cli-hot-loader |
 | ------------------ | ------------------ | -------------------- |
+| tagess components  |          +         |           +/-        |
+| performance impact |         low        |           middle     |
+| code limitations   |			-		  |            +         |
 | ember 2+           |          ?         |            +         |
 | ember 3.4+         |          +         |            -         |
 | Fastboot           |          +         |            -         |
