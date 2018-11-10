@@ -23,9 +23,9 @@ Many thanks to [Toran Billups / @toranb](https://github.com/toranb) for this hug
 | Ember 2.x           |          ?         |            +         |
 | Ember 3.4+          |          +         |            -         |
 | Fastboot            |          +         |            -         |
-| Sparkles components |          +         |            -         |
-| Hooked components   |          +         |            -         |
-| Custom components   |          +         |            -         |
+| [Sparkles components](https://github.com/rwjblue/sparkles-component) |          +         |            -         |
+| [Hooked components](https://github.com/lifeart/hooked-components)   |          +         |            -         |
+| [Custom components](https://github.com/emberjs/rfcs/blob/master/text/0213-custom-components.md)   |          +         |            -         |
 | Component wrappers  |          -         |            +         |
 | AST integration     |          +         |            -         |
 | Resolver 5 support  |          +         |            -         |
