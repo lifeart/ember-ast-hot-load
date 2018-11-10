@@ -4,6 +4,19 @@ const fs = require("fs");
 
 const ADDON_NAME = "ember-ast-hot-load";
 
+function getModuleName(item) {
+  if (typeof item !== "string") {
+    return "unable-to-get-module-name";
+  }
+  return item
+    .split("[")[0]
+    .replace("(", "")
+    .replace(",", "")
+    .split("'")
+    .join("")
+    .trim();
+}
+
 module.exports = {
   name: ADDON_NAME,
   serverMiddleware: function(config) {
@@ -20,10 +33,7 @@ module.exports = {
         if (err) throw err;
         const definer = "define(";
         res.setHeader("Content-Type", "application/javascript; charset=utf-8");
-        function cleanupString(a) {
-          return a.replace(/[\r\n]+/g, " ");
-        }
-        const exports = data.split(definer).map(cleanupString);
+        const exports = data.split(definer);
         const originalFile = exports.join(definer);
         const components = req.query.components.split(",").filter(name => name);
         const result = {
@@ -31,22 +41,13 @@ module.exports = {
           components: components,
           items: exports
             .map(item => {
-              let name = item
-                .split("[")[0]
-                .replace("(", "")
-                .replace(",", "")
-                .split("'")
-                .join("")
-                .trim();
-
               return {
-                file: definer + item.split("↵").join(" "),
-                name: name
+                file: definer + item,
+                name: getModuleName(item)
               };
             })
             .filter(item => {
               let hasComponent = false;
-              //console.log(item.name, components);
               components.forEach(componentName => {
                 if (item.name.includes(componentName)) {
                   hasComponent = true;
@@ -188,7 +189,6 @@ module.exports = {
 
     let transpiledVendorTree = babelAddon.transpileTree(rawVendorTree, {
       babel: this.options.babel,
-
       "ember-cli-babel": {
         compileModules: false
       }
