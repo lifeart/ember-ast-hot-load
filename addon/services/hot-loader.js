@@ -26,10 +26,10 @@ export default Service.extend(Evented, {
     willLiveReloadCallbacks.push(fn);
   },
   unregisterWillHotReload(fn) {
-    willHotReloadCallbacks = willLiveReloadCallbacks.fillter(f => f !== fn);
+    willHotReloadCallbacks = willLiveReloadCallbacks.filter(f => f !== fn);
   },
   unregisterWillLiveReload(fn) {
-    willLiveReloadCallbacks = willLiveReloadCallbacks.fillter(f => f !== fn);
+    willLiveReloadCallbacks = willLiveReloadCallbacks.filter(f => f !== fn);
   },
   forgetComponent(name) {
     clearContainerCache(this, name);
