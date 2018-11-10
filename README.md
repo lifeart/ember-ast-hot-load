@@ -48,6 +48,7 @@ After the ember install simply run `ember serve` as you normally would. Any chan
 Helpers looks like components, but we don't support component-like helpers hot-reload.
 So, you need to exclude helpers from hot-loader pipeline.
 
+If you don't specify `helpers` in config addon will continue to work, but with `helper` -> `dynamic component` -> `helper` wrapper (you can check it in `ember-inspector` components tab, wrapper will have name like `helper "you-app-helper-name"`).
 
 Let's copy all applcation's hot-reload confusing helpers. 
 ```js
