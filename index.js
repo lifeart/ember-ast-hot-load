@@ -24,7 +24,7 @@ module.exports = {
       return;
     }
 
-    config.app.get("/hot-load/:name", (req, res) => {
+    config.app.get("/_hot-load/:name", (req, res) => {
       var fs = require("fs");
       fs.readFile("dist/assets/" + req.params.name, "utf8", function(
         err,

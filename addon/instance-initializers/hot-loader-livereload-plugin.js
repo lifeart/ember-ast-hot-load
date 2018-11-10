@@ -32,7 +32,7 @@ function createPlugin(appName, hotReloadService, rootURL) {
         }, 10);
       };
       script.type = "text/javascript";
-      script.src = `${rootURL}hot-load/${appName}.js?t=${Date.now()}&components=${encodeURIComponent(cancelableEvent.components.join(','))}&file=${encodeURIComponent(path.split('\\').join('/'))}`;
+      script.src = `${rootURL}_hot-load/${appName}.js?t=${Date.now()}&components=${encodeURIComponent(cancelableEvent.components.join(','))}&file=${encodeURIComponent(path.split('\\').join('/'))}`;
       document.body.appendChild(script);
 
       return true;
