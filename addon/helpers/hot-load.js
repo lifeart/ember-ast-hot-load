@@ -67,7 +67,7 @@ export default Helper.extend({
     const component = Component.extend({
       tagName: "",
       layout: computed(function() {
-        let positionalParams = this._params.join(" ");
+        let positionalParams = (this._params||[]).join(" ");
         let attrs = this['attrs'] || {};
         const attributesMap = Object.keys(attrs)
           .filter(key => key !== "_params")

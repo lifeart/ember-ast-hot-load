@@ -103,8 +103,7 @@ module.exports = {
     this._assignOptions(host);
     // Require template compiler as in CLI this is only used in build, we need it at runtime
     const npmPath =
-	  this._OPTIONS["templateCompilerPath"] || this._getTemplateCompilerPath();
-	  console.log('npmPath', npmPath);
+      this._OPTIONS["templateCompilerPath"] || this._getTemplateCompilerPath();
     if (fs.existsSync(npmPath)) {
       app.import(npmPath);
     } else {
@@ -119,7 +118,10 @@ module.exports = {
   },
   treeForVendor(rawVendorTree) {
     if (this._isDisabled) {
-      return;
+      return this._super.treeForVendor.apply(this, arguments);
+    }
+    if (!rawVendorTree) {
+      return this._super.treeForVendor.apply(this, arguments);
     }
 
     let babelAddon = this.addons.find(
