@@ -15,14 +15,14 @@ function clearIfHasProperty(obj, propertyName, componentName) {
   if (obj) {
     const itemsToForget = Object.keys(obj).filter(name => {
       return (
-        propertyName === name || isMUTemplateOrComponent(name, componentName)
+        isMUTemplateOrComponent(name, componentName) || propertyName === name
       );
     });
 
     //component:/emberfest/routes/application/-components/footer-prompt
     //template:/emberfest/routes/index/-components/conference-day/conference-session: FactoryManager
-    itemsToForget.forEach(propertyName => {
-      obj[propertyName] = undefined;
+    itemsToForget.forEach(item => {
+      obj[item] = undefined;
     });
   }
 }
