@@ -29,8 +29,8 @@ export default Service.extend(Evented, {
   },
   _isComponent(name) {
 	const owner = getOwner(this);
-	if (owner.application.hasRegistration('helper:' + name)) {
-		return false;
+	if (!owner.application.hasRegistration('helper:' + name)) {
+		return true;
 	}
     const lookup = owner.lookup('component-lookup:main');
 
