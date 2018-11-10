@@ -32,7 +32,7 @@ function createPlugin(appName, hotReloadService, rootURL) {
         }, 10);
       };
       script.type = "text/javascript";
-      script.src = `${rootURL}assets/${appName}.js`;
+      script.src = `${rootURL}assets/${appName}.js?t=${Date.now()}`;
       document.body.appendChild(script);
 
       return true;

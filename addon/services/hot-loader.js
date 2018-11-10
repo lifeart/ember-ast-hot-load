@@ -1,6 +1,7 @@
 import Service from "@ember/service";
 import Evented from "@ember/object/evented";
 import { getOwner } from "@ember/application";
+import { computed } from "@ember/object";
 import {
   clearRequirejsCache,
   clearContainerCache
@@ -49,6 +50,13 @@ export default Service.extend(Evented, {
     }
     return COMPONENT_NAMES_CACHE[name];
   },
+  isFastboot: computed(function() {
+    const fastboot = getOwner(this).lookup("service:fastboot");
+    if (!fastboot) {
+      return false;
+    }
+    return fastboot.isFastboot;
+  }),
   _isComponent(name) {
     const owner = getOwner(this);
     if (!owner.application.hasRegistration("helper:" + name)) {
