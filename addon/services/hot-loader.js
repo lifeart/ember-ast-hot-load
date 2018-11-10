@@ -2,6 +2,7 @@ import Service from "@ember/service";
 import Evented from "@ember/object/evented";
 import { getOwner } from "@ember/application";
 import { computed } from "@ember/object";
+import { dasherize } from "@ember/string";
 import {
   clearRequirejsCache,
   clearContainerCache
@@ -12,17 +13,33 @@ var willHotReloadCallbacks = [];
 var willLiveReloadCallbacks = [];
 
 function isValidPath(path) {
-	return path.endsWith('.ts') || path.endsWith('.hbs') || path.endsWith('.js');
+  return path.endsWith(".ts") || path.endsWith(".hbs") || path.endsWith(".js");
 }
 
-function matchingComponent(componentName, path) {
+function dasherizePath(str = "") {
+  return str
+    .split("/")
+    .map(dasherize)
+    .join("/")
+    .trim();
+}
+
+function normalizePath(path) {
+  return dasherizePath(path.split("\\").join("/"));
+}
+
+function matchingComponent(rawComponentName, path) {
   if (typeof path !== "string") {
     return false;
   }
-  if (!isValidPath(path)) {
-	return;
+  if (typeof rawComponentName !== "string") {
+    return false;
   }
-  let normalizedPath = path.split("\\").join("/");
+  if (!isValidPath(path)) {
+    return;
+  }
+  let componentName = dasherizePath(rawComponentName);
+  let normalizedPath = normalizePath(path);
   let possibleExtensions = [
     ".ts",
     ".js",
@@ -44,12 +61,12 @@ var matchingResults = {};
 export default Service.extend(Evented, {
   templateOptionsKey: null,
   templateCompilerKey: null,
-  isMatchingComponent(componentName = 'dummy', path = 'empty') {
-	let key = String(componentName) + '__'  + String(path);
-	if (!(key in matchingResults)) {
-		matchingResults[key] = matchingComponent(componentName, path);
-	}
-	return matchingResults[key];
+  isMatchingComponent(componentName = "dummy", path = "empty") {
+    let key = String(componentName) + "__" + String(path);
+    if (!(key in matchingResults)) {
+      matchingResults[key] = matchingComponent(componentName, path);
+    }
+    return matchingResults[key];
   },
   triggerInRunLoop(name, attrs) {
     if (name === "willHotReload") {
