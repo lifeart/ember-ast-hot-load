@@ -18,7 +18,7 @@ module.exports = {
         data
       ) {
         if (err) throw err;
-        const definer = ";define";
+        const definer = "define(";
         res.setHeader("Content-Type", "application/javascript; charset=utf-8");
         function cleanupString(a) {
           return a.replace(/[\r\n]+/g, " ");
