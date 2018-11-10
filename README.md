@@ -32,49 +32,6 @@ Many thanks to [Toran Billups / @toranb](https://github.com/toranb) for this hug
 | MU support          |          +         |            -         |
 | Addons hot-reload   |          +         |            -         |
 
-[glimmer hot-reload test #1](https://github.com/emberjs/ember.js/blob/master/packages/%40ember/-internals/glimmer/tests/integration/application/hot-reload-test.js)
-
-
-[glimmer hot-reload test #2](https://github.com/emberjs/ember.js/blob/master/packages/%40ember/-internals/glimmer/tests/integration/application/hot-reload-test.js#L106
-)
-
-https://github.com/adopted-ember-addons/ember-cli-hot-loader
-
-refs [astexporer](https://astexplorer.net/#/gist/9cdbd763be462d0b76ed6f442f62d5fe/b84f902de115f4cc32d43b9b4d9170067ed391b3)
-
-
-```hbs
-{{component 'foo-bar' a="1"}}
-{{component (mut 1 2 3) b c d e="f"}}
-{{foo-bar
-  baz="stuff"
-}}
-{{#foo-boo}}
-dsfsd
-{{/foo-boo}}
-{{doo-bar 1 2 3 hoo-boo name=(goo-boo "foo")}}
-{{component (hot-load "foo-bar") baz="stuff"}}
-{{test-component}}
-{{test-component}}
-{{test-component}}
-```
-
-will be transformed to 
-
-
-```hbs
-{{component (hot-load "foo-bar") a="1"}}
-{{component (hot-load (mut 1 2 3)) b c d e="f"}}
-{{component (hot-load "foo-bar") baz="stuff"}}
-{{#component (hot-load "foo-boo")}}dsfsd
-{{/component}}{{component (hot-load "doo-bar") 1 2 3 hoo-boo name=(goo-boo "foo")}}
-{{component (hot-load "foo-bar") baz="stuff"}}
-{{component (hot-load "test-component")}}
-{{component (hot-load "test-component")}}
-{{component (hot-load "test-component")}}
-```
-
-and `hot-load` helper will manage component reloading
 
 Installation
 ------------------------------------------------------------------------------
@@ -84,9 +41,9 @@ ember install ember-ast-hot-load
 ```
 
 
-Usage
-------------------------------------------------------------------------------
+## How to use this addon
 
+After the ember install simply run `ember serve` as you normally would. Any changes to component JS/HBS files will result in a hot reload (not a full page reload). If you alter a route, service, controller or controller template ember-cli will do a full page reload.
 
 Helpers looks like components, but we don't support component-like helpers hot-reload.
 So, you need to exclude helpers from hot-loader pipeline.
@@ -114,6 +71,42 @@ new EmberApp(defaults, {
   }
 });
 
+```
+
+
+## Known Compatibility Workarounds
+
+#### Content Security Policy
+
+There is a known issue when used in conjunction with [ember-cli-content-security-policy](https://github.com/rwjblue/ember-cli-content-security-policy) or any strong [Content Security Policy](https://content-security-policy.com/) that blocks `"unsafe-eval"` (as it should).
+
+When this plugin tries to execute the `Ember.HTMLBars.compile` function, a CSP (Content Security Policy) that does not allow `"unsafe-eval"` will block the JS execution with the following error:
+
+```
+Uncaught EvalError: Refused to evaluate a string as JavaScript
+because 'unsafe-eval' is not an allowed source of script in the
+following Content Security Policy directive: "script-src ...
+```
+
+To workaround this issue, in the `config/environment.js` file, add `"unsafe-eval"` to the Development and Test environment sections. Do NOT just add `"unsafe-eval"` to the CSP that goes to Production as this will defeat one of the main safeguards that comes from using a CSP. Here is sample code to add to the CSP in the proper environments only:
+
+```
+  // config/environment.js
+  ENV.contentSecurityPolicy = {
+    // normal CSP for Production here
+  }
+
+  if (environment === 'development') {
+    // ...
+    // Allow unsafe eval on dev environment
+    ENV.contentSecurityPolicy['script-src'].push("'unsafe-eval'");
+  }
+
+  if (environment === 'test') {
+    // ...
+    // Allow unsafe eval on test environment
+    ENV.contentSecurityPolicy['script-src'].push("'unsafe-eval'");
+  }
 ```
 
 Contributing
