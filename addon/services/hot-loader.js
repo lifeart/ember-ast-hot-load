@@ -6,6 +6,7 @@ import {
   clearRequirejsCache,
   clearContainerCache
 } from "ember-ast-hot-load/utils/cleaners";
+import { capitalize, camelize, dasherize } from "@ember/string";
 const COMPONENT_NAMES_CACHE = {};
 const DYNAMIC_HELPERS_WRAPPERS_COMPONENTS = {};
 var willHotReloadCallbacks = [];
@@ -46,7 +47,10 @@ export default Service.extend(Evented, {
   },
   isComponent(name) {
     if (!(name in COMPONENT_NAMES_CACHE)) {
-      COMPONENT_NAMES_CACHE[name] = this._isComponent(name);
+      COMPONENT_NAMES_CACHE[name] =
+        this._isComponent(name) ||
+        this._isComponent(dasherize(name)) ||
+        this._isComponent(capitalize(camelize(name)));
     }
     return COMPONENT_NAMES_CACHE[name];
   },

@@ -56,6 +56,9 @@
   },
   "ember-addon": {
     "configPath": "tests/dummy/config",
-    "after": "ember-angle-bracket-invocation-polyfill"
+    "after": [
+		"ember-angle-bracket-invocation-polyfill",
+		"ember-holy-futuristic-template-namespacing-batman"
+	]
   }
 }
