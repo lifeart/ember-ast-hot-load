@@ -9,7 +9,7 @@ function createPlugin(appName, hotReloadService, rootURL) {
   Plugin.version = "1.0"; // Just following the example, this might not be even used
   Plugin.prototype.reload = function(path) {
     const cancelableEvent = { modulePath: path, cancel: false };
-    hotReloadService.trigger("willLiveReload", cancelableEvent);
+    hotReloadService.triggerInRunLoop("willLiveReload", cancelableEvent);
     if (cancelableEvent.cancel) {
       // Only hotreload if someone canceled the regular reload
       // Reloading app.js will fire Application.create unless we set this.
@@ -28,7 +28,7 @@ function createPlugin(appName, hotReloadService, rootURL) {
       script.onload = function() {
         setTimeout(function() {
           window.runningTests = false;
-          hotReloadService.trigger("willHotReload", path);
+          hotReloadService.triggerInRunLoop("willHotReload", path);
         }, 10);
       };
       script.type = "text/javascript";
