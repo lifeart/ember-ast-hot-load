@@ -8,6 +8,9 @@ import { computed } from "@ember/object";
 import { compileTemplate } from "@ember/template-compilation";
 
 function matchingComponent(componentName, path) {
+  if (typeof path !== 'string') {
+	return false;
+  }
   let normalizedPath = path.split("\\").join("/");
   let possibleExtensions = [
     ".ts",
