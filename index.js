@@ -18,12 +18,13 @@ module.exports = {
         data
       ) {
         if (err) throw err;
-		const definer = ";define";
+        const definer = ";define";
         res.setHeader("Content-Type", "application/javascript; charset=utf-8");
         function cleanupString(a) {
           return a.replace(/[\r\n]+/g, " ");
         }
         const exports = data.split(definer).map(cleanupString);
+        const originalFile = exports.join(definer);
         const components = req.query.components.split(",").filter(name => name);
         const result = {
           file: req.query.file,
@@ -45,6 +46,7 @@ module.exports = {
             })
             .filter(item => {
               let hasComponent = false;
+              //console.log(item.name, components);
               components.forEach(componentName => {
                 if (item.name.includes(componentName)) {
                   hasComponent = true;
@@ -55,9 +57,14 @@ module.exports = {
           splitter: definer
         };
 
-        res.send(
-          "'use strict';" + result.items.map(item => item.file).join("")
-        );
+        if (result.items.length) {
+          res.send(
+            "'use strict';" + result.items.map(item => item.file).join("")
+          );
+        } else {
+          res.send(originalFile);
+        }
+        // const resultOutput = exports
       });
     });
 
