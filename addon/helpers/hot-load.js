@@ -32,6 +32,12 @@ export default Helper.extend({
     this._super(...arguments);
     this.hotLoader.on("willHotReload", this, "__rerenderOnTemplateUpdate");
     this.hotLoader.on("willLiveReload", this, "__willLiveReload");
+    this.binded__rerenderOnTemplateUpdate = this.__rerenderOnTemplateUpdate.bind(
+      this
+    );
+    this.binded__willLiveReload = this.__willLiveReload.bind(this);
+    this.hotLoader.registerWillHotReload(this.binded__rerenderOnTemplateUpdate);
+    this.hotLoader.registerWillLiveReload(this.binded__willLiveReload);
   },
   __rerenderOnTemplateUpdate(path) {
     if (matchingComponent(this.firstComputeName, path)) {
@@ -53,22 +59,26 @@ export default Helper.extend({
     cancel(this.timer);
     this.hotLoader.off("willHotReload", this, "__rerenderOnTemplateUpdate");
     this.hotLoader.off("willLiveReload", this, "__willLiveReload");
+    this.hotLoader.unregisterWillHotReload(
+      this.binded__rerenderOnTemplateUpdate
+    );
+    this.hotLoader.unregisterWillLiveReload(this.binded__willLiveReload);
   },
   dynamicComponentNameForHelperWrapper(name) {
-	return `helper ${name}`;
+    return `helper ${name}`;
   },
   registerDynamicComponent(name) {
-	if (this.hotLoader.hasDynamicHelperWrapperComponent(name)) {
-		return;
-	}
-	this.printError(name);
-	this.hotLoader.addDynamicHelperWrapperComponent(name);
+    if (this.hotLoader.hasDynamicHelperWrapperComponent(name)) {
+      return;
+    }
+    this.printError(name);
+    this.hotLoader.addDynamicHelperWrapperComponent(name);
     const owner = getOwner(this);
     const component = Component.extend({
       tagName: "",
       layout: computed(function() {
-        let positionalParams = (this._params||[]).join(" ");
-        let attrs = this['attrs'] || {};
+        let positionalParams = (this._params || []).join(" ");
+        let attrs = this["attrs"] || {};
         const attributesMap = Object.keys(attrs)
           .filter(key => key !== "_params")
           .map(key => `${key}=${key}`)
@@ -80,7 +90,10 @@ export default Helper.extend({
     component.reopenClass({
       positionalParams: "_params"
     });
-    owner.application.register(`component:${this.dynamicComponentNameForHelperWrapper(name)}`, component);
+    owner.application.register(
+      `component:${this.dynamicComponentNameForHelperWrapper(name)}`,
+      component
+    );
   },
   printError(name) {
     window["console"].info(`

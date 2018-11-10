@@ -56,11 +56,16 @@ function lookup(appInstance, fullName) {
 }
 
 function getAppName(appInstance) {
-  if (appInstance.base) {
+  if (appInstance.base && appInstance.base.name) {
     return appInstance.base.name;
   }
   // TODO: would this work in 2.4+?
-  return appInstance.application.name;
+  return (
+    appInstance.application.name ||
+    appInstance.application.modulePrefix ||
+    appInstance.application.__registry__.resolver._configRootName ||
+    "dummy"
+  );
 }
 
 function getRootUrl(appName) {

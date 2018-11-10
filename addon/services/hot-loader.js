@@ -1,14 +1,36 @@
 import Service from "@ember/service";
 import Evented from "@ember/object/evented";
 import { getOwner } from "@ember/application";
-import { clearRequirejsCache, clearContainerCache } from "ember-ast-hot-load/utils/cleaners";
-
+import {
+  clearRequirejsCache,
+  clearContainerCache
+} from "ember-ast-hot-load/utils/cleaners";
 const COMPONENT_NAMES_CACHE = {};
 const DYNAMIC_HELPERS_WRAPPERS_COMPONENTS = {};
-
+var willHotReloadCallbacks = [];
+var willLiveReloadCallbacks = [];
 export default Service.extend(Evented, {
   templateOptionsKey: null,
   templateCompilerKey: null,
+  triggerInRunloop(name, attrs) {
+    if (name === "willHotReload") {
+      willHotReloadCallbacks.forEach(cb => cb(attrs));
+    } else if (name === "willLiveReload") {
+      willLiveReloadCallbacks.forEach(cb => cb(attrs));
+    }
+  },
+  registerWillHotReload(fn) {
+    willHotReloadCallbacks.push(fn);
+  },
+  registerWillLiveReload(fn) {
+    willLiveReloadCallbacks.push(fn);
+  },
+  unregisterWillHotReload(fn) {
+    willHotReloadCallbacks = willLiveReloadCallbacks.fillter(f => f !== fn);
+  },
+  unregisterWillLiveReload(fn) {
+    willLiveReloadCallbacks = willLiveReloadCallbacks.fillter(f => f !== fn);
+  },
   forgetComponent(name) {
     clearContainerCache(this, name);
   },
@@ -16,31 +38,32 @@ export default Service.extend(Evented, {
     clearRequirejsCache(this, name);
   },
   addDynamicHelperWrapperComponent(name) {
-	DYNAMIC_HELPERS_WRAPPERS_COMPONENTS[name] = true;
+    DYNAMIC_HELPERS_WRAPPERS_COMPONENTS[name] = true;
   },
   hasDynamicHelperWrapperComponent(name) {
-	return name in DYNAMIC_HELPERS_WRAPPERS_COMPONENTS;
+    return name in DYNAMIC_HELPERS_WRAPPERS_COMPONENTS;
   },
   isComponent(name) {
-	if (!(name in COMPONENT_NAMES_CACHE)) {
-		COMPONENT_NAMES_CACHE[name] = this._isComponent(name);
-	}
-	return COMPONENT_NAMES_CACHE[name];
+    if (!(name in COMPONENT_NAMES_CACHE)) {
+      COMPONENT_NAMES_CACHE[name] = this._isComponent(name);
+    }
+    return COMPONENT_NAMES_CACHE[name];
   },
   _isComponent(name) {
-	const owner = getOwner(this);
-	if (!owner.application.hasRegistration('helper:' + name)) {
-		return true;
-	}
-    const lookup = owner.lookup('component-lookup:main');
-
+    const owner = getOwner(this);
+    if (!owner.application.hasRegistration("helper:" + name)) {
+      return true;
+    }
+    const lookup = owner.lookup("component-lookup:main");
     try {
       if (!lookup.componentFor) {
         return !!lookup.lookupFactory(name);
       }
 
-      return !!(lookup.componentFor(name, owner) || lookup.layoutFor(name, owner));
-    } catch(err) {
+      return !!(
+        lookup.componentFor(name, owner) || lookup.layoutFor(name, owner)
+      );
+    } catch (err) {
       return false;
     }
   }
