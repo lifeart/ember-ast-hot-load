@@ -6,7 +6,6 @@ import {
   clearRequirejsCache,
   clearContainerCache
 } from "ember-ast-hot-load/utils/cleaners";
-import { capitalize, camelize, dasherize } from "@ember/string";
 const COMPONENT_NAMES_CACHE = {};
 const DYNAMIC_HELPERS_WRAPPERS_COMPONENTS = {};
 var willHotReloadCallbacks = [];
