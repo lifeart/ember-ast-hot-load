@@ -3,29 +3,34 @@ ember-ast-hot-load
 
 ### Any ember components hot-reloading
 
-Main Idea of this addon - ability to reload changed comopnents without application reloading.
+Main Idea of this addon - ability to reload changed components without application reloading.
 
+This addon is continuation of the project [ember-cli-hot-loader](https://github.com/adopted-ember-addons/ember-cli-hot-loader) and  includes part of it's codebase.
 
-This addon is continuation of the project [ember-cli-hot-loader](https://github.com/adopted-ember-addons/ember-cli-hot-loader) and  includes part of it's codebase. 
 Many thanks to [Toran Billups / @toranb](https://github.com/toranb) for this huge work, support and inspiration!
 
 * `ember-cli-hot-loader` implemented using middleware for  `ember-resolver` and `wrapping` components. 
-* `ember-as-hot-load` implemented using compile-time templates `ast` transformations, to get control on components invocation style.
+* `ember-as-hot-load` implemented using compile-time templates `ast` transformations.
 
-| Point  		     | ember-ast-hot-load | ember-cli-hot-loader |
-| ------------------ | ------------------ | -------------------- |
-| tagess components  |          +         |           +/-        |
-| performance impact |         low        |           middle     |
-| code limitations   |			-		  |            +         |
-| ember 2+           |          ?         |            +         |
-| ember 3.4+         |          +         |            -         |
-| Fastboot           |          +         |            -         |
-| Custom components  |          +         |            -         |
-| Component wrappers |          +         |            -         |
-| AST integration    |          +         |            -         |
-| Resolver 5 support |          +         |            -         |
-| MU support         |          +         |            -         |
-| Addons hot-reload  |          +         |            -         |
+| Point  		      | ember-ast-hot-load | ember-cli-hot-loader |
+| ------------------  | ------------------ | -------------------- |
+| Tagess components   |          +         |           +/-        |
+| reducers reloading  |          -         |           +          |
+| performance impact  |         low        |           middle     |
+| typescript support  |          +         |            +         |
+| Nested components   |          +         |           +/-        |
+| code limitations    |			-		   |            +         |
+| Ember 2.x           |          ?         |            +         |
+| Ember 3.4+          |          +         |            -         |
+| Fastboot            |          +         |            -         |
+| Sparkles components |          +         |            -         |
+| Hooked components   |          +         |            -         |
+| Custom components   |          +         |            -         |
+| Component wrappers  |          -         |            +         |
+| AST integration     |          +         |            -         |
+| Resolver 5 support  |          +         |            -         |
+| MU support          |          +         |            -         |
+| Addons hot-reload   |          +         |            -         |
 
 [glimmer hot-reload test #1](https://github.com/emberjs/ember.js/blob/master/packages/%40ember/-internals/glimmer/tests/integration/application/hot-reload-test.js)
 
