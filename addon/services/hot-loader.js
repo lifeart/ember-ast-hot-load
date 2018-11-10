@@ -10,9 +10,47 @@ const COMPONENT_NAMES_CACHE = {};
 const DYNAMIC_HELPERS_WRAPPERS_COMPONENTS = {};
 var willHotReloadCallbacks = [];
 var willLiveReloadCallbacks = [];
+
+function isValidPath(path) {
+	return path.endsWith('.ts') || path.endsWith('.hbs') || path.endsWith('.js');
+}
+
+function matchingComponent(componentName, path) {
+  if (typeof path !== "string") {
+    return false;
+  }
+  if (!isValidPath(path)) {
+	return;
+  }
+  let normalizedPath = path.split("\\").join("/");
+  let possibleExtensions = [
+    ".ts",
+    ".js",
+    ".hbs",
+    "/component.ts",
+    "/component.js",
+    "/template.hbs"
+  ];
+  let possibleEndings = possibleExtensions.map(ext => componentName + ext);
+  let result = possibleEndings.filter(name => {
+    return normalizedPath.endsWith(name);
+  }).length;
+
+  return result;
+}
+
+var matchingResults = {};
+
 export default Service.extend(Evented, {
   templateOptionsKey: null,
   templateCompilerKey: null,
+  isMatchingComponent(componentName = 'dummy', path = 'empty') {
+	let key = String(componentName) + '__'  + String(path);
+	if (!(key in matchingResults)) {
+		matchingResults[key] = matchingComponent(componentName, path);
+	}
+	return matchingResults[key];
+  },
   triggerInRunLoop(name, attrs) {
     if (name === "willHotReload") {
       willHotReloadCallbacks.forEach(cb => cb(attrs));

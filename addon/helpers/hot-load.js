@@ -7,27 +7,6 @@ import Component from "@ember/component";
 import { computed } from "@ember/object";
 import { compileTemplate } from "@ember/template-compilation";
 
-function matchingComponent(componentName, path) {
-  if (typeof path !== "string") {
-    return false;
-  }
-  let normalizedPath = path.split("\\").join("/");
-  let possibleExtensions = [
-    ".ts",
-    ".js",
-    ".hbs",
-    "/component.ts",
-    "/component.js",
-    "/template.hbs"
-  ];
-  let possibleEndings = possibleExtensions.map(ext => componentName + ext);
-  let result = possibleEndings.filter(name => {
-    return normalizedPath.endsWith(name);
-  }).length;
-
-  return result;
-}
-
 export default Helper.extend({
   hotLoader: service(),
 
@@ -43,7 +22,7 @@ export default Helper.extend({
     this.hotLoader.registerWillLiveReload(this.binded__willLiveReload);
   },
   __rerenderOnTemplateUpdate(path) {
-    if (matchingComponent(this.firstComputeName, path)) {
+    if (this.hotLoader.isMatchingComponent(this.firstComputeName, path)) {
       this.hotLoader.forgetComponent(this.firstComputeName);
       cancel(this.timer);
       this.timer = later(() => {
@@ -52,7 +31,7 @@ export default Helper.extend({
     }
   },
   __willLiveReload(event) {
-    if (matchingComponent(this.firstComputeName, event.modulePath)) {
+    if (this.hotLoader.isMatchingComponent(this.firstComputeName, event.modulePath)) {
       event.cancel = true;
       if (!event.components.includes(this.firstComputeName)) {
         event.components.push(this.firstComputeName);
@@ -113,7 +92,7 @@ export default Helper.extend({
 
 	/////////////////////////////////////
 	
-	let app = new EmberAddon(defaults, {
+	let app = new EmberApp(defaults, {
 	  'ember-ast-hot-load': {
 		  helpers: ["${name}"],
 		  enabled: true
