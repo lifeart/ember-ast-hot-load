@@ -47,10 +47,10 @@ export default Service.extend(Evented, {
   },
   isComponent(name) {
     if (!(name in COMPONENT_NAMES_CACHE)) {
-      COMPONENT_NAMES_CACHE[name] =
-        this._isComponent(name) ||
-        this._isComponent(dasherize(name)) ||
-        this._isComponent(capitalize(camelize(name)));
+      COMPONENT_NAMES_CACHE[name] = this._isComponent(name);
+      //  ||
+      // this._isComponent(dasherize(name)) ||
+      // this._isComponent(capitalize(camelize(name)));
     }
     return COMPONENT_NAMES_CACHE[name];
   },
@@ -63,8 +63,8 @@ export default Service.extend(Evented, {
   }),
   _isComponent(name) {
     const owner = getOwner(this);
-    if (!owner.application.hasRegistration("helper:" + name)) {
-      return true;
+    if (owner.application.hasRegistration("helper:" + name)) {
+      return false;
     }
     const lookup = owner.lookup("component-lookup:main");
     try {
