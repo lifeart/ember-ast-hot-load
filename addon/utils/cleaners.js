@@ -2,10 +2,7 @@ import { getOwner } from "@ember/application";
 import { get } from "@ember/object";
 
 function isMUTemplateOrComponent(name, componentName) {
-  if (!name.includes("component:")) {
-    return false;
-  }
-  if (!name.includes("template:")) {
+  if (!name.includes("component:") || !name.includes("template:")) {
     return false;
   }
   return name.endsWith("/" + componentName);
