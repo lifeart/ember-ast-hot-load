@@ -1,6 +1,6 @@
 {
   "name": "ember-ast-hot-load",
-  "version": "0.0.27",
+  "version": "0.0.28",
   "description": "Ember components hot-reload addon",
   "keywords": [
     "ember-addon"
@@ -55,7 +55,7 @@
     "node": "6.* || 8.* || >= 10.*"
   },
   "ember-addon": {
-	"configPath": "tests/dummy/config",
-	"after": "ember-angle-bracket-invocation-polyfill"
+    "configPath": "tests/dummy/config",
+    "after": "ember-angle-bracket-invocation-polyfill"
   }
 }
