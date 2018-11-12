@@ -69,7 +69,6 @@ export default Service.extend(Evented, {
     return matchingResults[key];
   },
   triggerInRunLoop(name, attrs) {
-    console.log(name, attrs);
     if (name === "willHotReload") {
       willHotReloadCallbacks.forEach(cb => cb(attrs));
     } else if (name === "willLiveReload") {

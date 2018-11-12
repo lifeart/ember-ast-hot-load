@@ -10,17 +10,9 @@ module('Integration | Component | hot-content', function(hooks) {
     // Set any properties with this.set('myProperty', 'value');
     // Handle any actions with this.set('myAction', function(val) { ... });
 
-    await render(hbs`{{hot-content}}`);
+    await render(hbs`{{hot-content hotReloadCUSTOMhlProperty=42}}`);
 
-    assert.equal(this.element.textContent.trim(), '');
-
-    // Template block usage:
-    await render(hbs`
-      {{#hot-content}}
-        template block text
-      {{/hot-content}}
-    `);
-
-    assert.equal(this.element.textContent.trim(), 'template block text');
+    assert.equal(this.element.textContent.trim(), '42');
+    
   });
 });

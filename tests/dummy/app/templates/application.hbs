@@ -11,7 +11,7 @@
 {{test-component}}
 
 {{#each items as |item|}}
-	{{test-component}}
+  {{test-component item=item}}
 {{/each}}
 
 
@@ -21,8 +21,6 @@
 {{yield}}
 ||{{foo-bar a=true }}||
 
-{{#let 
-    (hash foo=(component (concat '' 'test-component'))) 
-    as |bofoo-bar|}}
-    {{bofoo-bar}}
+{{#let (hash foo=(component (concat "" "test-component"))) as |bofoo-bar|}}
+  {{bofoo-bar}}
 {{/let}}

@@ -13,14 +13,5 @@ module('Integration | Component | hot-placeholder', function(hooks) {
     await render(hbs`{{hot-placeholder}}`);
 
     assert.equal(this.element.textContent.trim(), '');
-
-    // Template block usage:
-    await render(hbs`
-      {{#hot-placeholder}}
-        template block text
-      {{/hot-placeholder}}
-    `);
-
-    assert.equal(this.element.textContent.trim(), 'template block text');
   });
 });

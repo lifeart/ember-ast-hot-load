@@ -8,6 +8,9 @@ export function initialize(application) {
   const compilerRegex = new RegExp("template-compiler:main-(.*)");
 
   function captureTemplateOptions(parsedName) {
+    if (!service) {
+      return;
+    }
     if (service.templateCompilerKey || service.templateOptionsKey) {
       return;
     }
