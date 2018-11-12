@@ -2,6 +2,8 @@
 
 <button type="button" {{action "reload" target=this.hotLoader}}>Redraw</button>
 
+{{dynamic-component-t}}
+
 {{outlet}}
 
 {{!-- {{component (hot-load "test-component")}} --}}
@@ -11,5 +13,6 @@
 {{#each items as |item|}}
 	{{test-component}}
 {{/each}}
+
 
 {{boo-boo 1 2 3 foo="12"}}

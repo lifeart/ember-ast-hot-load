@@ -52,7 +52,9 @@ export default Helper.extend({
   dynamicComponentNameForHelperWrapper(name) {
     return `helper ${name}`;
 	},
-	registerDynamicComponentHelper()
+	renderDynamicComponentHalper() {
+    return 'hot-content';
+  },
   registerDynamicComponent(name) {
     if (this.hotLoader.hasDynamicHelperWrapperComponent(name)) {
       return;
@@ -107,7 +109,7 @@ export default Helper.extend({
   },
   compute([name, context = {}, maybePropertyValue = undefined]) {
 		if ((name in context) || (typeof maybePropertyValue !== 'undefined')) {
-			//return 'load-content';
+      return this.renderDynamicComponentHalper(name, context, maybePropertyValue);
 		}
     if (!this.hotLoader.isComponent(name)) {
       this.registerDynamicComponent(name);
