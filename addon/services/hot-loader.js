@@ -69,6 +69,7 @@ export default Service.extend(Evented, {
     return matchingResults[key];
   },
   triggerInRunLoop(name, attrs) {
+    console.log(name, attrs);
     if (name === "willHotReload") {
       willHotReloadCallbacks.forEach(cb => cb(attrs));
     } else if (name === "willLiveReload") {
@@ -115,9 +116,13 @@ export default Service.extend(Evented, {
     }
     return fastboot.isFastboot;
   }),
+  isHelper(name) {
+    const owner = getOwner(this);
+    return owner.application.hasRegistration("helper:" + name);
+  },
   _isComponent(name) {
     const owner = getOwner(this);
-    if (owner.application.hasRegistration("helper:" + name)) {
+    if (this.isHelper(name)) {
       return false;
     }
     const lookup = owner.lookup("component-lookup:main");

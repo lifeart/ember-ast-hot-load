@@ -4,76 +4,21 @@ const fs = require("fs");
 
 const ADDON_NAME = "ember-ast-hot-load";
 
-function getModuleName(item) {
-  if (typeof item !== "string") {
-    return "unable-to-get-module-name";
-  }
-  return item
-    .split("[")[0]
-    .replace("(", "")
-    .replace(",", "")
-    .split("'")
-    .join("")
-    .trim();
-}
-
 module.exports = {
   name: ADDON_NAME,
-  serverMiddleware: function(config) {
+  serverMiddleware: function (config) {
     if (!this._OPTIONS.enabled) {
       return;
     }
-
-    config.app.get("/_hot-load/:name", (req, res) => {
-      var fs = require("fs");
-      fs.readFile("dist/assets/" + req.params.name, "utf8", function(
-        err,
-        data
-      ) {
-        if (err) throw err;
-        const definer = "define(";
-        res.setHeader("Content-Type", "application/javascript; charset=utf-8");
-        const exports = data.split(definer);
-        const originalFile = exports.join(definer);
-        const components = req.query.components.split(",").filter(name => name);
-        const result = {
-          file: req.query.file,
-          components: components,
-          items: exports
-            .map(item => {
-              return {
-                file: definer + item,
-                name: getModuleName(item)
-              };
-            })
-            .filter(item => {
-              let hasComponent = false;
-              components.forEach(componentName => {
-                if (item.name.includes(componentName)) {
-                  hasComponent = true;
-                }
-              });
-              return hasComponent;
-            }),
-          splitter: definer
-        };
-
-        if (result.items.length) {
-          res.send(
-            "'use strict';" + result.items.map(item => item.file).join("")
-          );
-        } else {
-          res.send(originalFile);
-        }
-        // const resultOutput = exports
-      });
-    });
-
-    var lsReloader = require("./lib/hot-reloader")(
+    require("./lib/hot-load-middleware")(
+      config, 
+      this._OPTIONS
+    ).run();
+    
+    require("./lib/hot-reloader")(
       config.options,
       this._OPTIONS.watch
-    );
-    lsReloader.run();
+    ).run();
   },
   setupPreprocessorRegistry(type, registry) {
     let pluginObj = this._buildPlugin();
@@ -91,7 +36,7 @@ module.exports = {
       name: "ember-ast-hot-load-babel-plugin",
       plugin(env) {
         if (!_this._OPTIONS.enabled) {
-          return function() {};
+          return function () {};
         }
         return require("./lib/ast-transform").call(this, env, _this._OPTIONS);
       },
@@ -132,8 +77,7 @@ module.exports = {
   _assignOptions(app) {
     let appOptions = app.options || {};
     let addonOptions = appOptions[ADDON_NAME] || {};
-    let currentOptions = Object.assign(
-      {
+    let currentOptions = Object.assign({
         enabled: true,
         helpers: [],
         watch: ["components"],

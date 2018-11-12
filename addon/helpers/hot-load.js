@@ -112,8 +112,12 @@ export default Helper.extend({
       return this.renderDynamicComponentHalper(name, context, maybePropertyValue);
 		}
     if (!this.hotLoader.isComponent(name)) {
-      this.registerDynamicComponent(name);
-      return this.dynamicComponentNameForHelperWrapper(name);
+      if (this.hotLoader.isHelper(name)) {
+        this.registerDynamicComponent(name);
+        return this.dynamicComponentNameForHelperWrapper(name);
+      } else {
+        this.renderDynamicComponentHalper(name, context, maybePropertyValue);
+      }    
     }
     if (name === this.firstCompute) {
       this.firstCompute = false;

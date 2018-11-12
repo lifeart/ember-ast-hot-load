@@ -1,5 +1,5 @@
 <h2 id="title">Welcome to Ember</h2>
-
+{{template-only}}
 <button type="button" {{action "reload" target=this.hotLoader}}>Redraw</button>
 
 {{dynamic-component-t}}
@@ -16,3 +16,13 @@
 
 
 {{boo-boo 1 2 3 foo="12"}}
+
+
+{{yield}}
+||{{foo-bar a=true }}||
+
+{{#let 
+    (hash foo=(component (concat '' 'test-component'))) 
+    as |bofoo-bar|}}
+    {{bofoo-bar}}
+{{/let}}
