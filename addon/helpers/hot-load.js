@@ -51,7 +51,8 @@ export default Helper.extend({
   },
   dynamicComponentNameForHelperWrapper(name) {
     return `helper ${name}`;
-  },
+	},
+	registerDynamicComponentHelper()
   registerDynamicComponent(name) {
     if (this.hotLoader.hasDynamicHelperWrapperComponent(name)) {
       return;
@@ -104,7 +105,10 @@ export default Helper.extend({
   `);
     return "hot-placeholder";
   },
-  compute([name]) {
+  compute([name, context = {}, maybePropertyValue = undefined]) {
+		if ((name in context) || (typeof maybePropertyValue !== 'undefined')) {
+			//return 'load-content';
+		}
     if (!this.hotLoader.isComponent(name)) {
       this.registerDynamicComponent(name);
       return this.dynamicComponentNameForHelperWrapper(name);
