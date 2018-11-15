@@ -1,6 +1,6 @@
 {
   "name": "ember-ast-hot-load",
-  "version": "0.0.39",
+  "version": "0.0.40",
   "description": "Ember components hot-reload addon",
   "keywords": [
     "ember-addon"
@@ -21,7 +21,7 @@
     "test:all": "ember try:each"
   },
   "dependencies": {
-    "babel-plugin-ember-modules-api-polyfill":">=2.0.1",
+    "babel-plugin-ember-modules-api-polyfill": ">=2.0.1",
     "ember-cli-babel": ">=6.6.0",
     "ember-cli-htmlbars": "*"
   },
