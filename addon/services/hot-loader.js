@@ -36,7 +36,7 @@ function matchingComponent(rawComponentName, path) {
     return false;
   }
   if (!isValidPath(path)) {
-    return;
+    return false;
   }
   let componentName = dasherizePath(rawComponentName);
   let normalizedPath = normalizePath(path);
@@ -84,7 +84,7 @@ export default Service.extend(Evented, {
     willLiveReloadCallbacks.push(fn);
   },
   unregisterWillHotReload(fn) {
-    willHotReloadCallbacks = willLiveReloadCallbacks.filter(f => f !== fn);
+    willHotReloadCallbacks = willHotReloadCallbacks.filter(f => f !== fn);
   },
   unregisterWillLiveReload(fn) {
     willLiveReloadCallbacks = willLiveReloadCallbacks.filter(f => f !== fn);
