@@ -6,6 +6,12 @@ const ADDON_NAME = "ember-ast-hot-load";
 
 module.exports = {
   name: ADDON_NAME,
+  // attempt to fix unknown options bug
+  _OPTIONS: {
+    enabled: true,
+    watch: ["components"],
+    helpers: []
+  },
   serverMiddleware: function (config) {
     if (!this._OPTIONS.enabled) {
       return;
