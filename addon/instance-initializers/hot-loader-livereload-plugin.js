@@ -25,14 +25,36 @@ function createPlugin(appName, hotReloadService, rootURL) {
         }
       }
       var script = document.createElement("script");
+      var hasLoadError = false;
       script.onload = function() {
         setTimeout(function() {
           window.runningTests = false;
           hotReloadService.triggerInRunLoop("willHotReload", path);
         }, 10);
       };
+      const originalVendorFileURL = `${rootURL}assets/${appName}.js`;
+      const customVendorFileURL =  `${rootURL}_hot-load/${appName}.js?t=${Date.now()}&components=${encodeURIComponent(cancelableEvent.components.join(','))}&file=${encodeURIComponent(path.split('\\').join('/'))}`;
+      script.onerror = function() {
+        hotReloadService.incrementProperty('scriptDownloadErrors');
+        if (hotReloadService.scriptDownloadErrors > 3) {
+          hotReloadService.toggleProperty('useOriginalVendorFile');
+          hotReloadService.set('scriptDownloadErrors', 0);
+        }
+        if (hasLoadError) {
+          window['error'](`
+            Unable to load new assets for 'ember-ast-hot-load', looks like something blocking requests..
+          `);
+          return;
+        }
+        hasLoadError = true;
+        script.src = originalVendorFileURL;
+      }
       script.type = "text/javascript";
-      script.src = `${rootURL}_hot-load/${appName}.js?t=${Date.now()}&components=${encodeURIComponent(cancelableEvent.components.join(','))}&file=${encodeURIComponent(path.split('\\').join('/'))}`;
+      if (hotReloadService.useOriginalVendorFile) {
+        script.src = originalVendorFileURL;
+      } else {
+        script.src = customVendorFileURL;
+      }
       document.body.appendChild(script);
 
       return true;

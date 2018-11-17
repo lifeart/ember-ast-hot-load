@@ -61,6 +61,8 @@ var matchingResults = {};
 export default Service.extend(Evented, {
   templateOptionsKey: null,
   templateCompilerKey: null,
+  useOriginalVendorFile: false,
+  scriptDownloadErrors: 0,
   isMatchingComponent(componentName = "dummy", path = "empty") {
     let key = String(componentName) + "__" + String(path);
     if (!(key in matchingResults)) {
