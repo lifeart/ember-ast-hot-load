@@ -14,7 +14,7 @@ Many thanks to [Toran Billups / @toranb](https://github.com/toranb) for this hug
 
 | Point  		      | ember-ast-hot-load | ember-cli-hot-loader |
 | ------------------  | ------------------ | -------------------- |
-| Tagess components   |          +         |           +/-        |
+| Tagless components   |          +         |           +/-        |
 | reducers reloading  |          -         |           +          |
 | performance impact  |         low        |           middle     |
 | typescript support  |          +         |            +         |
