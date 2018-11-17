@@ -17,11 +17,15 @@ export function initialize(application) {
     var name = parsedName.fullName || "";
     var optionsMatch = name.match(optionsRegex);
     if (optionsMatch && optionsMatch.length > 0) {
-		service.set('templateOptionsKey', name);
+      if (service.__isAlive()) {
+        service.set('templateOptionsKey', name);
+      }
     }
     var compilerMatch = name.match(compilerRegex);
     if (compilerMatch && compilerMatch.length > 0) {
-		service.set('templateCompilerKey', name);
+      if (service.__isAlive()) {
+        service.set('templateCompilerKey', name);
+      }
     }
   }
 

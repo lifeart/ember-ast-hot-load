@@ -68,4 +68,30 @@ module('Unit | Service | hot-loader', function(hooks) {
     assert.equal(triggerForWillHotReloadCalled, false, 'triggerForWillHotReloadCalled should be false');
     assert.equal(triggerForWillLiveReloadCalled, false, 'triggerForWillLiveReloadCalled should be false');
   });
+
+  test('isHelper method should return true or false, depends on helper registration', function(assert) {
+    const service  = this.owner.lookup('service:hot-loader');
+    assert.equal(service.isHelper('hot-load'), true, 'hot-load helper must be resolved');
+    assert.equal(service.isHelper('cold-load'), false, 'cold-load helper must be unresolved');
+  });
+
+  test('_isComponent method must resturn true or false', function(assert) {
+    const service  = this.owner.lookup('service:hot-loader');
+    assert.equal(service._isComponent('hot-content'), true, 'hot-content component name should be resolvable');
+    assert.equal(service._isComponent('cold-content'), false, 'cold-content component name should be non-resolvable');
+    assert.equal(service._isComponent('template-only-component'), true, 'template-only-component`s should be resolvable');
+    assert.equal(service._isComponent('hot-load'), false, 'helper names should be non-resolvable');
+  });
+
+  test('isFastboot property must return false without fastboot', function(assert) {
+    const service  = this.owner.lookup('service:hot-loader');
+    assert.equal(service.isFastboot, false, 'isFastboot must equal false if no fastboot');
+  });
+
+  test('shold cache dynamic components registration', function(assert) {
+    const service  = this.owner.lookup('service:hot-loader');
+    assert.equal(service.hasDynamicHelperWrapperComponent('foo'), false, 'if no registered component method must return false');
+    assert.equal(service.addDynamicHelperWrapperComponent('foo'));
+    assert.equal(service.hasDynamicHelperWrapperComponent('foo'), true, 'if registered component method must return true');
+  });
 });

@@ -63,6 +63,9 @@ export default Service.extend(Evented, {
   templateCompilerKey: null,
   useOriginalVendorFile: false,
   scriptDownloadErrors: 0,
+  __isAlive() {
+    return  !this.isDestroyed && !this.isDestroying;
+  },
   isMatchingComponent(componentName = "dummy", path = "empty") {
     let key = String(componentName) + "__" + String(path);
     if (!(key in matchingResults)) {
