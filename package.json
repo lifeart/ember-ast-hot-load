@@ -59,6 +59,7 @@
     "after": [
       "ember-angle-bracket-invocation-polyfill",
       "ember-holy-futuristic-template-namespacing-batman"
-    ]
+    ],
+    "before": "proxy-server-middleware"
   }
 }
