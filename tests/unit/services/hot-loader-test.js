@@ -12,10 +12,10 @@ module('Unit | Service | hot-loader', function(hooks) {
 
   test('service options must exists', function(assert) {
     const service  = this.owner.lookup('service:hot-loader');
-    assert.ok(service.templateOptionsKey !== undefined);
-    assert.ok(service.templateCompilerKey !== undefined);
-    assert.equal(typeof service.useOriginalVendorFile, 'boolean');
-    assert.equal(typeof service.scriptDownloadErrors, 'number');
+    assert.ok(service.get('templateOptionsKey') !== undefined);
+    assert.ok(service.get('templateCompilerKey') !== undefined);
+    assert.equal(typeof service.get('useOriginalVendorFile'), 'boolean');
+    assert.equal(typeof service.get('scriptDownloadErrors'), 'number');
   });
 
   test('isMatchingComponent should match some cases', function(assert) {
@@ -85,7 +85,7 @@ module('Unit | Service | hot-loader', function(hooks) {
 
   test('isFastboot property must return false without fastboot', function(assert) {
     const service  = this.owner.lookup('service:hot-loader');
-    assert.equal(service.isFastboot, false, 'isFastboot must equal false if no fastboot');
+    assert.equal(service.get('isFastboot'), false, 'isFastboot must equal false if no fastboot');
   });
 
   test('shold cache dynamic components registration', function(assert) {

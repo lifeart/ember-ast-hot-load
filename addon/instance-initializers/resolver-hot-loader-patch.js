@@ -11,7 +11,7 @@ export function initialize(application) {
     if (!service) {
       return;
     }
-    if (service.templateCompilerKey || service.templateOptionsKey) {
+    if (service.get('templateCompilerKey') || service.get('templateOptionsKey')) {
       return;
     }
     var name = parsedName.fullName || "";

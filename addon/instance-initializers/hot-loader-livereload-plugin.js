@@ -50,7 +50,7 @@ function createPlugin(appName, hotReloadService, rootURL) {
         script.src = originalVendorFileURL;
       }
       script.type = "text/javascript";
-      if (hotReloadService.useOriginalVendorFile) {
+      if (hotReloadService.get('useOriginalVendorFile')) {
         script.src = originalVendorFileURL;
       } else {
         script.src = customVendorFileURL;

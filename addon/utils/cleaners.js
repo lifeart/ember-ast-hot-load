@@ -25,15 +25,15 @@ function clearIfHasProperty(obj, propertyName, componentName) {
 }
 
 function clear(context, owner, name, originalName) {
-  if (context.templateCompilerKey) {
+  if (context.get('templateCompilerKey')) {
     // Ember v3.2
-    var templateCompiler = owner.lookup(context.templateCompilerKey);
+    var templateCompiler = owner.lookup(context.get('templateCompilerKey'));
     var compileTimeLookup = templateCompiler.resolver;
     var compileRuntimeResolver = compileTimeLookup.resolver;
     compileRuntimeResolver.componentDefinitionCache.clear();
-  } else if (context.templateOptionsKey) {
+  } else if (context.get('templateOptionsKey')) {
     // Ember v3.1.1
-    var templateOptions = owner.lookup(context.templateOptionsKey);
+    var templateOptions = owner.lookup(context.get('templateOptionsKey'));
     var optionsTimeLookup = templateOptions.resolver;
     var optionsRuntimeResolver = optionsTimeLookup.resolver;
     optionsRuntimeResolver.componentDefinitionCache.clear();

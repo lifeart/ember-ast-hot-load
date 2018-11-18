@@ -9,7 +9,7 @@ export default Component.extend({
     // if (String(hotReloadCUSTOMName).startsWith('this.')) {
     //   return hotReloadCUSTOMhlContext[hotReloadCUSTOMName.replact('this.','')];
     // }
-    return this.hotReloadCUSTOMhlProperty;
+    return this.get('hotReloadCUSTOMhlProperty');
   }),
   tagName: ''
 });

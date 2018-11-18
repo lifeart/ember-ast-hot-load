@@ -1,7 +1,7 @@
 import Service from "@ember/service";
 import Evented from "@ember/object/evented";
 import { getOwner } from "@ember/application";
-import { computed } from "@ember/object";
+import { computed, getWithDefault } from "@ember/object";
 import { dasherize } from "@ember/string";
 import {
   clearRequirejsCache,
@@ -118,7 +118,7 @@ export default Service.extend(Evented, {
     if (!fastboot) {
       return false;
     }
-    return fastboot.isFastboot;
+    return getWithDefault(fastboot, 'isFastboot', false);
   }),
   isHelper(name) {
     const owner = getOwner(this);

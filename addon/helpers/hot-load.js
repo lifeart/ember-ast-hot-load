@@ -1,29 +1,28 @@
 import Helper from "@ember/component/helper";
+import Component from "@ember/component";
 import { inject as service } from "@ember/service";
 import { later, cancel } from "@ember/runloop";
 import { capitalize, camelize } from "@ember/string";
 import { getOwner } from "@ember/application";
-import Component from "@ember/component";
-import { computed } from "@ember/object";
+import { computed, get } from "@ember/object";
 import { compileTemplate } from "@ember/template-compilation";
 
 export default Helper.extend({
   hotLoader: service(),
-
   init() {
     this._super(...arguments);
-    this.hotLoader.on("willHotReload", this, "__rerenderOnTemplateUpdate");
-    this.hotLoader.on("willLiveReload", this, "__willLiveReload");
     this.binded__rerenderOnTemplateUpdate = this.__rerenderOnTemplateUpdate.bind(
       this
     );
+    const hotLoader = get(this, 'hotLoader');
     this.binded__willLiveReload = this.__willLiveReload.bind(this);
-    this.hotLoader.registerWillHotReload(this.binded__rerenderOnTemplateUpdate);
-    this.hotLoader.registerWillLiveReload(this.binded__willLiveReload);
+    hotLoader.registerWillHotReload(this.binded__rerenderOnTemplateUpdate);
+    hotLoader.registerWillLiveReload(this.binded__willLiveReload);
   },
   __rerenderOnTemplateUpdate(path) {
-    if (this.hotLoader.isMatchingComponent(this.firstComputeName, path)) {
-      this.hotLoader.forgetComponent(this.firstComputeName);
+    const hotLoader = get(this, 'hotLoader');
+    if (hotLoader.isMatchingComponent(this.firstComputeName, path)) {
+      hotLoader.forgetComponent(this.firstComputeName);
       cancel(this.timer);
       this.timer = later(() => {
         this.recompute();
@@ -31,23 +30,23 @@ export default Helper.extend({
     }
   },
   __willLiveReload(event) {
-    if (this.hotLoader.isMatchingComponent(this.firstComputeName, event.modulePath)) {
+    const hotLoader = get(this, 'hotLoader');
+    if (hotLoader.isMatchingComponent(this.firstComputeName, event.modulePath)) {
       event.cancel = true;
       if (!event.components.includes(this.firstComputeName)) {
         event.components.push(this.firstComputeName);
       }
-      this.hotLoader.clearRequirejs(this.firstComputeName);
+      hotLoader.clearRequirejs(this.firstComputeName);
     }
   },
   willDestroy() {
     this._super(...arguments);
     cancel(this.timer);
-    this.hotLoader.off("willHotReload", this, "__rerenderOnTemplateUpdate");
-    this.hotLoader.off("willLiveReload", this, "__willLiveReload");
-    this.hotLoader.unregisterWillHotReload(
+    const hotLoader = get(this, 'hotLoader');
+    hotLoader.unregisterWillHotReload(
       this.binded__rerenderOnTemplateUpdate
     );
-    this.hotLoader.unregisterWillLiveReload(this.binded__willLiveReload);
+    hotLoader.unregisterWillLiveReload(this.binded__willLiveReload);
   },
   dynamicComponentNameForHelperWrapper(name) {
     return `helper ${name}`;
@@ -56,11 +55,12 @@ export default Helper.extend({
     return 'hot-content';
   },
   registerDynamicComponent(name) {
-    if (this.hotLoader.hasDynamicHelperWrapperComponent(name)) {
+    const hotLoader = get(this, 'hotLoader');
+    if (hotLoader.hasDynamicHelperWrapperComponent(name)) {
       return;
     }
     this.printError(name);
-    this.hotLoader.addDynamicHelperWrapperComponent(name);
+    hotLoader.addDynamicHelperWrapperComponent(name);
     const owner = getOwner(this);
     const component = Component.extend({
       tagName: "",
@@ -108,11 +108,12 @@ export default Helper.extend({
     return "hot-placeholder";
   },
   compute([name, context = {}, maybePropertyValue = undefined]) {
+    const hotLoader = get(this, 'hotLoader');
 		if ((name in context) || (typeof maybePropertyValue !== 'undefined')) {
       return this.renderDynamicComponentHalper(name, context, maybePropertyValue);
 		}
-    if (!this.hotLoader.isComponent(name)) {
-      if (this.hotLoader.isHelper(name)) {
+    if (!hotLoader.isComponent(name)) {
+      if (hotLoader.isHelper(name)) {
         this.registerDynamicComponent(name);
         return this.dynamicComponentNameForHelperWrapper(name);
       } else {
