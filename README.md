@@ -1,4 +1,4 @@
-ember-ast-hot-load [![Build Status](https://travis-ci.com/lifeart/ember-ast-hot-load.svg?branch=master)](https://travis-ci.com/lifeart/ember-ast-hot-load)
+ember-ast-hot-load [![Build Status](https://travis-ci.com/lifeart/ember-ast-hot-load.svg?branch=master)](https://travis-ci.com/lifeart/ember-ast-hot-load) [![Greenkeeper badge](https://badges.greenkeeper.io/lifeart/ember-ast-hot-load.svg)](https://greenkeeper.io/)
 ==============================================================================
 
 ### Any ember components hot-reloading
