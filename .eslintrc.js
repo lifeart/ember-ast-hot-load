@@ -1,3 +1,4 @@
+/* global module, require */
 module.exports = {
   root: true,
   parserOptions: {
