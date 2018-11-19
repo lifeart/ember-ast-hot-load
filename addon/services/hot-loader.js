@@ -1,8 +1,10 @@
 import Service from "@ember/service";
 import Evented from "@ember/object/evented";
+import Component from "@ember/component";
 import { getOwner } from "@ember/application";
 import { computed, getWithDefault } from "@ember/object";
-import { dasherize } from "@ember/string";
+import { dasherize, camelize, capitalize } from "@ember/string";
+import { compileTemplate } from "@ember/template-compilation";
 import {
   clearRequirejsCache,
   clearContainerCache
@@ -141,5 +143,66 @@ export default Service.extend(Evented, {
     } catch (err) {
       return false;
     }
+  },
+  dynamicComponentNameForHelperWrapper(name) {
+    return `helper ${name}`;
+	},
+	renderDynamicComponentHelper() {
+    return 'hot-content';
+  },
+  placeholderComponentName() {
+    return 'hot-placeholder';
+  },
+  registerDynamicComponent(name) {
+    if (this.hasDynamicHelperWrapperComponent(name)) {
+      return;
+    }
+    this.printError(name);
+    this.addDynamicHelperWrapperComponent(name);
+    const owner = getOwner(this);
+    const component = Component.extend({
+      tagName: "",
+      layout: computed(function() {
+        let positionalParams = (this._params || []).join(" ");
+        let attrs = this["attrs"] || {};
+        const attributesMap = Object.keys(attrs)
+          .filter(key => key !== "_params")
+          .map(key => `${key}=${key}`)
+          .join(" ");
+        const tpl = `{{${name} ${positionalParams} ${attributesMap}}}`;
+        return compileTemplate(tpl);
+      })
+    });
+    component.reopenClass({
+      positionalParams: "_params"
+    });
+    owner.application.register(
+      `component:${this.dynamicComponentNameForHelperWrapper(name)}`,
+      component
+    );
+  },
+  printError(name) {
+    window["console"].info(`
+
+	Oops, looks like helper "${name}" invoked like component (due to 'ember-ast-hot-load' ast transformation).
+	Don't worry it's expected behavour because helper "${name}" looks like component ( {{${name}}} or <${capitalize(
+      camelize(name)
+    )} />)
+
+	to fix this issue, add "${name}" into "ember-cli-build.js" in application config section
+
+	/////////////////////////////////////
+	
+	let app = new EmberApp(defaults, {
+	  'ember-ast-hot-load': {
+		  helpers: ["${name}"],
+		  enabled: true
+	  }
+	});
+
+	/////////////////////////////////////
+
+  `);
+    return "hot-placeholder";
   }
 });
