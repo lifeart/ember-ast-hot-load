@@ -74,6 +74,22 @@ new EmberApp(defaults, {
 
 ```
 
+also, we need to exclude `ember-ast-hot-load` from production builds (to avoid unnecessary calculations)
+
+```js
+const environment = EmberApp.env();
+// ...
+const addonsToIgnoreInProdBuilds = [ 
+  environment === 'production' ? 'ember-ast-hot-load' : null 
+].filter(name => name !== null);
+
+new EmberApp(defaults, {
+  addons: {
+    blacklist: addonsToIgnoreInProdBuilds
+  }
+});
+```
+
 
 ## Known Compatibility Workarounds
 
