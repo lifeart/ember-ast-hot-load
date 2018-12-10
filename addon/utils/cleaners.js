@@ -6,7 +6,8 @@ function isMUTemplateOrComponent(name, componentName) {
     return false;
   }
   const isRouteTemplateName = (name === `template:` + componentName);
-  return name.endsWith("/" + componentName) || isRouteTemplateName;
+  const isMURouteTemplateName = name.includes("template:") && name.endsWith('/routes/' + componentName + '/template.hbs');
+  return name.endsWith("/" + componentName) || isRouteTemplateName || isMURouteTemplateName;
 }
 
 function clearIfHasProperty(obj, propertyName, componentName) {

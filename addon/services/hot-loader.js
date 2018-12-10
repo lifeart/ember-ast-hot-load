@@ -63,22 +63,26 @@ function matchingComponent(rawComponentName, path) {
 }
 
 
-function getPossibleRouteTemplateMeta(rawPath) {
+function getPossibleRouteTemplateMeta(maybeString = '') {
+  const rawPath = String(maybeString || '');
   const path = normalizePath(rawPath).split('/').join('.').replace('.hbs', '');
+  const MU_PATH = '.src.ui';
   // pods don't supported this time
+  const relativeAppEntrypoint = path.includes(MU_PATH) ? MU_PATH : '.app.';
   const maybePodsPath = path.endsWith('.template');
-  const paths = path.split('.app.');
+  const paths = path.split(relativeAppEntrypoint);
   paths.shift();
-  const maybeRouteName = paths.join('.app.');
+  const maybeRouteName = paths.join(relativeAppEntrypoint);
   const maybeClassicPath =  maybeRouteName.startsWith('templates.');
-  const possibleRouteName = maybeRouteName.replace('templates.', '');
+  const possibleRouteName = maybeRouteName.replace('templates.', '').replace('routes.','');
 
   return {
     looksLikeRouteTemplate: looksLikeRouteTemplate(rawPath),
     possibleRouteName,
     possibleTemplateName: possibleRouteName.split('.').join('/'),
     maybeClassicPath,
-    maybePodsPath
+    maybePodsPath,
+    isMU: relativeAppEntrypoint === MU_PATH
   }
 }
 
@@ -94,6 +98,9 @@ export default Service.extend(Evented, {
   },
   willHotReloadRouteTemplate(attrs) {
     const meta = getPossibleRouteTemplateMeta(attrs);
+    if (!meta.looksLikeRouteTemplate) {
+      return;
+    }
     if (meta.maybeClassicPath) {
       this.forgetComponent(meta.possibleTemplateName);
       const route = getOwner(this).lookup(`route:${meta.possibleRouteName}`);
