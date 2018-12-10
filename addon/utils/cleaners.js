@@ -5,7 +5,8 @@ function isMUTemplateOrComponent(name, componentName) {
   if (!name.includes("component:") && !name.includes("template:")) {
     return false;
   }
-  return name.endsWith("/" + componentName);
+  const isRouteTemplateName = (name === `template:` + componentName);
+  return name.endsWith("/" + componentName) || isRouteTemplateName;
 }
 
 function clearIfHasProperty(obj, propertyName, componentName) {
@@ -90,11 +91,15 @@ function addonComponents(modulePrefix) {
 export function clearContainerCache(context, componentName) {
   const componentFullName = `component:${componentName}`;
   const templateFullName = `template:components/${componentName}`;
+  // case for route template
+  const routeTemplateFullName = `template:${componentName}`;
   //component:/emberfest/routes/application/-components/footer-prompt
   //template:/emberfest/routes/index/-components/conference-day/conference-session: FactoryManager
   const owner = getOwner(context);
   clear(context, owner, componentFullName, componentName);
   clear(context, owner, templateFullName, componentName);
+  // case for route template
+  clear(context, owner, routeTemplateFullName, componentName);
 }
 
 export function clearRequirejsCache(context, componentName) {
@@ -106,10 +111,16 @@ export function clearRequirejsCache(context, componentName) {
   // Invalidate regular module
   requireUnsee(`${modulePrefix}/components/${componentName}`);
   requireUnsee(`${modulePrefix}/templates/components/${componentName}`);
+  // classic route template
+  requireUnsee(`${modulePrefix}/templates/${componentName}`);
+
 
   // Invalidate pod modules
   requireUnsee(`${podModulePrefix}/components/${componentName}/component`);
   requireUnsee(`${podModulePrefix}/components/${componentName}/template`);
+  // pod route template
+  requireUnsee(`${podModulePrefix}/${componentName}/template`);
+
 
   // Invalidate MU modules
   requireUnsee(

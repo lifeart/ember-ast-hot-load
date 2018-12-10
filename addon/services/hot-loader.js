@@ -30,6 +30,10 @@ function normalizePath(path) {
   return dasherizePath(path.split("\\").join("/"));
 }
 
+function looksLikeRouteTemplate(path) {
+  return !path.includes('component') && path.endsWith('.hbs');
+}
+
 function matchingComponent(rawComponentName, path) {
   if (typeof path !== "string") {
     return false;
@@ -58,6 +62,26 @@ function matchingComponent(rawComponentName, path) {
   return result;
 }
 
+
+function getPossibleRouteTemplateMeta(rawPath) {
+  const path = normalizePath(rawPath).split('/').join('.').replace('.hbs', '');
+  // pods don't supported this time
+  const maybePodsPath = path.endsWith('.template');
+  const paths = path.split('.app.');
+  paths.shift();
+  const maybeRouteName = paths.join('.app.');
+  const maybeClassicPath =  maybeRouteName.startsWith('templates.');
+  const possibleRouteName = maybeRouteName.replace('templates.', '');
+
+  return {
+    looksLikeRouteTemplate: looksLikeRouteTemplate(rawPath),
+    possibleRouteName,
+    possibleTemplateName: possibleRouteName.split('.').join('/'),
+    maybeClassicPath,
+    maybePodsPath
+  }
+}
+
 var matchingResults = {};
 
 export default Service.extend(Evented, {
@@ -65,6 +89,36 @@ export default Service.extend(Evented, {
   templateCompilerKey: null,
   useOriginalVendorFile: false,
   scriptDownloadErrors: 0,
+  init() {
+    this._super(...arguments);
+  },
+  willHotReloadRouteTemplate(attrs) {
+    const meta = getPossibleRouteTemplateMeta(attrs);
+    if (meta.maybeClassicPath) {
+      this.forgetComponent(meta.possibleTemplateName);
+      const route = getOwner(this).lookup(`route:${meta.possibleRouteName}`);
+      const router  = getOwner(this).lookup('service:router');
+      if (!route || !router) {
+        return window.location.reload();
+      }
+      if (router.currentRouteName.includes(meta.possibleRouteName)) {
+        route.renderTemplate();
+      } else if (router.currentRouteName === 'index' && meta.possibleRouteName === 'application') {
+        route.renderTemplate();
+      } else { 
+        // else template will be updated after transition
+      }
+    } else {
+      window.location.reload();
+    }
+  },
+  willLiveReloadRouteTemplate(attrs) {
+    const meta = getPossibleRouteTemplateMeta(attrs.modulePath);
+    if (meta.looksLikeRouteTemplate) {
+      attrs.cancel  = true;
+      this.clearRequirejs(meta.possibleTemplateName);
+    }
+  },
   __isAlive() {
     return  !this.isDestroyed && !this.isDestroying;
   },
@@ -78,8 +132,10 @@ export default Service.extend(Evented, {
   triggerInRunLoop(name, attrs) {
     if (name === "willHotReload") {
       willHotReloadCallbacks.forEach(cb => cb(attrs));
+      this.willHotReloadRouteTemplate(attrs);
     } else if (name === "willLiveReload") {
       willLiveReloadCallbacks.forEach(cb => cb(attrs));
+      this.willLiveReloadRouteTemplate(attrs);
     }
   },
   registerWillHotReload(fn) {
