@@ -1,6 +1,6 @@
 {
   "name": "ember-ast-hot-load",
-  "version": "0.0.47",
+  "version": "0.0.48",
   "description": "Ember components hot-reload addon",
   "keywords": [
     "ember-addon"
