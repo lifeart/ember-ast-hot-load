@@ -115,6 +115,12 @@ export function clearRequirejsCache(context, componentName) {
   // classic route template
   requireUnsee(`${modulePrefix}/templates/${componentName}`);
 
+  // mu route template unsee
+  if (componentName.startsWith('/')) {
+    requireUnsee(`${podModulePrefix}/src/ui/routes${componentName}`);
+  } else {
+    requireUnsee(`${podModulePrefix}/src/ui/routes/${componentName}`);
+  }
 
   // Invalidate pod modules
   requireUnsee(`${podModulePrefix}/components/${componentName}/component`);

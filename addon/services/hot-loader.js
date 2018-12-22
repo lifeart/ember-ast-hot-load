@@ -3,7 +3,7 @@ import Evented from "@ember/object/evented";
 import Component from "@ember/component";
 import { getOwner } from "@ember/application";
 import { computed, getWithDefault } from "@ember/object";
-import { dasherize, camelize, capitalize } from "@ember/string";
+import { dasherize, camelize, capitalize, decamelize } from "@ember/string";
 import { compileTemplate } from "@ember/template-compilation";
 import {
   clearRequirejsCache,
@@ -31,6 +31,10 @@ function normalizePath(path) {
 }
 
 function looksLikeRouteTemplate(path) {
+  // mu app case
+  if (path.includes('/src/ui/')) {
+    return path.includes('/routes/') && path.endsWith('/template.hbs');
+  }
   return !path.includes('component') && path.endsWith('.hbs');
 }
 
@@ -77,7 +81,7 @@ function getPossibleRouteTemplateMeta(maybeString = '') {
   const possibleRouteName = maybeRouteName.replace('templates.', '').replace('routes.','');
 
   return {
-    looksLikeRouteTemplate: looksLikeRouteTemplate(rawPath),
+    looksLikeRouteTemplate: looksLikeRouteTemplate(normalizePath(rawPath)),
     possibleRouteName,
     possibleTemplateName: possibleRouteName.split('.').join('/'),
     maybeClassicPath,
@@ -111,6 +115,27 @@ export default Service.extend(Evented, {
       if (router.currentRouteName.includes(meta.possibleRouteName)) {
         route.renderTemplate();
       } else if (router.currentRouteName === 'index' && meta.possibleRouteName === 'application') {
+        route.renderTemplate();
+      } else { 
+        // else template will be updated after transition
+      }
+    } else if (meta.isMU) {
+      let routeName = meta.possibleRouteName;
+      if (routeName.startsWith('.')) {
+        routeName = routeName.replace('.', '');
+      }
+      if (routeName.endsWith('.template')) {
+        routeName = routeName.replace('.template', '');
+      }
+      this.forgetComponent(routeName);
+      const route = getOwner(this).lookup(`route:${routeName}`);
+      const router  = getOwner(this).lookup('service:router');
+      if (!route || !router) {
+        return window.location.reload();
+      }
+      if (router.currentRouteName.includes(routeName)) {
+        route.renderTemplate();
+      } else if (router.currentRouteName === 'index' && routeName === 'application') {
         route.renderTemplate();
       } else { 
         // else template will be updated after transition
@@ -169,9 +194,12 @@ export default Service.extend(Evented, {
   hasDynamicHelperWrapperComponent(name) {
     return name in DYNAMIC_HELPERS_WRAPPERS_COMPONENTS;
   },
-  isComponent(name) {
+  isComponent(name, currentContext) {
     if (!(name in COMPONENT_NAMES_CACHE)) {
       COMPONENT_NAMES_CACHE[name] = this._isComponent(name);
+      if (!COMPONENT_NAMES_CACHE[name]) {
+        COMPONENT_NAMES_CACHE[name] = this._isContextedComponent(name, currentContext);
+      }
       //  ||
       // this._isComponent(dasherize(name)) ||
       // this._isComponent(capitalize(camelize(name)));
@@ -188,6 +216,25 @@ export default Service.extend(Evented, {
   isHelper(name) {
     const owner = getOwner(this);
     return owner.application.hasRegistration("helper:" + name);
+  },
+  // for mu support components like src/components/tabs/tab
+  scopedComponentNames(name, scope) {
+    if (!scope) {
+      return [name];
+    }
+    const normalizedContext = decamelize(scope.constructor.name).replace('_component', '');
+    const candidate = camelize(normalizedContext) + '/' + name;
+    return [candidate];
+  },
+  _isContextedComponent(name, currentContext) {
+    const names = this.scopedComponentNames(name, currentContext);
+    let isComponent = false;
+    names.forEach((maybeComponentName)=>{
+      if (this._isComponent(maybeComponentName)) {
+        isComponent = true;
+      }
+    });
+    return isComponent;
   },
   _isComponent(name) {
     const owner = getOwner(this);
