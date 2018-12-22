@@ -29,10 +29,12 @@ export default Helper.extend({
     const hotLoader = get(this, 'hotLoader');
     if (hotLoader.isMatchingComponent(this.firstComputeName, event.modulePath)) {
       event.cancel = true;
-      if (!event.components.includes(this.firstComputeName)) {
-        event.components.push(this.firstComputeName);
-      }
-      hotLoader.clearRequirejs(this.firstComputeName);
+      (this.possibleNames || []).forEach((computedName)=>{
+        if (!event.components.includes(computedName)) {
+          event.components.push(computedName);
+        }
+        hotLoader.clearRequirejs(computedName);
+      });
     }
   },
   willDestroy() {
@@ -47,14 +49,20 @@ export default Helper.extend({
   compute([name, context = {}, maybePropertyValue = undefined, astStringName = '']) {
     const hotLoader = get(this, 'hotLoader');
     const safeAstName = String(astStringName || '');
+    this.possibleNames = [ name ].concat(hotLoader.scopedComponentNames(name, context));
+    // console.log('compute', {
+    //   name, context, maybePropertyValue, astStringName,
+    //   isComponent: hotLoader.isComponent(name, context),
+    //   isHelper: hotLoader.isHelper(name)
+    // });
     const isArgument = safeAstName.charAt(0) === '@' || safeAstName.startsWith('attrs.');
 		if (!isArgument && ((name in context) || (typeof maybePropertyValue !== 'undefined'))) {
-      if (!(name in context) && !hotLoader.isComponent(name) && !hotLoader.isHelper(name)) {
+      if (!(name in context) && !hotLoader.isComponent(name, context) && !hotLoader.isHelper(name)) {
         // if it's not component, not in scope and not helper - dunno, we need to render placeholder with value;
         return hotLoader.renderDynamicComponentHelper(name, context, maybePropertyValue);
       }
     }
-    if (!hotLoader.isComponent(name)) {
+    if (!hotLoader.isComponent(name, context)) {
       if (hotLoader.isHelper(name)) {
         hotLoader.registerDynamicComponent(name);
         return hotLoader.dynamicComponentNameForHelperWrapper(name);
