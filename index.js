@@ -78,7 +78,22 @@ module.exports = {
       "dist",
       "ember-template-compiler.js"
     );
-    return path.relative(this.project.root, require.resolve(npmCompilerPath));
+    let resolvedPath = null;
+    let root = this.project.root;
+    try {
+      resolvedPath = path.relative(root, require.resolve(npmCompilerPath));
+    } catch(e) {
+      try {
+        resolvedPath = path.relative(root, require.resolve(path.join(root, 'node_modules', npmCompilerPath)));
+      } catch (ee) {
+        try {
+          resolvedPath = path.relative(root, require.resolve(path.join(root, '../node_modules', npmCompilerPath)));
+        } catch (eee) {
+          resolvedPath = path.relative(root, require.resolve(path.join(root, '../../node_modules', npmCompilerPath)));
+        }
+      }
+    }
+    return resolvedPath;
   },
   _assignOptions(app) {
     let appOptions = app.options || {};
