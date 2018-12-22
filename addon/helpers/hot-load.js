@@ -44,9 +44,11 @@ export default Helper.extend({
     );
     hotLoader.unregisterWillLiveReload(this.binded__willLiveReload);
   },
-  compute([name, context = {}, maybePropertyValue = undefined]) {
+  compute([name, context = {}, maybePropertyValue = undefined, astStringName = '']) {
     const hotLoader = get(this, 'hotLoader');
-		if ((name in context) || (typeof maybePropertyValue !== 'undefined')) {
+    const safeAstName = String(astStringName || '');
+    const isArgument = safeAstName.charAt(0) === '@' || safeAstName.startsWith('attrs.');
+		if (!isArgument && ((name in context) || (typeof maybePropertyValue !== 'undefined'))) {
       return hotLoader.renderDynamicComponentHelper(name, context, maybePropertyValue);
     }
     if (!hotLoader.isComponent(name)) {
