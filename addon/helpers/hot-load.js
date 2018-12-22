@@ -49,7 +49,10 @@ export default Helper.extend({
     const safeAstName = String(astStringName || '');
     const isArgument = safeAstName.charAt(0) === '@' || safeAstName.startsWith('attrs.');
 		if (!isArgument && ((name in context) || (typeof maybePropertyValue !== 'undefined'))) {
-      return hotLoader.renderDynamicComponentHelper(name, context, maybePropertyValue);
+      if (!(name in context) && !hotLoader.isComponent(name) && !hotLoader.isHelper(name)) {
+        // if it's not component, not in scope and not helper - dunno, we need to render placeholder with value;
+        return hotLoader.renderDynamicComponentHelper(name, context, maybePropertyValue);
+      }
     }
     if (!hotLoader.isComponent(name)) {
       if (hotLoader.isHelper(name)) {
