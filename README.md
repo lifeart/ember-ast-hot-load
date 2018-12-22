@@ -131,7 +131,7 @@ To workaround this issue, in the `config/environment.js` file, add `"unsafe-eval
 ### Cannot find module
 Cannot find module `ember-source\dist\ember-template-compiler.js` in yarn workspaces.
 
-`root.package.json` `workspaces.nohoist: ["**/ember-ast-hot-loader"]`
+`root.package.json` `workspaces.nohoist: ["**/ember-ast-hot-load"]`
 
 
 Contributing
