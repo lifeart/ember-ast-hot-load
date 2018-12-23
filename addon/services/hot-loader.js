@@ -258,6 +258,9 @@ export default Service.extend(Evented, {
     return getWithDefault(fastboot, 'isFastboot', false);
   }),
   isHelper(name) {
+    if (name.includes('@') || name.includes('/') || name.includes('.')) {
+      return false;
+    }
     const owner = getOwner(this);
     return owner.application.hasRegistration("helper:" + name);
   },
@@ -304,6 +307,9 @@ export default Service.extend(Evented, {
     return isComponent;
   },
   _isComponent(rawName) {
+    if (typeof rawName === 'object' && rawName !== null) {
+      return true;
+    }
     const name = (rawName || '').toLowerCase();
     const owner = getOwner(this);
     if (this.isHelper(name)) {

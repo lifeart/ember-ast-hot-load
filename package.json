@@ -58,7 +58,8 @@
     "configPath": "tests/dummy/config",
     "after": [
       "ember-angle-bracket-invocation-polyfill",
-      "ember-holy-futuristic-template-namespacing-batman"
+      "ember-holy-futuristic-template-namespacing-batman",
+      "ember-template-compiler"
     ],
     "before": "proxy-server-middleware"
   }
