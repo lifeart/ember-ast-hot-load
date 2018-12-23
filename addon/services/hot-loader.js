@@ -92,6 +92,26 @@ function getPossibleRouteTemplateMeta(maybeString = '') {
 
 var matchingResults = {};
 
+function getRouteScopedComponents() {
+  const pairs = Object.keys(window.requirejs ? window.requirejs.entries : {})
+    .filter(name=>(name.includes('/-components/')))
+    .map((name)=>name.split('/src/ui/routes/')[1].split('/-components/'))
+  const result = {};
+  pairs.forEach(([routePath, rawComponentRef])=>{
+    const normalizedRoute = routePath.split('/').join('.');
+    const isTemplate = rawComponentRef.endsWith('/template');
+    const substrToReplace = isTemplate ? '/template' : '/component';
+    const normalizedComponentName = rawComponentRef.replace(substrToReplace, '');
+    if (!result[normalizedRoute]) {
+      result[normalizedRoute] = [];
+    }
+    if (!result[normalizedRoute].includes(normalizedComponentName)) {
+      result[normalizedRoute].push(normalizedComponentName);
+    }
+  });
+  return result;
+}
+
 export default Service.extend(Evented, {
   templateOptionsKey: null,
   templateCompilerKey: null,
@@ -99,6 +119,7 @@ export default Service.extend(Evented, {
   scriptDownloadErrors: 0,
   init() {
     this._super(...arguments);
+    this.routeScopedComponents = getRouteScopedComponents();
   },
   currentRouteScopes() {
     const owner = getOwner(this);
@@ -118,6 +139,27 @@ export default Service.extend(Evented, {
     return scopes.map((scope)=>{
       return `/${podModulePrefix}/routes/${scope}/-components/`;
     });
+  },
+  currentRouteComponents() {
+    const owner = getOwner(this);
+    // /routes/patterns.inheritance/-components
+    if (!owner.router || !owner.router.currentRouteName) {
+      return [];
+    }
+    const allRouteScopes = owner.router.currentRouteName.split('.');
+    const scopes = [];
+    for (let i = 1; i <= allRouteScopes.length; i++) {
+      scopes.push(allRouteScopes.slice(0, i).join('.'));
+    }
+    const result = [];
+    scopes.forEach((path)=>{
+      if (this.routeScopedComponents[path]) {
+        this.routeScopedComponents[path].forEach((conponentName)=>{
+          result.push(conponentName);
+        });
+      }
+    });
+    return result;
   },
   getPossibleMUComponentNames(name) {
     const scopes = this.currentRouteScopes();
@@ -265,18 +307,25 @@ export default Service.extend(Evented, {
     return owner.application.hasRegistration("helper:" + name);
   },
   // for mu support components like src/components/tabs/tab
-  scopedComponentNames(name, scope) {
+  _scopedComponentNames(name, scope) {
+    const closestRelativeName = this.currentRouteComponents().filter((resolvedName)=>resolvedName.endsWith(name)).pop();
+    // closestRelativeName can be undefined
     if (!scope) {
-      return [name];
+      return [closestRelativeName, name];
     }
     const normalizedContext = decamelize(scope.constructor.name).replace('_component', '').replace('_class','');
     const candidate = camelize(normalizedContext) + '/' + name;
-    const result = [candidate];
+    const result = [closestRelativeName, candidate];
     // todo add hotReloadCustomContext... to resolve deep nesting
     if (scope.args && scope.args.hotReloadCUSTOMName) {
       result.push(scope.args.hotReloadCUSTOMName + '/' + name);
     }
     return result;
+  },
+  scopedComponentNames(name, scope) {
+    return this._scopedComponentNames(name, scope).filter((componentName)=>{
+      return typeof componentName === 'string';
+    });
   },
   _isRouteScopedComponent(name) {
     const scopes = this.currentRouteScopes();

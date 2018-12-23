@@ -3,6 +3,16 @@ import { inject as service } from "@ember/service";
 import { later, cancel } from "@ember/runloop";
 import { get } from "@ember/object";
 
+function hasPropertyNameInContext(prop, ctx) {
+  if (typeof ctx !== 'object') {
+    return false;
+  }
+  if (ctx === null) {
+    return false;
+  }
+  return (prop in ctx);
+}
+
 export default Helper.extend({
   hotLoader: service(),
   init() {
@@ -55,9 +65,10 @@ export default Helper.extend({
     //   isComponent: hotLoader.isComponent(name, context),
     //   isHelper: hotLoader.isHelper(name)
     // });
+    const hasPropInComponentContext = hasPropertyNameInContext(name, context);
     const isArgument = safeAstName.charAt(0) === '@' || safeAstName.startsWith('attrs.');
-		if (!isArgument && ((name in context) || (typeof maybePropertyValue !== 'undefined'))) {
-      if (!(name in context) && !hotLoader.isComponent(name, context) && !hotLoader.isHelper(name)) {
+		if (!isArgument && (hasPropInComponentContext || (typeof maybePropertyValue !== 'undefined'))) {
+      if (!hasPropInComponentContext && !hotLoader.isComponent(name, context) && !hotLoader.isHelper(name)) {
         // if it's not component, not in scope and not helper - dunno, we need to render placeholder with value;
         return hotLoader.renderDynamicComponentHelper(name, context, maybePropertyValue);
       }
