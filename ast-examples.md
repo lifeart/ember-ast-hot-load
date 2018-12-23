@@ -1,6 +1,7 @@
 Examples 
 ------------------------------------------------------------------------------
 
+[hbs-ast-builders](https://github.com/glimmerjs/glimmer-vm/blob/master/packages/%40glimmer/syntax/lib/builders.ts)
 
 [glimmer hot-reload test #1](https://github.com/emberjs/ember.js/blob/master/packages/%40ember/-internals/glimmer/tests/integration/application/hot-reload-test.js)
 
