@@ -303,7 +303,8 @@ export default Service.extend(Evented, {
     });
     return isComponent;
   },
-  _isComponent(name) {
+  _isComponent(rawName) {
+    const name = (rawName || '').toLowerCase();
     const owner = getOwner(this);
     if (this.isHelper(name)) {
       return false;
