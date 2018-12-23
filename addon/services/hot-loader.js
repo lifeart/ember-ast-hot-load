@@ -93,7 +93,7 @@ function getPossibleRouteTemplateMeta(maybeString = '') {
 var matchingResults = {};
 
 function getRouteScopedComponents() {
-  const pairs = Object.keys(require ? require.entries : {})
+  const pairs = Object.keys(window.requirejs ? window.requirejs.entries : {})
     .filter(name=>(name.includes('/-components/')))
     .map((name)=>name.split('/src/ui/routes/')[1].split('/-components/'))
   const result = {};
