@@ -269,9 +269,14 @@ export default Service.extend(Evented, {
     if (!scope) {
       return [name];
     }
-    const normalizedContext = decamelize(scope.constructor.name).replace('_component', '');
+    const normalizedContext = decamelize(scope.constructor.name).replace('_component', '').replace('_class','');
     const candidate = camelize(normalizedContext) + '/' + name;
-    return [candidate];
+    const result = [candidate];
+    // todo add hotReloadCustomContext... to resolve deep nesting
+    if (scope.args && scope.args.hotReloadCUSTOMName) {
+      result.push(scope.args.hotReloadCUSTOMName + '/' + name);
+    }
+    return result;
   },
   _isRouteScopedComponent(name) {
     const scopes = this.currentRouteScopes();
