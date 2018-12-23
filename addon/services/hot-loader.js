@@ -2,7 +2,7 @@ import Service from "@ember/service";
 import Evented from "@ember/object/evented";
 import Component from "@ember/component";
 import { getOwner } from "@ember/application";
-import { computed, getWithDefault } from "@ember/object";
+import { get, computed, getWithDefault } from "@ember/object";
 import { dasherize, camelize, capitalize, decamelize } from "@ember/string";
 import { compileTemplate } from "@ember/template-compilation";
 import {
@@ -33,7 +33,7 @@ function normalizePath(path) {
 function looksLikeRouteTemplate(path) {
   // mu app case
   if (path.includes('/src/ui/')) {
-    return path.includes('/routes/') && path.endsWith('/template.hbs');
+    return path.includes('/routes/') && path.endsWith('/template.hbs') && !path.includes('/-components/');
   }
   return !path.includes('component') && path.endsWith('.hbs');
 }
@@ -99,6 +99,31 @@ export default Service.extend(Evented, {
   scriptDownloadErrors: 0,
   init() {
     this._super(...arguments);
+  },
+  currentRouteScopes() {
+    const owner = getOwner(this);
+    const config = owner.resolveRegistration("config:environment");
+  
+    const modulePrefix = get(config, "modulePrefix") || "dummy";
+    const podModulePrefix = get(config, "podModulePrefix") || modulePrefix;
+    // /routes/patterns.inheritance/-components
+    if (!owner.router || !owner.router.currentRouteName) {
+      return [];
+    }
+    const allRouteScopes = owner.router.currentRouteName.split('.');
+    const scopes = [];
+    for (let i = 1; i <= allRouteScopes.length; i++) {
+      scopes.push(allRouteScopes.slice(0, i).join('/'));
+    }
+    return scopes.map((scope)=>{
+      return `/${podModulePrefix}/routes/${scope}/-components/`;
+    });
+  },
+  getPossibleMUComponentNames(name) {
+    const scopes = this.currentRouteScopes();
+    return scopes.map((scopeName)=>{
+      return scopeName + name;
+    });
   },
   willHotReloadRouteTemplate(attrs) {
     const meta = getPossibleRouteTemplateMeta(attrs);
@@ -183,9 +208,17 @@ export default Service.extend(Evented, {
     willLiveReloadCallbacks = willLiveReloadCallbacks.filter(f => f !== fn);
   },
   forgetComponent(name) {
+    const muNames = this.getPossibleMUComponentNames(name);
+    muNames.forEach((possibleMuName)=>{
+      clearContainerCache(this, possibleMuName);
+    });
     clearContainerCache(this, name);
   },
   clearRequirejs(name) {
+    const muNames = this.getPossibleMUComponentNames(name);
+    muNames.forEach((possibleMuName)=>{
+      clearRequirejsCache(this, possibleMuName);
+    });
     clearRequirejsCache(this, name);
   },
   addDynamicHelperWrapperComponent(name) {
@@ -196,9 +229,20 @@ export default Service.extend(Evented, {
   },
   isComponent(name, currentContext) {
     if (!(name in COMPONENT_NAMES_CACHE)) {
+      // classic + pods
       COMPONENT_NAMES_CACHE[name] = this._isComponent(name);
+      // MU stuff
       if (!COMPONENT_NAMES_CACHE[name]) {
+        // ui/components/foo-bar/baz
         COMPONENT_NAMES_CACHE[name] = this._isContextedComponent(name, currentContext);
+      }
+      if (!COMPONENT_NAMES_CACHE[name]) {
+        // ui/routes/foo/-components/baz
+        COMPONENT_NAMES_CACHE[name] = this._isRouteScopedComponent(name);
+      }
+      if (!COMPONENT_NAMES_CACHE[name]) {
+        // ui/routes/foo/-components/baz/bar
+        COMPONENT_NAMES_CACHE[name] = this._isRouteScopedContextedComponent(name, currentContext);
       }
       //  ||
       // this._isComponent(dasherize(name)) ||
@@ -225,6 +269,29 @@ export default Service.extend(Evented, {
     const normalizedContext = decamelize(scope.constructor.name).replace('_component', '');
     const candidate = camelize(normalizedContext) + '/' + name;
     return [candidate];
+  },
+  _isRouteScopedComponent(name) {
+    const scopes = this.currentRouteScopes();
+    let isComponent = false;
+    scopes.forEach((scopeForRoute)=>{
+      if (this._isComponent(scopeForRoute + name)) {
+        isComponent = true;
+      }
+    });
+    return isComponent;
+  },
+  _isRouteScopedContextedComponent(name, currentContext) {
+    const names = this.scopedComponentNames(name, currentContext);
+    const scopes = this.currentRouteScopes();
+    let isComponent = false;
+    scopes.forEach((scopeForRoute) => {
+      names.forEach((possibleName) => {
+        if (this._isComponent(scopeForRoute + possibleName)) {
+          isComponent = true;
+        }
+      })
+    });
+    return isComponent;
   },
   _isContextedComponent(name, currentContext) {
     const names = this.scopedComponentNames(name, currentContext);

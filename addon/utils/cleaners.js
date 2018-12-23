@@ -7,7 +7,8 @@ function isMUTemplateOrComponent(name, componentName) {
   }
   const isRouteTemplateName = (name === `template:` + componentName);
   const isMURouteTemplateName = name.includes("template:") && name.endsWith('/routes/' + componentName + '/template.hbs');
-  return name.endsWith("/" + componentName) || isRouteTemplateName || isMURouteTemplateName;
+  const isMURouteScopedComponent = name.includes('/-components/') && (name.split('-components').pop().includes(componentName.split('-components').pop()));
+  return name.endsWith("/" + componentName) || isRouteTemplateName || isMURouteTemplateName || isMURouteScopedComponent;
 }
 
 function clearIfHasProperty(obj, propertyName, componentName) {
@@ -77,11 +78,11 @@ function requireUnsee(module) {
   }
 }
 
-function scopedComponents() {
-  return Object.keys(window.require.entries).filter(name =>
-    name.includes("/-components/")
-  );
-}
+// function scopedComponents() {
+//   return Object.keys(window.require.entries).filter(name =>
+//     name.includes("/-components/")
+//   );
+// }
 
 function addonComponents(modulePrefix) {
   return Object.keys(window.require.entries).filter(
@@ -128,7 +129,23 @@ export function clearRequirejsCache(context, componentName) {
   // pod route template
   requireUnsee(`${podModulePrefix}/${componentName}/template`);
 
-
+  // mu route scoped components, resolved with prefix
+  if (componentName.includes('/-components')) {
+    const paths = componentName.split('/-components/');
+    const relativeComponentName = paths[1];
+    let routePath = paths[0].replace(`${podModulePrefix}/routes/`, '');
+    if (routePath.startsWith('/')) {
+      routePath = routePath.replace('/','');
+    }
+    // "shiny-components/src/ui/routes/patterns/inheritance/-components/modal/component"
+    // `/${podModulePrefix}/routes/${scope}/-components/`;
+    requireUnsee(
+      `${podModulePrefix}/src/ui/routes/${routePath}/-components/${relativeComponentName}/component`
+    );
+    requireUnsee(
+      `${podModulePrefix}/src/ui/routes/${routePath}/-components/${relativeComponentName}/template`
+    );
+  }
   // Invalidate MU modules
   requireUnsee(
     `${podModulePrefix}/src/ui/components/${componentName}/component`
@@ -137,16 +154,16 @@ export function clearRequirejsCache(context, componentName) {
     `${podModulePrefix}/src/ui/components/${componentName}/template`
   );
 
-  scopedComponents()
-    .filter(
-      name =>
-        name.endsWith(componentName + "/component") ||
-        name.endsWith(componentName + "/template") ||
-        name.endsWith(componentName)
-    )
-    .forEach(item => {
-      requireUnsee(item);
-    });
+  // scopedComponents()
+  //   .filter(
+  //     name =>
+  //       name.endsWith(componentName + "/component") ||
+  //       name.endsWith(componentName + "/template") ||
+  //       name.endsWith(componentName)
+  //   )
+  //   .forEach(item => {
+  //     requireUnsee(item);
+  //   });
 
   addonComponents(modulePrefix)
     .filter(
