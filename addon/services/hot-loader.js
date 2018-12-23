@@ -270,6 +270,7 @@ export default Service.extend(Evented, {
     return name in DYNAMIC_HELPERS_WRAPPERS_COMPONENTS;
   },
   isComponent(name, currentContext) {
+    // todo - must be route-related logic
     if (!(name in COMPONENT_NAMES_CACHE)) {
       // classic + pods
       COMPONENT_NAMES_CACHE[name] = this._isComponent(name);
