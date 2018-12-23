@@ -107,6 +107,9 @@ export default Service.extend(Evented, {
     const modulePrefix = get(config, "modulePrefix") || "dummy";
     const podModulePrefix = get(config, "podModulePrefix") || modulePrefix;
     // /routes/patterns.inheritance/-components
+    if (!owner.router || !owner.router.currentRouteName) {
+      return [];
+    }
     const allRouteScopes = owner.router.currentRouteName.split('.');
     const scopes = [];
     for (let i = 1; i <= allRouteScopes.length; i++) {
