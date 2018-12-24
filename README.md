@@ -10,7 +10,7 @@ This addon is continuation of the project [ember-cli-hot-loader](https://github.
 Many thanks to [Toran Billups / @toranb](https://github.com/toranb) for this huge work, support and inspiration!
 
 * `ember-cli-hot-loader` implemented using middleware for  `ember-resolver` and `wrapping` components. 
-* `ember-as-hot-load` implemented using compile-time templates `ast` transformations.
+* `ember-ast-hot-load` implemented using compile-time templates `ast` transformations.
 
 | Point  		      | ember-ast-hot-load | ember-cli-hot-loader |
 | ------------------  | ------------------ | -------------------- |
