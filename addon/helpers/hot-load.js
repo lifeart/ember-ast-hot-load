@@ -2,6 +2,7 @@ import Helper from "@ember/component/helper";
 import { inject as service } from "@ember/service";
 import { later, cancel } from "@ember/runloop";
 import { get } from "@ember/object";
+import { dasherize } from "@ember/string";
 
 function hasPropertyNameInContext(prop, ctx) {
   if (typeof ctx !== 'object') {
@@ -58,8 +59,17 @@ export default Helper.extend({
   },
   compute([name, context = {}, maybePropertyValue = undefined, astStringName = '']) {
     const hotLoader = get(this, 'hotLoader');
-    const safeAstName = String(astStringName || '');
-    this.possibleNames = [ name ].concat(hotLoader.scopedComponentNames(name, context));
+	const safeAstName = String(astStringName || '');
+	const dasherizedName = dasherize(typeof name === 'string' ? name : '-unknown-');
+	this.possibleNames = [ name, dasherizedName ].concat(hotLoader.scopedComponentNames(name, context));
+	let renderComponentName = name;
+	let isComponent = hotLoader.isComponent(name, context);
+	if (!isComponent) {
+		isComponent = hotLoader.isComponent(dasherizedName, context);
+		if (isComponent) {
+			renderComponentName = dasherizedName;
+		}
+	}
     // console.log('compute', {
     //   name, context, maybePropertyValue, astStringName,
     //   isComponent: hotLoader.isComponent(name, context),
@@ -68,12 +78,12 @@ export default Helper.extend({
     const hasPropInComponentContext = hasPropertyNameInContext(name, context);
     const isArgument = safeAstName.charAt(0) === '@' || safeAstName.startsWith('attrs.');
 		if (!isArgument && (hasPropInComponentContext || (typeof maybePropertyValue !== 'undefined'))) {
-      if (!hasPropInComponentContext && !hotLoader.isComponent(name, context) && !hotLoader.isHelper(name)) {
+      if (!hasPropInComponentContext && !isComponent && !hotLoader.isHelper(name)) {
         // if it's not component, not in scope and not helper - dunno, we need to render placeholder with value;
         return hotLoader.renderDynamicComponentHelper(name, context, maybePropertyValue);
       }
     }
-    if (!hotLoader.isComponent(name, context)) {
+    if (!isComponent) {
       if (hotLoader.isHelper(name)) {
         hotLoader.registerDynamicComponent(name);
         return hotLoader.dynamicComponentNameForHelperWrapper(name);
@@ -98,6 +108,6 @@ export default Helper.extend({
       this.firstComputeName = name;
     }
 
-    return name;
+    return renderComponentName;
   }
 });
