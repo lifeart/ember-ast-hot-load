@@ -16,6 +16,7 @@ Many thanks to [Toran Billups / @toranb](https://github.com/toranb) for this hug
 | ------------------  | ------------------ | -------------------- |
 | Tagless components   |          +         |           +/-        |
 | Classic route templates |         +        |           -         |
+| MU route templates  |          +         |           -          |
 | reducers reloading  |          -         |           +          |
 | performance impact  |         low        |           middle     |
 | typescript support  |          +         |            +         |
@@ -32,7 +33,6 @@ Many thanks to [Toran Billups / @toranb](https://github.com/toranb) for this hug
 | Resolver 5 support  |          +         |            -         |
 | MU support          |          +         |            -         |
 | Addons hot-reload   |          +         |            -         |
-
 
 Installation
 ------------------------------------------------------------------------------
