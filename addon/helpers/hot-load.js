@@ -84,7 +84,7 @@ export default Helper.extend({
         return hotLoader.renderDynamicComponentHelper(name, context, maybePropertyValue);
       }    
     }
-    if (name === this.firstCompute) {
+    if (renderComponentName === this.firstCompute) {
       this.firstCompute = false;
       this.timer = later(() => {
         this.recompute();
@@ -93,12 +93,12 @@ export default Helper.extend({
     }
 
     if (!this.firstCompute) {
-      this.firstCompute = name;
-      this.firstComputeName = name;
+      this.firstCompute = renderComponentName;
+      this.firstComputeName = renderComponentName;
     }
 
-    if (this.firstComputeName !== name) {
-      this.firstComputeName = name;
+    if (this.firstComputeName !== renderComponentName) {
+      this.firstComputeName = renderComponentName;
     }
 
     return renderComponentName;
