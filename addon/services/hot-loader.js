@@ -92,6 +92,29 @@ function getPossibleRouteTemplateMeta(maybeString = '') {
 
 var matchingResults = {};
 
+function getMUScopedComponents() {
+  const pairs = Object.keys(window.requirejs ? window.requirejs.entries : {})
+  .filter(name=>(name.includes('/ui/components/')))
+  .map((name)=>{
+    const [ , maybeName = false ] = name.split('/ui/components/');
+    if (typeof maybeName === 'string') {
+      return maybeName;
+    } else {
+      return false;
+    }
+  }).filter((item)=>(item !== false));
+  const result = [];
+  pairs.forEach((rawComponentRef)=>{
+    const isTemplate = rawComponentRef.endsWith('/template');
+    const substrToReplace = isTemplate ? '/template' : '/component';
+    const normalizedComponentName = rawComponentRef.replace(substrToReplace, '');
+    if (!result.includes(normalizedComponentName) && !normalizedComponentName.includes('/-')) {
+      result.push(normalizedComponentName);
+    }
+  });
+  return result;
+}
+
 function getRouteScopedComponents() {
   const pairs = Object.keys(window.requirejs ? window.requirejs.entries : {})
     .filter(name=>(name.includes('/-components/')))
@@ -112,11 +135,41 @@ function getRouteScopedComponents() {
     if (!result[normalizedRoute]) {
       result[normalizedRoute] = [];
     }
-    if (!result[normalizedRoute].includes(normalizedComponentName)) {
+    if (!result[normalizedRoute].includes(normalizedComponentName) && !normalizedComponentName.includes('/-')) {
       result[normalizedRoute].push(normalizedComponentName);
     }
   });
   return result;
+}
+
+// we need this because Ember.String.dasherize('XTestWrapper') -> xtest-wrapper, not x-test-wrapper
+function dasherizeName(name = '') {
+	const result = [];
+	const nameSize = name.length;
+	if (!nameSize) {
+		return '';
+	}
+	result.push(name.charAt(0));
+	for (let i = 1; i < nameSize; i++) {
+		let char = name.charAt(i);
+		if (char === char.toUpperCase()) {
+			if (char !== '-' && char !== '/' && char !== '_') {
+				if (result[result.length - 1] !== '-') {
+					result.push('-');
+				}
+			}
+		}
+		result.push(char);
+	}
+	return result.join('');
+}
+
+function normalizeComponentName(name) {
+  if (typeof name !== 'string') {
+    return name;
+  } else {
+    return dasherizeName(name).toLowerCase();
+  }
 }
 
 export default Service.extend(Evented, {
@@ -127,13 +180,21 @@ export default Service.extend(Evented, {
   init() {
     this._super(...arguments);
     this.routeScopedComponents = getRouteScopedComponents();
+    this.muScopedComponents = getMUScopedComponents();
+    this.owner = getOwner(this);
+    this.componentLookup = this.owner.lookup('component-lookup:main');
+    this.routerService = this.owner.lookup('service:router') || this.owner.lookup('service:-router');
+    this.appConfig = this.owner.resolveRegistration('config:environment') || {};
+  },
+  normalizeComponentName(name) {
+    return normalizeComponentName(name);
   },
   currentRouteScopes() {
-    const owner = getOwner(this);
-    const config = owner.resolveRegistration("config:environment");
+    const owner = this.owner;
+    const config = this.appConfig;
   
-    const modulePrefix = get(config, "modulePrefix") || "dummy";
-    const podModulePrefix = get(config, "podModulePrefix") || modulePrefix;
+    const modulePrefix = get(config, 'modulePrefix') || 'dummy';
+    const podModulePrefix = get(config, 'podModulePrefix') || modulePrefix;
     // /routes/patterns.inheritance/-components
     if (!owner.router || !owner.router.currentRouteName) {
       return [];
@@ -143,12 +204,13 @@ export default Service.extend(Evented, {
     for (let i = 1; i <= allRouteScopes.length; i++) {
       scopes.push(allRouteScopes.slice(0, i).join('/'));
     }
+    scopes.push('application');
     return scopes.map((scope)=>{
       return `/${podModulePrefix}/routes/${scope}/-components/`;
     });
   },
   currentRouteComponents() {
-    const owner = getOwner(this);
+    const owner = this.owner;
     // /routes/patterns.inheritance/-components
     if (!owner.router || !owner.router.currentRouteName) {
       return [];
@@ -158,11 +220,14 @@ export default Service.extend(Evented, {
     for (let i = 1; i <= allRouteScopes.length; i++) {
       scopes.push(allRouteScopes.slice(0, i).join('.'));
     }
+    scopes.push('application');
     const result = [];
     scopes.forEach((path)=>{
       if (this.routeScopedComponents[path]) {
-        this.routeScopedComponents[path].forEach((conponentName)=>{
-          result.push(conponentName);
+        this.routeScopedComponents[path].forEach((componentName)=>{
+          if (!componentName.includes('/-')) {
+            result.push(componentName);
+          }
         });
       }
     });
@@ -176,13 +241,14 @@ export default Service.extend(Evented, {
   },
   willHotReloadRouteTemplate(attrs) {
     const meta = getPossibleRouteTemplateMeta(attrs);
+    const owner = this.owner;
     if (!meta.looksLikeRouteTemplate) {
       return;
     }
     if (meta.maybeClassicPath) {
       this.forgetComponent(meta.possibleTemplateName);
-      const route = getOwner(this).lookup(`route:${meta.possibleRouteName}`);
-      const router  = getOwner(this).lookup('service:router');
+      const route = owner.lookup(`route:${meta.possibleRouteName}`);
+      const router  = this.routerService;
       if (!route || !router) {
         return window.location.reload();
       }
@@ -202,8 +268,8 @@ export default Service.extend(Evented, {
         routeName = routeName.replace('.template', '');
       }
       this.forgetComponent(routeName);
-      const route = getOwner(this).lookup(`route:${routeName}`);
-      const router  = getOwner(this).lookup('service:router');
+      const route = owner.lookup(`route:${routeName}`);
+      const router  = this.routerService;
       if (!route || !router) {
         return window.location.reload();
       }
@@ -228,18 +294,18 @@ export default Service.extend(Evented, {
   __isAlive() {
     return  !this.isDestroyed && !this.isDestroying;
   },
-  isMatchingComponent(componentName = "dummy", path = "empty") {
-    let key = String(componentName) + "__" + String(path);
+  isMatchingComponent(componentName = 'dummy', path = 'empty') {
+    let key = String(componentName) + '__' + String(path);
     if (!(key in matchingResults)) {
       matchingResults[key] = matchingComponent(componentName, path);
     }
     return matchingResults[key];
   },
   triggerInRunLoop(name, attrs) {
-    if (name === "willHotReload") {
+    if (name === 'willHotReload') {
       willHotReloadCallbacks.forEach(cb => cb(attrs));
       this.willHotReloadRouteTemplate(attrs);
-    } else if (name === "willLiveReload") {
+    } else if (name === 'willLiveReload') {
       willLiveReloadCallbacks.forEach(cb => cb(attrs));
       this.willLiveReloadRouteTemplate(attrs);
     }
@@ -279,20 +345,12 @@ export default Service.extend(Evented, {
   isComponent(name, currentContext) {
     // todo - must be route-related logic
     if (!(name in COMPONENT_NAMES_CACHE)) {
-      // classic + pods
+      // classic + pods, can check names and nested/names
       COMPONENT_NAMES_CACHE[name] = this._isComponent(name);
       // MU stuff
       if (!COMPONENT_NAMES_CACHE[name]) {
-        // ui/components/foo-bar/baz
-        COMPONENT_NAMES_CACHE[name] = this._isContextedComponent(name, currentContext);
-      }
-      if (!COMPONENT_NAMES_CACHE[name]) {
-        // ui/routes/foo/-components/baz
-        COMPONENT_NAMES_CACHE[name] = this._isRouteScopedComponent(name);
-      }
-      if (!COMPONENT_NAMES_CACHE[name]) {
         // ui/routes/foo/-components/baz/bar
-        COMPONENT_NAMES_CACHE[name] = this._isRouteScopedContextedComponent(name, currentContext);
+        COMPONENT_NAMES_CACHE[name] = this._isMUComponent(name, currentContext);
       }
       //  ||
       // this._isComponent(dasherize(name)) ||
@@ -301,7 +359,7 @@ export default Service.extend(Evented, {
     return COMPONENT_NAMES_CACHE[name];
   },
   isFastboot: computed(function() {
-    const fastboot = getOwner(this).lookup("service:fastboot");
+    const fastboot = this.owner.lookup('service:fastboot');
     if (!fastboot) {
       return false;
     }
@@ -311,23 +369,49 @@ export default Service.extend(Evented, {
     if (name.includes('@') || name.includes('/') || name.includes('.')) {
       return false;
     }
-    const owner = getOwner(this);
-    return owner.application.hasRegistration("helper:" + name);
+    return this.owner.application.hasRegistration('helper:' + name);
   },
   // for mu support components like src/components/tabs/tab
+  extractNamesFromContext(context, result = []) {
+    if (
+      typeof context !== 'object' 
+      || context === null 
+      || !context.args 
+      || !context.args.hotReloadCUSTOMName) {
+      return result;
+    } else {
+      result.push(this.normalizeComponentName(context.args.hotReloadCUSTOMName));
+    }
+    return this.extractNamesFromContext(context.args.hotReloadCUSTOMhlContext, result);
+  },
   _scopedComponentNames(name, scope) {
-    const closestRelativeName = this.currentRouteComponents().filter((resolvedName)=>resolvedName.endsWith(name)).pop();
+    const closestRelativeName = [].concat(this.muScopedComponents, this.currentRouteComponents())
+      .filter((resolvedName)=>resolvedName.endsWith(name)).pop();
     // closestRelativeName can be undefined
     if (!scope) {
       return [closestRelativeName, name];
     }
-    const normalizedContext = decamelize(scope.constructor.name).replace('_component', '').replace('_class','');
-    const candidate = camelize(normalizedContext) + '/' + name;
-    const result = [closestRelativeName, candidate];
-    // todo add hotReloadCustomContext... to resolve deep nesting
-    if (scope.args && scope.args.hotReloadCUSTOMName) {
-      result.push(scope.args.hotReloadCUSTOMName + '/' + name);
+    const normalizedContext = this.normalizeComponentName(scope.constructor.name)
+      .replace('-component', '')
+      .replace('-class','');
+    const candidate = normalizedContext + '/' + name;
+    const result = [];
+    if (typeof closestRelativeName === 'string') {
+      result.push(closestRelativeName);
     }
+    if (candidate !== 'class/' + name) {
+      if (!result.includes(candidate)) {
+        result.push(candidate);
+      }
+    }
+    // todo add hotReloadCustomContext... to resolve deep nesting
+    const namesFromContext = this.extractNamesFromContext(scope).reverse();
+    for (let i = 1; i <= namesFromContext.length; i++) {
+      const possibleNamePaths = namesFromContext.slice(0, i);
+      possibleNamePaths.push(name);
+      result.push(possibleNamePaths.join('/'));
+    }
+    // console.log('_scopedComponentNames', result);
     return result;
   },
   scopedComponentNames(name, scope) {
@@ -345,7 +429,7 @@ export default Service.extend(Evented, {
     });
     return isComponent;
   },
-  _isRouteScopedContextedComponent(name, currentContext) {
+  _isMUComponent(name, currentContext) {
     const names = this.scopedComponentNames(name, currentContext);
     const scopes = this.currentRouteScopes();
     let isComponent = false;
@@ -356,6 +440,13 @@ export default Service.extend(Evented, {
         }
       })
     });
+    if (!isComponent) {
+      names.forEach((possibleComponentName)=>{
+        if (this._isComponent(possibleComponentName)) {
+          isComponent = true;
+        }
+      });
+    }
     return isComponent;
   },
   _isContextedComponent(name, currentContext) {
@@ -372,20 +463,30 @@ export default Service.extend(Evented, {
     if (typeof rawName === 'object' && rawName !== null) {
       return true;
     }
-    const name = (rawName || '').toLowerCase();
-    const owner = getOwner(this);
+    const name = (rawName || '');
     if (this.isHelper(name)) {
       return false;
     }
-    const lookup = owner.lookup("component-lookup:main");
+    const lookup = this.componentLookup;
     try {
       if (!lookup.componentFor) {
         return !!lookup.lookupFactory(name);
       }
 
-      return !!(
-        lookup.componentFor(name, owner) || lookup.layoutFor(name, owner)
-      );
+      let hasComponent = false;
+      try {
+        hasComponent = !!lookup.componentFor(name, this.owner);
+        if (!hasComponent) {
+          throw new Error('Unable to resolve component class');
+        }
+      } catch (err) {
+        try {
+          hasComponent = !!lookup.layoutFor(name, this.owner);
+        } catch (error) {
+          hasComponent = false;
+        }
+      }
+      return hasComponent;
     } catch (err) {
       return false;
     }
@@ -394,6 +495,7 @@ export default Service.extend(Evented, {
     return `helper ${name}`;
 	},
 	renderDynamicComponentHelper() {
+    // console.log('renderDynamicComponentHelper', ...arguments);
     return 'hot-content';
   },
   placeholderComponentName() {
@@ -405,22 +507,22 @@ export default Service.extend(Evented, {
     }
     this.printError(name);
     this.addDynamicHelperWrapperComponent(name);
-    const owner = getOwner(this);
+    const owner = this.owner;
     const component = Component.extend({
       tagName: "",
       layout: computed(function() {
         let positionalParams = (this._params || []).join(" ");
-        let attrs = this["attrs"] || {};
+        let attrs = this['attrs'] || {};
         const attributesMap = Object.keys(attrs)
-          .filter(key => key !== "_params")
+          .filter(key => key !== '_params')
           .map(key => `${key}=${key}`)
-          .join(" ");
+          .join(' ');
         const tpl = `{{${name} ${positionalParams} ${attributesMap}}}`;
         return compileTemplate(tpl);
       })
     });
     component.reopenClass({
-      positionalParams: "_params"
+      positionalParams: '_params'
     });
     owner.application.register(
       `component:${this.dynamicComponentNameForHelperWrapper(name)}`,
@@ -428,7 +530,7 @@ export default Service.extend(Evented, {
     );
   },
   printError(name) {
-    window["console"].info(`
+    window['console'].info(`
 
 	Oops, looks like helper "${name}" invoked like component (due to 'ember-ast-hot-load' ast transformation).
 	Don't worry it's expected behavour because helper "${name}" looks like component ( {{${name}}} or <${capitalize(
