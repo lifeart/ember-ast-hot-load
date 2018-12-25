@@ -95,7 +95,14 @@ var matchingResults = {};
 function getRouteScopedComponents() {
   const pairs = Object.keys(window.requirejs ? window.requirejs.entries : {})
     .filter(name=>(name.includes('/-components/')))
-    .map((name)=>name.split('/src/ui/routes/')[1].split('/-components/'))
+    .map((name)=>{
+		const [ , maybeName = false ] = name.split('/src/ui/routes/');
+		if (typeof maybeName === 'string') {
+			return maybeName.split('/-components/');
+		} else {
+			return false;
+		}
+	}).filter((item)=>(item !== false));
   const result = {};
   pairs.forEach(([routePath, rawComponentRef])=>{
     const normalizedRoute = routePath.split('/').join('.');
