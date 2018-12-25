@@ -70,7 +70,7 @@ export default Helper.extend({
     // });
     const hasPropInComponentContext = hasPropertyNameInContext(name, context);
     const isArgument = safeAstName.charAt(0) === '@' || safeAstName.startsWith('attrs.');
-	  if (!isArgument && (hasPropInComponentContext || (typeof maybePropertyValue !== 'undefined'))) {
+    if (!isArgument && (hasPropInComponentContext || (typeof maybePropertyValue !== 'undefined'))) {
       if (!hasPropInComponentContext && !isComponent && !hotLoader.isHelper(name)) {
         // if it's not component, not in scope and not helper - dunno, we need to render placeholder with value;
         return hotLoader.renderDynamicComponentHelper(name, context, maybePropertyValue);

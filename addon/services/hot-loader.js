@@ -3,7 +3,7 @@ import Evented from "@ember/object/evented";
 import Component from "@ember/component";
 import { getOwner } from "@ember/application";
 import { get, computed, getWithDefault } from "@ember/object";
-import { dasherize, camelize, capitalize, decamelize } from "@ember/string";
+import { dasherize, camelize, capitalize } from "@ember/string";
 import { compileTemplate } from "@ember/template-compilation";
 import {
   clearRequirejsCache,
