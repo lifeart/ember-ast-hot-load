@@ -20,7 +20,8 @@ module.exports = function() {
             devDependencies: {
               '@ember/jquery': '^0.5.1',
               'ember-source': '~2.16.0',
-              'ember-named-arguments-polyfill': '1.0.0'
+              'ember-named-arguments-polyfill': '1.0.0',
+              'ember-let-polyfill': '0.1.0'
             }
           }
         },
@@ -33,7 +34,8 @@ module.exports = function() {
             devDependencies: {
               '@ember/jquery': '^0.5.1',
               'ember-source': '~2.18.0',
-              'ember-named-arguments-polyfill': '1.0.0'
+              'ember-named-arguments-polyfill': '1.0.0',
+              'ember-let-polyfill': '0.1.0'
             }
           }
         },
