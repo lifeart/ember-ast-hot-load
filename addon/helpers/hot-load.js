@@ -2,7 +2,6 @@ import Helper from "@ember/component/helper";
 import { inject as service } from "@ember/service";
 import { later, cancel } from "@ember/runloop";
 import { get } from "@ember/object";
-import { dasherize } from "@ember/string";
 
 function hasPropertyNameInContext(prop, ctx) {
   if (typeof ctx !== 'object') {
@@ -12,6 +11,28 @@ function hasPropertyNameInContext(prop, ctx) {
     return false;
   }
   return (prop in ctx);
+}
+
+// we need this because Ember.String.dasherize('XTestWrapper') -> xtest-wrapper, not x-test-wrapper
+function dasherize(name = '') {
+	const result = [];
+	const nameSize = name.length;
+	if (!nameSize) {
+		return '';
+	}
+	result.push(name.charAt(0));
+	for (let i = 1; i < nameSize; i++) {
+		let char = name.charAt(i);
+		if (char === char.toUpperCase()) {
+			if (char !== '-') {
+				if (result[result.length - 1] !== '-') {
+					result.push('-');
+				}
+			}
+		}
+		result.push(char);
+	}
+	return result.join('').toLowerCase();
 }
 
 export default Helper.extend({
@@ -77,7 +98,7 @@ export default Helper.extend({
     // });
     const hasPropInComponentContext = hasPropertyNameInContext(name, context);
     const isArgument = safeAstName.charAt(0) === '@' || safeAstName.startsWith('attrs.');
-		if (!isArgument && (hasPropInComponentContext || (typeof maybePropertyValue !== 'undefined'))) {
+	if (!isArgument && (hasPropInComponentContext || (typeof maybePropertyValue !== 'undefined'))) {
       if (!hasPropInComponentContext && !isComponent && !hotLoader.isHelper(name)) {
         // if it's not component, not in scope and not helper - dunno, we need to render placeholder with value;
         return hotLoader.renderDynamicComponentHelper(name, context, maybePropertyValue);
