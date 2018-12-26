@@ -79,11 +79,11 @@ export default Service.extend(Evented, {
     const result = [];
     scopes.forEach((path)=>{
       if (this.routeScopedComponents[path]) {
-        this.routeScopedComponents[path].forEach((componentName)=>{
-          if (!componentName.includes('/-')) {
-            result.push(componentName);
-          }
-        });
+      this.routeScopedComponents[path].forEach((componentName)=>{
+        if (!componentName.includes('/-')) {
+          result.push(componentName);
+        }
+      });
       }
     });
     return result;
@@ -105,16 +105,37 @@ export default Service.extend(Evented, {
       const route = owner.lookup(`route:${meta.possibleRouteName}`);
       const router  = this.routerService;
       if (!route || !router) {
-        return window.location.reload();
+      return window.location.reload();
       }
       if (router.currentRouteName.includes(meta.possibleRouteName)) {
-        route.renderTemplate();
+      route.renderTemplate();
       } else if (router.currentRouteName === 'index' && meta.possibleRouteName === 'application') {
-        route.renderTemplate();
+      route.renderTemplate();
       } else { 
-        // else template will be updated after transition
+      // else template will be updated after transition
       }
     } else if (meta.isMU) {
+      let routeName = meta.possibleRouteName;
+      if (routeName.startsWith('.')) {
+      routeName = routeName.replace('.', '');
+      }
+      if (routeName.endsWith('.template')) {
+      routeName = routeName.replace('.template', '');
+      }
+      this.forgetComponent(routeName);
+      const route = owner.lookup(`route:${routeName}`);
+      const router  = this.routerService;
+      if (!route || !router) {
+      return window.location.reload();
+      }
+      if (router.currentRouteName.includes(routeName)) {
+      route.renderTemplate();
+      } else if (router.currentRouteName === 'index' && routeName === 'application') {
+      route.renderTemplate();
+      } else { 
+      // else template will be updated after transition
+      }
+    } else if (meta.maybePodsPath) {
       let routeName = meta.possibleRouteName;
       if (routeName.startsWith('.')) {
         routeName = routeName.replace('.', '');
@@ -122,55 +143,34 @@ export default Service.extend(Evented, {
       if (routeName.endsWith('.template')) {
         routeName = routeName.replace('.template', '');
       }
+      let maybeRoute = null;
+      let paths = routeName.split('.');
+      let pathsCount = paths.length;
+      for (let i = 0; i < pathsCount; i++) {
+        let possibleRouteName = paths.join('.');
+        maybeRoute =  owner.lookup(`route:${possibleRouteName}`);
+        if (maybeRoute) {
+          routeName = possibleRouteName;
+          break;
+        } else {
+          if (paths.length === 0) {
+            break;
+          }
+          paths.shift();
+        }
+      }
       this.forgetComponent(routeName);
-      const route = owner.lookup(`route:${routeName}`);
       const router  = this.routerService;
-      if (!route || !router) {
+      if (!maybeRoute || !router) {
         return window.location.reload();
       }
       if (router.currentRouteName.includes(routeName)) {
-        route.renderTemplate();
+        maybeRoute.renderTemplate();
       } else if (router.currentRouteName === 'index' && routeName === 'application') {
-        route.renderTemplate();
+        maybeRoute.renderTemplate();
       } else { 
         // else template will be updated after transition
       }
-    } else if (meta.maybePodsPath) {
-		let routeName = meta.possibleRouteName;
-		if (routeName.startsWith('.')) {
-		  routeName = routeName.replace('.', '');
-		}
-		if (routeName.endsWith('.template')) {
-		  routeName = routeName.replace('.template', '');
-		}
-		let maybeRoute = null;
-		let paths = routeName.split('.');
-		let pathsCount = paths.length;
-		for (let i = 0; i < pathsCount; i++) {
-			let possibleRouteName = paths.join('.');
-			maybeRoute =  owner.lookup(`route:${possibleRouteName}`);
-			if (maybeRoute) {
-				routeName = possibleRouteName;
-				break;
-			} else {
-				if (paths.length === 0) {
-					break;
-				}
-				paths.shift();
-			}
-		}
-		this.forgetComponent(routeName);
-		const router  = this.routerService;
-		if (!maybeRoute || !router) {
-		  return window.location.reload();
-		}
-		if (router.currentRouteName.includes(routeName)) {
-		  maybeRoute.renderTemplate();
-		} else if (router.currentRouteName === 'index' && routeName === 'application') {
-		  maybeRoute.renderTemplate();
-		} else { 
-		  // else template will be updated after transition
-		}
 	} else {
       window.location.reload();
     }
@@ -243,8 +243,8 @@ export default Service.extend(Evented, {
       COMPONENT_NAMES_CACHE[name] = this._isComponent(name);
       // MU stuff
       if (!COMPONENT_NAMES_CACHE[name]) {
-        // ui/routes/foo/-components/baz/bar
-        COMPONENT_NAMES_CACHE[name] = this._isMUComponent(name, currentContext);
+      // ui/routes/foo/-components/baz/bar
+      COMPONENT_NAMES_CACHE[name] = this._isMUComponent(name, currentContext);
       }
       //  ||
       // this._isComponent(dasherize(name)) ||
@@ -293,7 +293,7 @@ export default Service.extend(Evented, {
     }
     if (candidate !== 'class/' + name) {
       if (!result.includes(candidate)) {
-        result.push(candidate);
+      result.push(candidate);
       }
     }
     // todo add hotReloadCustomContext... to resolve deep nesting
@@ -316,7 +316,7 @@ export default Service.extend(Evented, {
     let isComponent = false;
     scopes.forEach((scopeForRoute)=>{
       if (this._isComponent(scopeForRoute + name)) {
-        isComponent = true;
+      isComponent = true;
       }
     });
     return isComponent;
@@ -327,16 +327,16 @@ export default Service.extend(Evented, {
     let isComponent = false;
     scopes.forEach((scopeForRoute) => {
       names.forEach((possibleName) => {
-        if (this._isComponent(scopeForRoute + possibleName)) {
-          isComponent = true;
-        }
+      if (this._isComponent(scopeForRoute + possibleName)) {
+        isComponent = true;
+      }
       })
     });
     if (!isComponent) {
       names.forEach((possibleComponentName)=>{
-        if (this._isComponent(possibleComponentName)) {
-          isComponent = true;
-        }
+      if (this._isComponent(possibleComponentName)) {
+        isComponent = true;
+      }
       });
     }
     return isComponent;
@@ -346,7 +346,7 @@ export default Service.extend(Evented, {
     let isComponent = false;
     names.forEach((maybeComponentName)=>{
       if (this._isComponent(maybeComponentName)) {
-        isComponent = true;
+      isComponent = true;
       }
     });
     return isComponent;
@@ -362,21 +362,21 @@ export default Service.extend(Evented, {
     const lookup = this.componentLookup;
     try {
       if (!lookup.componentFor) {
-        return !!lookup.lookupFactory(name);
+      return !!lookup.lookupFactory(name);
       }
 
       let hasComponent = false;
       try {
-        hasComponent = !!lookup.componentFor(name, this.owner);
-        if (!hasComponent) {
-          throw new Error('Unable to resolve component class');
-        }
+      hasComponent = !!lookup.componentFor(name, this.owner);
+      if (!hasComponent) {
+        throw new Error('Unable to resolve component class');
+      }
       } catch (err) {
-        try {
-          hasComponent = !!lookup.layoutFor(name, this.owner);
-        } catch (error) {
-          hasComponent = false;
-        }
+      try {
+        hasComponent = !!lookup.layoutFor(name, this.owner);
+      } catch (error) {
+        hasComponent = false;
+      }
       }
       return hasComponent;
     } catch (err) {
@@ -403,16 +403,16 @@ export default Service.extend(Evented, {
     const component = Component.extend({
       tagName: "",
       layout: computed(function() {
-        let positionalParams = (this._params || []).map((param, index)=>{
-          return `(get this._params "${index}")`;
-        }).join(" ")
-        let attrs = this['attrs'] || {};
-        const attributesMap = Object.keys(attrs)
-          .filter(key => key !== '_params' && !key.startsWith('hotReload'))
-          .map(key => `${key}=this.attrs.${key}`)
-          .join(' ');
-        const tpl = `{{${name} ${positionalParams} ${attributesMap}}}`;
-        return compileTemplate(tpl);
+      let positionalParams = (this._params || []).map((param, index)=>{
+        return `(get this._params "${index}")`;
+      }).join(" ")
+      let attrs = this['attrs'] || {};
+      const attributesMap = Object.keys(attrs)
+        .filter(key => key !== '_params' && !key.startsWith('hotReload'))
+        .map(key => `${key}=this.attrs.${key}`)
+        .join(' ');
+      const tpl = `{{${name} ${positionalParams} ${attributesMap}}}`;
+      return compileTemplate(tpl);
       })
     });
     component.reopenClass({
@@ -437,8 +437,8 @@ export default Service.extend(Evented, {
 	
 	let app = new EmberApp(defaults, {
 	  'ember-ast-hot-load': {
-		  helpers: ["${name}"],
-		  enabled: true
+        helpers: ["${name}"],
+        enabled: true
 	  }
 	});
 
