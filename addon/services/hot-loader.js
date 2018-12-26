@@ -344,6 +344,9 @@ export default Service.extend(Evented, {
   },
   isComponent(name, currentContext) {
     // todo - must be route-related logic
+    if (typeof name !== 'string') {
+      return true;
+    }
     if (!(name in COMPONENT_NAMES_CACHE)) {
       // classic + pods, can check names and nested/names
       COMPONENT_NAMES_CACHE[name] = this._isComponent(name);
