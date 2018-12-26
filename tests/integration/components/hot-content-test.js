@@ -33,6 +33,12 @@ module('Integration | Component | hot-content', function (hooks) {
 
   });
 
+  test('it handle helpers with positional and hashy params', async function (assert){
+    await render(hbs `{{complex-helper-wrapper}}`);
+    const expextedResult = `{"params":[1,"1",{"a":"a"}],"hash":{"foo":"bar","boo":{"doo":"foo"}}}`.toString();
+    assert.equal(this.element.textContent, expextedResult);
+  });
+
   test('in can hande angle-bracked invocation components with one camel name', async function (assert) {
     const el = this.element;
     await render(hbs `{{angle-br-single}}`);
