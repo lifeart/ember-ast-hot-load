@@ -4,6 +4,7 @@ import Component from "@ember/component";
 import { getOwner } from "@ember/application";
 import { get, computed, getWithDefault } from "@ember/object";
 import { camelize, capitalize } from "@ember/string";
+// import { compileTemplate } from "@ember/template-compilation";
 import {
   clearRequirejsCache,
   clearContainerCache
@@ -16,8 +17,9 @@ import {
   getPossibleRouteTemplateMeta,
   componentNameFromClassName
  } from "ember-ast-hot-load/utils/normalizers";
+
 import Ember from 'ember';
-// import { compileTemplate } from "@ember/template-compilation";
+/* eslint-disable ember/new-module-imports */
 const compileTemplate = Ember.HTMLBars.compile;
 const COMPONENT_NAMES_CACHE = {};
 const DYNAMIC_HELPERS_WRAPPERS_COMPONENTS = {};
@@ -133,7 +135,43 @@ export default Service.extend(Evented, {
       } else { 
         // else template will be updated after transition
       }
-    } else {
+    } else if (meta.maybePodsPath) {
+		let routeName = meta.possibleRouteName;
+		if (routeName.startsWith('.')) {
+		  routeName = routeName.replace('.', '');
+		}
+		if (routeName.endsWith('.template')) {
+		  routeName = routeName.replace('.template', '');
+		}
+		let maybeRoute = null;
+		let paths = routeName.split('.');
+		let pathsCount = paths.length;
+		for (let i = 0; i < pathsCount; i++) {
+			let possibleRouteName = paths.join('.');
+			maybeRoute =  owner.lookup(`route:${possibleRouteName}`);
+			if (maybeRoute) {
+				routeName = possibleRouteName;
+				break;
+			} else {
+				if (paths.length === 0) {
+					break;
+				}
+				paths.shift();
+			}
+		}
+		this.forgetComponent(routeName);
+		const router  = this.routerService;
+		if (!maybeRoute || !router) {
+		  return window.location.reload();
+		}
+		if (router.currentRouteName.includes(routeName)) {
+		  maybeRoute.renderTemplate();
+		} else if (router.currentRouteName === 'index' && routeName === 'application') {
+		  maybeRoute.renderTemplate();
+		} else { 
+		  // else template will be updated after transition
+		}
+	} else {
       window.location.reload();
     }
   },
