@@ -102,6 +102,8 @@ export function clearContainerCache(context, componentName) {
   clear(context, owner, templateFullName, componentName);
   // case for route template
   clear(context, owner, routeTemplateFullName, componentName);
+  // clear route template for pods
+  clear(context, owner, routeTemplateFullName.split('.').join('/'), componentName.split('.').join('/'));
 }
 
 export function clearRequirejsCache(context, componentName) {
@@ -128,6 +130,11 @@ export function clearRequirejsCache(context, componentName) {
   requireUnsee(`${podModulePrefix}/components/${componentName}/template`);
   // pod route template
   requireUnsee(`${podModulePrefix}/${componentName}/template`);
+
+  // for PODS routes, in case of
+  // frontend/pods/protected/patients/patient/clinical-data/template
+  // returned like pods/protected/patients/patient/clinical-data/template
+  requireUnsee(`${modulePrefix}/${componentName}`);
 
   // mu route scoped components, resolved with prefix
   if (componentName.includes('/-components')) {
