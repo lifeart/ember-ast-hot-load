@@ -344,6 +344,9 @@ export default Service.extend(Evented, {
   },
   isComponent(name, currentContext) {
     // todo - must be route-related logic
+    if (typeof name !== 'string') {
+      return true;
+    }
     if (!(name in COMPONENT_NAMES_CACHE)) {
       // classic + pods, can check names and nested/names
       COMPONENT_NAMES_CACHE[name] = this._isComponent(name);
@@ -511,11 +514,13 @@ export default Service.extend(Evented, {
     const component = Component.extend({
       tagName: "",
       layout: computed(function() {
-        let positionalParams = (this._params || []).join(" ");
+        let positionalParams = (this._params || []).map((param, index)=>{
+          return `(get this._params "${index}")`;
+        }).join(" ")
         let attrs = this['attrs'] || {};
         const attributesMap = Object.keys(attrs)
-          .filter(key => key !== '_params')
-          .map(key => `${key}=${key}`)
+          .filter(key => key !== '_params' && !key.startsWith('hotReload'))
+          .map(key => `${key}=(get this.attrs "${key}")`)
           .join(' ');
         const tpl = `{{${name} ${positionalParams} ${attributesMap}}}`;
         return compileTemplate(tpl);
