@@ -306,7 +306,7 @@ export default Service.extend(Evented, {
       result.push(candidate);
       }
     }
-    // todo add hotReloadCustomContext... to resolve deep nesting
+    // todo add hotReloadCUSTOMhlContext... to resolve deep nesting
     const namesFromContext = this.extractNamesFromContext(scope).reverse();
     for (let i = 1; i <= namesFromContext.length; i++) {
       const possibleNamePaths = namesFromContext.slice(0, i);
