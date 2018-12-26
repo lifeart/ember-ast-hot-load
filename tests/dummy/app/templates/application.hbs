@@ -1,33 +1,64 @@
 <h2 id="title">Welcome to Ember</h2>
-{{template-only}}
-<button type="button" {{action "reload" target=this.hotLoader}}>Redraw</button>
-111
-{{arg-wrapper itemComponentName="x-test-wrapper"}}
-111
-333
-{{name-wrapper}}
-333
-{{dynamic-component-t}}
-222
-{{x-test-wrapper}}
-222
+
+<table>
+  <thead>
+    <tr>
+      <th>Component Name</th>
+      <th>Result</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>template-only</td>
+      <td>{{template-only}}</td>
+    </tr>
+    <tr>
+      <td>arg-wrapper itemComponentName="x-test-wrapper"</td>
+      <td>{{arg-wrapper itemComponentName="x-test-wrapper"}}</td>
+    </tr>
+    <tr>
+      <td>name-wrapper</td>
+      <td>{{name-wrapper}}</td>
+    </tr>
+    <tr>
+      <td>dynamic-component-t</td>
+      <td>{{dynamic-component-t}}</td>
+    </tr>
+    <tr>
+      <td>x-test-wrapper</td>
+      <td>{{x-test-wrapper}}</td>
+    </tr>
+    <tr>
+      <td>test-component</td>
+      <td>{{test-component}}</td>
+    </tr>
+    <tr>
+      <td>boo-boo 1 2 3 foo="12"</td>
+      <td>{{boo-boo 1 2 3 foo="12"}}</td>
+    </tr>
+    <tr>
+      <td>yield</td>
+      <td>{{yield}}</td>
+    </tr>
+    <tr>
+      <td>foo-bar a=true </td>
+      <td>{{foo-bar a=true}}</td>
+    </tr>
+    <tr>
+      <td>
+        {#let (hash foo=(component (concat "" "test-component"))) as |bofoo-bar|}
+          {bofoo-bar}
+        {/let}
+      </td>
+      <td>
+        {{#let (hash foo=(component (concat "" "test-component"))) as |bofoo-bar|}}
+          {{bofoo-bar}}
+        {{/let}}
+      </td>
+    </tr>
+  </tbody>
+</table>
+
 {{outlet}}
 
 {{!-- {{component (hot-load "test-component")}} --}}
-{{test-component}}
-{{test-component}}
-
-{{#each items as |item|}}
-  {{test-component item=item}}
-{{/each}}
-
-
-{{boo-boo 1 2 3 foo="12"}}
-
-
-{{yield}}
-||{{foo-bar a=true }}||
-
-{{#let (hash foo=(component (concat "" "test-component"))) as |bofoo-bar|}}
-  {{bofoo-bar}}
-{{/let}}

@@ -23,6 +23,8 @@ import Ember from "ember";
 const compileTemplate = Ember.HTMLBars.compile;
 const COMPONENT_NAMES_CACHE = {};
 const DYNAMIC_HELPERS_WRAPPERS_COMPONENTS = {};
+const REQUIRE_CLEAR_CACHE = [];
+const FORGET_CACHE = [];
 var willHotReloadCallbacks = [];
 var willLiveReloadCallbacks = [];
 var matchingResults = {};
@@ -49,6 +51,7 @@ export default Service.extend(Evented, {
   templateCompilerKey: null,
   useOriginalVendorFile: false,
   scriptDownloadErrors: 0,
+  iterationId: 0,
   init() {
     this._super(...arguments);
     this.routeScopedComponents = getRouteScopedComponents();
@@ -198,6 +201,7 @@ export default Service.extend(Evented, {
     return matchingResults[key];
   },
   triggerInRunLoop(name, attrs) {
+    this.incrementProperty('iterationId');
     if (name === 'willHotReload') {
       willHotReloadCallbacks.forEach(cb => cb(attrs));
       this.willHotReloadRouteTemplate(attrs);
@@ -219,6 +223,10 @@ export default Service.extend(Evented, {
     willLiveReloadCallbacks = willLiveReloadCallbacks.filter(f => f !== fn);
   },
   forgetComponent(name, isMU = true) {
+    const cacheKey = this.get('iterationId') + '/' + name + '/' + isMU;
+    if (FORGET_CACHE.includes(cacheKey)) {
+      return;
+    }
     if (isMU) {
       const muNames = this.getPossibleMUComponentNames(name);
       muNames.forEach((possibleMuName)=>{
@@ -226,13 +234,19 @@ export default Service.extend(Evented, {
       });
     }
     clearContainerCache(this, name);
+    FORGET_CACHE.push(cacheKey);
   },
   clearRequirejs(name) {
+    const cacheKey = this.get('iterationId') + '/' + name;
+    if (REQUIRE_CLEAR_CACHE.includes(cacheKey)) {
+      return;
+    }
     const muNames = this.getPossibleMUComponentNames(name);
     muNames.forEach((possibleMuName)=>{
       clearRequirejsCache(this, possibleMuName);
     });
     clearRequirejsCache(this, name);
+    REQUIRE_CLEAR_CACHE.push(cacheKey);
   },
   addDynamicHelperWrapperComponent(name) {
     DYNAMIC_HELPERS_WRAPPERS_COMPONENTS[name] = true;
@@ -303,7 +317,7 @@ export default Service.extend(Evented, {
     }
     if (candidate !== 'class/' + name) {
       if (!result.includes(candidate)) {
-      result.push(candidate);
+        result.push(candidate);
       }
     }
     // todo add hotReloadCUSTOMhlContext... to resolve deep nesting
