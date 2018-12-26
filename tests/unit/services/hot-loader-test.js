@@ -25,11 +25,11 @@ module('Unit | Service | hot-loader', function(hooks) {
     }
     const extensions = ['ts','js','hbs'];
     extensions.forEach((ext)=>{
-      assert.equal(match('foo',`foo.${ext}`), true, `should match .${ext} files`);
+      assert.equal(match('foo',`/foo.${ext}`), true, `should match .${ext} files`);
       if (ext === 'hbs') {
-        assert.equal(match('foo',`foo/template.${ext}`), true, `should understand pods-like style for .${ext} files`);
+        assert.equal(match('foo',`/foo/template.${ext}`), true, `should understand pods-like style for .${ext} files`);
       } else {
-        assert.equal(match('foo',`foo/component.${ext}`), true, `should understand pods-like style for .${ext} files`);
+        assert.equal(match('foo',`/foo/component.${ext}`), true, `should understand pods-like style for .${ext} files`);
       }
     });
     assert.equal(match('foo','foo'), false, 'should skip matching for unknown extensions');

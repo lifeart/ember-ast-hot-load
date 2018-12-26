@@ -3,174 +3,26 @@ import Evented from "@ember/object/evented";
 import Component from "@ember/component";
 import { getOwner } from "@ember/application";
 import { get, computed, getWithDefault } from "@ember/object";
-import { dasherize, camelize, capitalize } from "@ember/string";
+import { camelize, capitalize } from "@ember/string";
 import { compileTemplate } from "@ember/template-compilation";
 import {
   clearRequirejsCache,
   clearContainerCache
 } from "ember-ast-hot-load/utils/cleaners";
+import { matchingComponent, hasValidHelperName,
+  getMUScopedComponents, 
+  getRouteScopedComponents } from "ember-ast-hot-load/utils/matchers";
+import { 
+  normalizeComponentName, 
+  getPossibleRouteTemplateMeta,
+  componentNameFromClassName
+ } from "ember-ast-hot-load/utils/normalizers";
+
 const COMPONENT_NAMES_CACHE = {};
 const DYNAMIC_HELPERS_WRAPPERS_COMPONENTS = {};
 var willHotReloadCallbacks = [];
 var willLiveReloadCallbacks = [];
-
-function isValidPath(path) {
-  return path.endsWith(".ts") || path.endsWith(".hbs") || path.endsWith(".js");
-}
-
-function dasherizePath(str = "") {
-  return str
-    .split("/")
-    .map(dasherize)
-    .join("/")
-    .trim();
-}
-
-function normalizePath(path) {
-  return dasherizePath(path.split("\\").join("/"));
-}
-
-function looksLikeRouteTemplate(path) {
-  // mu app case
-  if (path.includes('/src/ui/')) {
-    return path.includes('/routes/') && path.endsWith('/template.hbs') && !path.includes('/-components/');
-  }
-  return !path.includes('component') && path.endsWith('.hbs');
-}
-
-function matchingComponent(rawComponentName, path) {
-  if (typeof path !== "string") {
-    return false;
-  }
-  if (typeof rawComponentName !== "string") {
-    return false;
-  }
-  if (!isValidPath(path)) {
-    return false;
-  }
-  let componentName = dasherizePath(rawComponentName);
-  let normalizedPath = normalizePath(path);
-  let possibleExtensions = [
-    ".ts",
-    ".js",
-    ".hbs",
-    "/component.ts",
-    "/component.js",
-    "/template.hbs"
-  ];
-  let possibleEndings = possibleExtensions.map(ext => componentName + ext);
-  let result = possibleEndings.filter(name => {
-    return normalizedPath.endsWith(name);
-  }).length;
-
-  return result;
-}
-
-
-function getPossibleRouteTemplateMeta(maybeString = '') {
-  const rawPath = String(maybeString || '');
-  const path = normalizePath(rawPath).split('/').join('.').replace('.hbs', '');
-  const MU_PATH = '.src.ui';
-  // pods don't supported this time
-  const relativeAppEntrypoint = path.includes(MU_PATH) ? MU_PATH : '.app.';
-  const maybePodsPath = path.endsWith('.template');
-  const paths = path.split(relativeAppEntrypoint);
-  paths.shift();
-  const maybeRouteName = paths.join(relativeAppEntrypoint);
-  const maybeClassicPath =  maybeRouteName.startsWith('templates.');
-  const possibleRouteName = maybeRouteName.replace('templates.', '').replace('routes.','');
-
-  return {
-    looksLikeRouteTemplate: looksLikeRouteTemplate(normalizePath(rawPath)),
-    possibleRouteName,
-    possibleTemplateName: possibleRouteName.split('.').join('/'),
-    maybeClassicPath,
-    maybePodsPath,
-    isMU: relativeAppEntrypoint === MU_PATH
-  }
-}
-
 var matchingResults = {};
-
-function getMUScopedComponents() {
-  const pairs = Object.keys(window.requirejs ? window.requirejs.entries : {})
-  .filter(name=>(name.includes('/ui/components/')))
-  .map((name)=>{
-    const [ , maybeName = false ] = name.split('/ui/components/');
-    if (typeof maybeName === 'string') {
-      return maybeName;
-    } else {
-      return false;
-    }
-  }).filter((item)=>(item !== false));
-  const result = [];
-  pairs.forEach((rawComponentRef)=>{
-    const isTemplate = rawComponentRef.endsWith('/template');
-    const substrToReplace = isTemplate ? '/template' : '/component';
-    const normalizedComponentName = rawComponentRef.replace(substrToReplace, '');
-    if (!result.includes(normalizedComponentName) && !normalizedComponentName.includes('/-')) {
-      result.push(normalizedComponentName);
-    }
-  });
-  return result;
-}
-
-function getRouteScopedComponents() {
-  const pairs = Object.keys(window.requirejs ? window.requirejs.entries : {})
-    .filter(name=>(name.includes('/-components/')))
-    .map((name)=>{
-		const [ , maybeName = false ] = name.split('/src/ui/routes/');
-		if (typeof maybeName === 'string') {
-			return maybeName.split('/-components/');
-		} else {
-			return false;
-		}
-	}).filter((item)=>(item !== false));
-  const result = {};
-  pairs.forEach(([routePath, rawComponentRef])=>{
-    const normalizedRoute = routePath.split('/').join('.');
-    const isTemplate = rawComponentRef.endsWith('/template');
-    const substrToReplace = isTemplate ? '/template' : '/component';
-    const normalizedComponentName = rawComponentRef.replace(substrToReplace, '');
-    if (!result[normalizedRoute]) {
-      result[normalizedRoute] = [];
-    }
-    if (!result[normalizedRoute].includes(normalizedComponentName) && !normalizedComponentName.includes('/-')) {
-      result[normalizedRoute].push(normalizedComponentName);
-    }
-  });
-  return result;
-}
-
-// we need this because Ember.String.dasherize('XTestWrapper') -> xtest-wrapper, not x-test-wrapper
-function dasherizeName(name = '') {
-	const result = [];
-	const nameSize = name.length;
-	if (!nameSize) {
-		return '';
-	}
-	result.push(name.charAt(0));
-	for (let i = 1; i < nameSize; i++) {
-		let char = name.charAt(i);
-		if (char === char.toUpperCase()) {
-			if (char !== '-' && char !== '/' && char !== '_') {
-				if (result[result.length - 1] !== '-') {
-					result.push('-');
-				}
-			}
-		}
-		result.push(char);
-	}
-	return result.join('');
-}
-
-function normalizeComponentName(name) {
-  if (typeof name !== 'string') {
-    return name;
-  } else {
-    return dasherizeName(name).toLowerCase();
-  }
-}
 
 export default Service.extend(Evented, {
   templateOptionsKey: null,
@@ -369,7 +221,7 @@ export default Service.extend(Evented, {
     return getWithDefault(fastboot, 'isFastboot', false);
   }),
   isHelper(name) {
-    if (name.includes('@') || name.includes('/') || name.includes('.')) {
+    if (!hasValidHelperName(name)) {
       return false;
     }
     return this.owner.application.hasRegistration('helper:' + name);
@@ -394,9 +246,7 @@ export default Service.extend(Evented, {
     if (!scope) {
       return [closestRelativeName, name];
     }
-    const normalizedContext = this.normalizeComponentName(scope.constructor.name)
-      .replace('-component', '')
-      .replace('-class','');
+    const normalizedContext = componentNameFromClassName(scope.constructor.name);
     const candidate = normalizedContext + '/' + name;
     const result = [];
     if (typeof closestRelativeName === 'string') {
@@ -520,7 +370,7 @@ export default Service.extend(Evented, {
         let attrs = this['attrs'] || {};
         const attributesMap = Object.keys(attrs)
           .filter(key => key !== '_params' && !key.startsWith('hotReload'))
-          .map(key => `${key}=(get this.attrs "${key}")`)
+          .map(key => `${key}=this.attrs.${key}`)
           .join(' ');
         const tpl = `{{${name} ${positionalParams} ${attributesMap}}}`;
         return compileTemplate(tpl);
