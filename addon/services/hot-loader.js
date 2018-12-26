@@ -27,6 +27,23 @@ var willHotReloadCallbacks = [];
 var willLiveReloadCallbacks = [];
 var matchingResults = {};
 
+
+function stripRouteTemplatePostfix(name) {
+  return name.endsWith('.template') ? name.replace('.template', '') : name;
+}
+function stripRouteTemplatePrefix(name) {
+  return name.startsWith('.') ? name.replace('.', '') : name;
+}
+function shouldRenderTemplate(currentRouteName, possibleRouteName) {
+  if (currentRouteName.includes(possibleRouteName)) {
+    return true;
+  } else if (currentRouteName === 'index' && possibleRouteName === 'application') {
+    return true;
+  } else { 
+    return false;
+  }
+}
+
 export default Service.extend(Evented, {
   templateOptionsKey: null,
   templateCompilerKey: null,
@@ -40,21 +57,29 @@ export default Service.extend(Evented, {
     this.componentLookup = this.owner.lookup('component-lookup:main');
     this.routerService = this.owner.lookup('service:router') || this.owner.lookup('service:-router');
     this.appConfig = this.owner.resolveRegistration('config:environment') || {};
+    this.modulePrefix = get(this.appConfig, 'modulePrefix') || 'dummy';
+    this.podModulePrefix = get(this.appConfig, 'podModulePrefix') || this.modulePrefix;
   },
   normalizeComponentName(name) {
     return normalizeComponentName(name);
   },
+  hasActiveRoute() {
+    if (!this.owner.router || !this.owner.router.currentRouteName) {
+      return false;
+    } else {
+      return true;
+    }
+  },
+  currentRouteName() {
+    return this.owner.router.currentRouteName;
+  },
   currentRouteScopes() {
-    const owner = this.owner;
-    const config = this.appConfig;
-  
-    const modulePrefix = get(config, 'modulePrefix') || 'dummy';
-    const podModulePrefix = get(config, 'podModulePrefix') || modulePrefix;
+    const podModulePrefix = this.podModulePrefix;
     // /routes/patterns.inheritance/-components
-    if (!owner.router || !owner.router.currentRouteName) {
+    if (!this.hasActiveRoute()) {
       return [];
     }
-    const allRouteScopes = owner.router.currentRouteName.split('.');
+    const allRouteScopes = this.currentRouteName().split('.');
     const scopes = [];
     for (let i = 1; i <= allRouteScopes.length; i++) {
       scopes.push(allRouteScopes.slice(0, i).join('/'));
@@ -65,12 +90,11 @@ export default Service.extend(Evented, {
     });
   },
   currentRouteComponents() {
-    const owner = this.owner;
     // /routes/patterns.inheritance/-components
-    if (!owner.router || !owner.router.currentRouteName) {
+    if (!this.hasActiveRoute()) {
       return [];
     }
-    const allRouteScopes = owner.router.currentRouteName.split('.');
+    const allRouteScopes = this.currentRouteName().split('.');
     const scopes = [];
     for (let i = 1; i <= allRouteScopes.length; i++) {
       scopes.push(allRouteScopes.slice(0, i).join('.'));
@@ -79,11 +103,11 @@ export default Service.extend(Evented, {
     const result = [];
     scopes.forEach((path)=>{
       if (this.routeScopedComponents[path]) {
-      this.routeScopedComponents[path].forEach((componentName)=>{
-        if (!componentName.includes('/-')) {
-          result.push(componentName);
-        }
-      });
+        this.routeScopedComponents[path].forEach((componentName)=>{
+          if (!componentName.includes('/-')) {
+            result.push(componentName);
+          }
+        });
       }
     });
     return result;
@@ -94,61 +118,47 @@ export default Service.extend(Evented, {
       return scopeName + name;
     });
   },
+  routeByPath(path) {
+    return this.owner.lookup(`route:${path}`);
+  },
+  reloadWindow() {
+    return window.location.reload();
+  },
   willHotReloadRouteTemplate(attrs) {
     const meta = getPossibleRouteTemplateMeta(attrs);
-    const owner = this.owner;
     if (!meta.looksLikeRouteTemplate) {
       return;
     }
+    const currentRouteName = this.hasActiveRoute() ? this.currentRouteName() : '';
     if (meta.maybeClassicPath) {
-      this.forgetComponent(meta.possibleTemplateName);
-      const route = owner.lookup(`route:${meta.possibleRouteName}`);
-      const router  = this.routerService;
-      if (!route || !router) {
-      return window.location.reload();
+      this.forgetComponent(meta.possibleTemplateName, false);
+      const route = this.routeByPath(meta.possibleRouteName);
+      if (!route) {
+        return this.reloadWindow();
       }
-      if (router.currentRouteName.includes(meta.possibleRouteName)) {
-      route.renderTemplate();
-      } else if (router.currentRouteName === 'index' && meta.possibleRouteName === 'application') {
-      route.renderTemplate();
-      } else { 
-      // else template will be updated after transition
+      if (shouldRenderTemplate(currentRouteName, meta.possibleRouteName)) {
+        route.renderTemplate();
       }
     } else if (meta.isMU) {
-      let routeName = meta.possibleRouteName;
-      if (routeName.startsWith('.')) {
-      routeName = routeName.replace('.', '');
+      let routeName = stripRouteTemplatePrefix(meta.possibleRouteName);
+      routeName  = stripRouteTemplatePostfix(routeName);
+      this.forgetComponent(routeName, true);
+      const route = this.routeByPath(routeName);
+      if (!route) {
+        return this.reloadWindow();
       }
-      if (routeName.endsWith('.template')) {
-      routeName = routeName.replace('.template', '');
-      }
-      this.forgetComponent(routeName);
-      const route = owner.lookup(`route:${routeName}`);
-      const router  = this.routerService;
-      if (!route || !router) {
-      return window.location.reload();
-      }
-      if (router.currentRouteName.includes(routeName)) {
-      route.renderTemplate();
-      } else if (router.currentRouteName === 'index' && routeName === 'application') {
-      route.renderTemplate();
-      } else { 
-      // else template will be updated after transition
+      if (shouldRenderTemplate(currentRouteName, routeName)) {
+        route.renderTemplate();
       }
     } else if (meta.maybePodsPath) {
-      let routeName = meta.possibleRouteName;
-      if (routeName.startsWith('.')) {
-        routeName = routeName.replace('.', '');
-      }
-      if (routeName.endsWith('.template')) {
-        routeName = routeName.replace('.template', '');
-      }
+      let routeName = stripRouteTemplatePrefix(meta.possibleRouteName);
+      routeName  = stripRouteTemplatePostfix(routeName);
       let maybeRoute = null;
       let paths = routeName.split('.');
       let pathsCount = paths.length;
       for (let i = 0; i < pathsCount; i++) {
         let possibleRouteName = paths.join('.');
-        maybeRoute =  owner.lookup(`route:${possibleRouteName}`);
+        maybeRoute =  this.routeByPath(possibleRouteName);
         if (maybeRoute) {
           routeName = possibleRouteName;
           break;
@@ -159,20 +169,15 @@ export default Service.extend(Evented, {
           paths.shift();
         }
       }
-      this.forgetComponent(routeName);
-      const router  = this.routerService;
-      if (!maybeRoute || !router) {
-        return window.location.reload();
+      this.forgetComponent(routeName, false);
+      if (!maybeRoute) {
+        return this.reloadWindow();
       }
-      if (router.currentRouteName.includes(routeName)) {
+      if (shouldRenderTemplate(currentRouteName, routeName)) {
         maybeRoute.renderTemplate();
-      } else if (router.currentRouteName === 'index' && routeName === 'application') {
-        maybeRoute.renderTemplate();
-      } else { 
-        // else template will be updated after transition
       }
 	} else {
-      window.location.reload();
+      return this.reloadWindow();
     }
   },
   willLiveReloadRouteTemplate(attrs) {
@@ -213,11 +218,13 @@ export default Service.extend(Evented, {
   unregisterWillLiveReload(fn) {
     willLiveReloadCallbacks = willLiveReloadCallbacks.filter(f => f !== fn);
   },
-  forgetComponent(name) {
-    const muNames = this.getPossibleMUComponentNames(name);
-    muNames.forEach((possibleMuName)=>{
-      clearContainerCache(this, possibleMuName);
-    });
+  forgetComponent(name, isMU = true) {
+    if (isMU) {
+      const muNames = this.getPossibleMUComponentNames(name);
+      muNames.forEach((possibleMuName)=>{
+        clearContainerCache(this, possibleMuName);
+      });
+    }
     clearContainerCache(this, name);
   },
   clearRequirejs(name) {
@@ -237,6 +244,9 @@ export default Service.extend(Evented, {
     // todo - must be route-related logic
     if (typeof name !== 'string') {
       return true;
+    }
+    if (name.includes('.')) {
+      return false;
     }
     if (!(name in COMPONENT_NAMES_CACHE)) {
       // classic + pods, can check names and nested/names
@@ -311,16 +321,6 @@ export default Service.extend(Evented, {
       return typeof componentName === 'string';
     });
   },
-  _isRouteScopedComponent(name) {
-    const scopes = this.currentRouteScopes();
-    let isComponent = false;
-    scopes.forEach((scopeForRoute)=>{
-      if (this._isComponent(scopeForRoute + name)) {
-      isComponent = true;
-      }
-    });
-    return isComponent;
-  },
   _isMUComponent(name, currentContext) {
     const names = this.scopedComponentNames(name, currentContext);
     const scopes = this.currentRouteScopes();
@@ -339,16 +339,6 @@ export default Service.extend(Evented, {
       }
       });
     }
-    return isComponent;
-  },
-  _isContextedComponent(name, currentContext) {
-    const names = this.scopedComponentNames(name, currentContext);
-    let isComponent = false;
-    names.forEach((maybeComponentName)=>{
-      if (this._isComponent(maybeComponentName)) {
-      isComponent = true;
-      }
-    });
     return isComponent;
   },
   _isComponent(rawName) {
@@ -399,7 +389,6 @@ export default Service.extend(Evented, {
     }
     this.printError(name);
     this.addDynamicHelperWrapperComponent(name);
-    const owner = this.owner;
     const component = Component.extend({
       tagName: "",
       layout: computed(function() {
@@ -418,7 +407,7 @@ export default Service.extend(Evented, {
     component.reopenClass({
       positionalParams: '_params'
     });
-    owner.application.register(
+    this.owner.application.register(
       `component:${this.dynamicComponentNameForHelperWrapper(name)}`,
       component
     );
