@@ -39,6 +39,8 @@ module('Unit | Utility | normalizers', function() {
     assert.equal(normalizeComponentName('FooBar/BooBaz'), 'foo-bar/boo-baz');
     assert.equal(normalizeComponentName('Foo/Boo'), 'foo/boo');
     assert.equal(normalizeComponentName('foo-boo'), 'foo-boo');
+    assert.equal(normalizeComponentName('foo--boo'), 'foo--boo');
+    assert.equal(normalizeComponentName('foo--boo/doo-doo'), 'foo--boo/doo-doo');
     assert.equal(normalizeComponentName('fooboo'), 'fooboo');
     assert.deepEqual(normalizeComponentName({name:1}), {name:1});
   });
