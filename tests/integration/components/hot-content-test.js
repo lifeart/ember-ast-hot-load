@@ -39,6 +39,12 @@ module('Integration | Component | hot-content', function (hooks) {
     assert.equal(this.element.textContent, expextedResult);
   });
 
+  test('it handle contextual names looking like components, but with dot - ctx.foo-bar', async function(assert){
+    const el = this.element;
+    await render(hbs`{{bs-nested-wrapper}}`);
+    xTestWrapperAssets(el, assert);
+  });
+
   test('in can hande angle-bracked invocation components with one camel name', async function (assert) {
     const el = this.element;
     await render(hbs `{{angle-br-single}}`);
