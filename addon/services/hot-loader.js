@@ -18,7 +18,7 @@ import {
   componentNameFromClassName
  } from "ember-ast-hot-load/utils/normalizers";
 
-import Ember from 'ember';
+import Ember from "ember";
 /* eslint-disable ember/new-module-imports */
 const compileTemplate = Ember.HTMLBars.compile;
 const COMPONENT_NAMES_CACHE = {};
