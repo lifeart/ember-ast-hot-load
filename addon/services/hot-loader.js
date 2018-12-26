@@ -4,7 +4,6 @@ import Component from "@ember/component";
 import { getOwner } from "@ember/application";
 import { get, computed, getWithDefault } from "@ember/object";
 import { camelize, capitalize } from "@ember/string";
-import { compileTemplate } from "@ember/template-compilation";
 import {
   clearRequirejsCache,
   clearContainerCache
@@ -17,7 +16,9 @@ import {
   getPossibleRouteTemplateMeta,
   componentNameFromClassName
  } from "ember-ast-hot-load/utils/normalizers";
-
+import Ember from 'ember';
+// import { compileTemplate } from "@ember/template-compilation";
+const compileTemplate = Ember.HTMLBars.compile;
 const COMPONENT_NAMES_CACHE = {};
 const DYNAMIC_HELPERS_WRAPPERS_COMPONENTS = {};
 var willHotReloadCallbacks = [];
