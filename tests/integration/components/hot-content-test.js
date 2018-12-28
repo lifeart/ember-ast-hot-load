@@ -33,6 +33,14 @@ module('Integration | Component | hot-content', function (hooks) {
 
   });
 
+  test('it handle both input components invocation', async function(assert) {
+    await render(hbs `{{input-wrapper}}`);
+    assert.ok(this.element.querySelector('input[name="foo"]'));
+    assert.ok(this.element.querySelector('input[name="boo"]'));
+    assert.ok(this.element.querySelector('textarea[name="foo-foo"]'));
+    assert.ok(this.element.querySelector('textarea[name="boo-boo"]'));
+  });
+
   test('it handle helpers with positional and hashy params', async function (assert){
     await render(hbs `{{complex-helper-wrapper}}`);
     const expextedResult = `{"params":[1,"1",{"a":"a"}],"hash":{"foo":"bar","boo":{"doo":"foo"}}}`.toString();
