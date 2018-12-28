@@ -36,8 +36,6 @@ module('Integration | Component | hot-content', function (hooks) {
   test('it handle both input components invocation', async function(assert) {
     await render(hbs `{{input-wrapper}}`);
     assert.ok(this.element.querySelector('input[name="foo"]'));
-    assert.ok(this.element.querySelector('input[name="boo"]'));
-    assert.ok(this.element.querySelector('textarea[name="foo-foo"]'));
     assert.ok(this.element.querySelector('textarea[name="boo-boo"]'));
   });
 
