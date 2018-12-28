@@ -1,5 +1,8 @@
 /* global require */
-
+function normalizeAppName(appName) {
+	// it can be @foo/bar
+	return appName.split('/').join('---');
+}
 function createPlugin(appName, hotReloadService, rootURL) {
   function Plugin(window, host) {
     this.window = window;
@@ -33,7 +36,7 @@ function createPlugin(appName, hotReloadService, rootURL) {
         }, 10);
       };
       const originalVendorFileURL = `${rootURL}assets/${appName}.js`;
-      const customVendorFileURL =  `${rootURL}_hot-load/${appName}.js?t=${Date.now()}&components=${encodeURIComponent(cancelableEvent.components.join(','))}&file=${encodeURIComponent(path.split('\\').join('/'))}`;
+      const customVendorFileURL =  `${rootURL}_hot-load/${normalizeAppName(appName)}.js?t=${Date.now()}&components=${encodeURIComponent(cancelableEvent.components.join(','))}&file=${encodeURIComponent(path.split('\\').join('/'))}`;
       script.onerror = function() {
         hotReloadService.incrementProperty('scriptDownloadErrors');
         if (hotReloadService.scriptDownloadErrors > 3) {
