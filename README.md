@@ -44,6 +44,9 @@ ember install ember-ast-hot-load
 
 ## How to use this addon
 
+
+It should just works after install. Without any config.
+
 After the ember install simply run `ember serve` as you normally would. Any changes to component JS/HBS files will result in a hot reload (not a full page reload). If you alter a route, service, controller or controller template ember-cli will do a full page reload.
 
 Helpers looks like components, but we don't support component-like helpers hot-reload.
@@ -90,6 +93,36 @@ new EmberApp(defaults, {
   }
 });
 ```
+
+### Public API?
+
+  `service('hot-loader')`
+
+  `.registerWillHotReload(onHotReload)` `.unregisterWillHotReload(onHotReload)`
+
+  `.registerWillLiveReload(onLiveReload)` `.unregisterWillLiveReload(onLiveReload)`
+
+ ```javascript
+
+
+  // we need to prevent full app refresh if we can hande changed file.
+ function onLiveReload(event) {
+    if (event.modulePath.includes('redusers')) {
+      event.cancel = true;
+      requirejs.unsee('some-module');
+    }
+ }
+
+
+ function onHotReload(path) {
+    if (path.includes('redusers')) {
+      // do some hot-reload magic,
+      // for example
+      requirejs.resolve('some-module')
+    }
+ }
+ ```
+
 
 
 ## Known Compatibility Workarounds
