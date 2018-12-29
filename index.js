@@ -27,6 +27,9 @@ module.exports = {
     ).run();
   },
   setupPreprocessorRegistry(type, registry) {
+    if (!this.isEnabled()) {
+      return;
+    }
     let pluginObj = this._buildPlugin();
     pluginObj.parallelBabel = {
       requireFile: __filename,
@@ -42,6 +45,9 @@ module.exports = {
       name: "ember-ast-hot-load-babel-plugin",
       plugin(env) {
         if (!_this._OPTIONS.enabled) {
+          return function () {};
+        }
+        if (!_this.isEnabled()) {
           return function () {};
         }
         return require("./lib/ast-transform").call(this, env, _this._OPTIONS);
@@ -64,6 +70,7 @@ module.exports = {
     }
   },
   config(environment) {
+    this._ENV = environment;
     return {
       [ADDON_NAME]: {
         enabled: environment !== "production",
@@ -141,6 +148,9 @@ module.exports = {
     return !this._isDisabled;
   },
   treeForVendor(rawVendorTree) {
+    if (this._ENV && this._ENV === 'production') {
+      this._isDisabled = true;
+    }
     if (this._isDisabled) {
       return this._super.treeForVendor.apply(this, arguments);
     }
