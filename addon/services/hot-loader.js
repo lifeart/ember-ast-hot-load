@@ -201,6 +201,9 @@ export default Service.extend(Evented, {
     return matchingResults[key];
   },
   triggerInRunLoop(name, attrs) {
+	if (!this.__isAlive()) {
+		return;
+	}
     this.incrementProperty('iterationId');
     if (name === 'willHotReload') {
       willHotReloadCallbacks.forEach(cb => cb(attrs));
