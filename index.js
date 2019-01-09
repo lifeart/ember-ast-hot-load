@@ -13,7 +13,10 @@ module.exports = {
     helpers: []
   },
   serverMiddleware: function (config) {
-    if (!this._OPTIONS.enabled) {
+    if (config.options.environment === 'production' || config.options.environment === 'test') {
+      return;
+    }
+    if (!this._OPTIONS || !this._OPTIONS.enabled) {
       return;
     }
     require("./lib/hot-load-middleware")(
@@ -30,26 +33,54 @@ module.exports = {
     if (!this.isEnabled()) {
       return;
     }
-    let pluginObj = this._buildPlugin();
+    console.log('setupPreprocessorRegistryCall');
+    console.log('this._ENV', this._ENV);
+    console.log('type', type);
+    console.log('options', this._OPTIONS);
+    console.log('isEnabled', this.isEnabled());
+
+    let pluginObj = this._buildPlugin(this);
+    const _ctx = this;
+    this._buildPliginWithContext = function() {
+      return _ctx._buildPlugin(_ctx);
+    }
     pluginObj.parallelBabel = {
       requireFile: __filename,
-      buildUsing: "_buildPlugin",
+      buildUsing: "_buildPliginWithContext",
       params: {}
     };
     registry.add("htmlbars-ast-plugin", pluginObj);
   },
-
-  _buildPlugin() {
-    const _this = this;
+  _buildPlugin(_this) {
+    console.log('_buildPluginCall');
+    const ctx = this;
     return {
       name: "ember-ast-hot-load-babel-plugin",
       plugin(env) {
+        if (!_this || !ctx) {
+          console.log(
+            'unable to find _this', this 
+          );
+        }
+        console.log('ctx', ctx);
+        console.log('THIS', _this);
+        if (!_this._OPTIONS) {
+          console.log('unable to find options', _this);
+          return function () {};
+        }
         if (!_this._OPTIONS.enabled) {
+          console.log('isDisabled, noop');
           return function () {};
         }
         if (!_this.isEnabled()) {
+          console.log('isDisabled, noop');
           return function () {};
         }
+        console.log('sss', _this);
+        console.log('plugin-env', env);
+        console.log('plugin-_ENV', _this._ENV);
+        console.log('plugin-_OPTIONS',  _this._OPTIONS);
+        console.log('plugin-isEnabled',  _this.isEnabled());
         return require("./lib/ast-transform").call(this, env, _this._OPTIONS);
       },
       baseDir() {
@@ -71,9 +102,10 @@ module.exports = {
   },
   config(environment) {
     this._ENV = environment;
+    console.log('_config', environment);
     return {
       [ADDON_NAME]: {
-        enabled: environment !== "production",
+        enabled: this.isValidEnv(environment),
         watch: ["components"],
         helpers: []
       }
@@ -130,8 +162,19 @@ module.exports = {
 
   included(app) {
     this._super.included.apply(this, arguments);
+    console.log('ast-included');
+    this._ensureFindHost();
     let host = this._findHost();
     this._assignOptions(host);
+    if (!this.isValidEnv(app.env)) {
+      this._isDisabled = true;
+      this._ENV = app.env;
+      if (this._OPTIONS) {
+        this._OPTIONS.enabled = !this._isDisabled;
+      }
+      return;
+    }
+    // this._OPTIONS.enabled = !this._isDisabled;
     // Require template compiler as in CLI this is only used in build, we need it at runtime
     const npmPath =
       this._OPTIONS["templateCompilerPath"] || this._getTemplateCompilerPath();
@@ -147,8 +190,14 @@ module.exports = {
   isEnabled() {
     return !this._isDisabled;
   },
+  isValidEnv(name) {
+    if (!name) {
+      return false;
+    }
+    return (name !== 'production' && name !== 'test');
+  },
   treeForVendor(rawVendorTree) {
-    if (this._ENV && this._ENV === 'production') {
+    if (!this.isValidEnv(this._ENV)) {
       this._isDisabled = true;
     }
     if (this._isDisabled) {
