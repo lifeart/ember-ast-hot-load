@@ -102,6 +102,10 @@ function getRootUrl(appName) {
 }
 
 export function initialize(appInstance) {
+  let hotLoadService = lookup(appInstance, "service:hot-loader");
+  if (hotLoadService.get('isFastBoot')) {
+    return;
+  }
   if (!window.LiveReload) {
     return;
   }
@@ -114,10 +118,6 @@ export function initialize(appInstance) {
     appName = "dummy";
   }
   let rootURL = getRootUrl(appName);
-  let hotLoadService = lookup(appInstance, "service:hot-loader");
-  if (hotLoadService.get('isFastboot')) {
-    return;
-  }
   const Plugin = createPlugin(
     appName,
     hotLoadService,
