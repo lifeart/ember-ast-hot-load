@@ -55,6 +55,9 @@ export function looksLikeRouteTemplate(path) {
 
 export function getMUScopedComponents() {
   const muComponentsPath = '/ui/components/';
+  if (typeof window === 'undefined') {
+    return [];
+  }
   const pairs = Object.keys(window.requirejs ? window.requirejs.entries : {})
   .filter(name=>(name.includes(muComponentsPath)))
   .map((name)=>{
@@ -78,6 +81,9 @@ export function getMUScopedComponents() {
 }
 
 export function getRouteScopedComponents() {
+  if (typeof window === 'undefined') {
+    return [];
+  }
   const pairs = Object.keys(window.requirejs ? window.requirejs.entries : {})
     .filter(name=>(name.includes('/-components/')))
     .map((name)=>{

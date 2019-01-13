@@ -125,6 +125,9 @@ export default Service.extend(Evented, {
     return this.owner.lookup(`route:${path}`);
   },
   reloadWindow() {
+    if (this.get('isFastboot')) {
+      return;
+    }
     return window.location.reload();
   },
   willHotReloadRouteTemplate(attrs) {
