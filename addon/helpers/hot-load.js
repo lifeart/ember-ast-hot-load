@@ -73,10 +73,16 @@ export default Helper.extend({
     if (!isArgument && (hasPropInComponentContext || (typeof maybePropertyValue !== 'undefined'))) {
       if (!hasPropInComponentContext && !isComponent && !hotLoader.isHelper(name)) {
         // if it's not component, not in scope and not helper - dunno, we need to render placeholder with value;
+        if (hotLoader.get('isFastBoot')) {
+          return hotLoader.placeholderComponentName();
+        }
         return hotLoader.renderDynamicComponentHelper(name, context, maybePropertyValue);
       }
     }
     if (!isComponent) {
+      if (hotLoader.get('isFastBoot')) {
+        return hotLoader.placeholderComponentName();
+      }
       if (hotLoader.isHelper(name)) {
         hotLoader.registerDynamicComponent(name);
         return hotLoader.dynamicComponentNameForHelperWrapper(name);

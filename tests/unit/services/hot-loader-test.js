@@ -83,9 +83,9 @@ module('Unit | Service | hot-loader', function(hooks) {
     assert.equal(service._isComponent('hot-load'), false, 'helper names should be non-resolvable');
   });
 
-  test('isFastboot property must return false without fastboot', function(assert) {
+  test('isFastBoot property must return false without fastboot', function(assert) {
     const service  = this.owner.lookup('service:hot-loader');
-    assert.equal(service.get('isFastboot'), false, 'isFastboot must equal false if no fastboot');
+    assert.equal(service.get('isFastBoot'), false, 'isFastBoot must equal false if no fastboot');
   });
 
   test('shold cache dynamic components registration', function(assert) {
