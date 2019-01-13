@@ -103,6 +103,9 @@ function getRootUrl(appName) {
 
 export function initialize(appInstance) {
   let hotLoadService = lookup(appInstance, "service:hot-loader");
+  if (!hotLoadService) {
+    return;
+  }
   if (hotLoadService.get('isFastBoot')) {
     return;
   }
