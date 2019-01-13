@@ -1,7 +1,7 @@
 "use strict";
 const path = require("path");
 const fs = require("fs");
-
+const map = require('broccoli-stew').map;
 const ADDON_NAME = "ember-ast-hot-load";
 
 module.exports = {
@@ -127,7 +127,26 @@ module.exports = {
     };
     this._isDisabled = !enabled;
   },
+  importTransforms() {
+    return {
+      'fastboot-safe': {
+        transform(tree) {
+          return map(tree, (content)=>{
+            return `
+              ;if (typeof FastBoot === 'undefined') {
+                ${content}
+              };
+            `;
+          });
+        },
 
+        processOptions(assetPath, entry, options) {
+          options[assetPath] = {};
+          return options;
+        },
+      },
+    };
+  },
   included(app) {
     this._super.included.apply(this, arguments);
     let host = this._findHost();
@@ -136,7 +155,11 @@ module.exports = {
     const npmPath =
       this._OPTIONS["templateCompilerPath"] || this._getTemplateCompilerPath();
     if (fs.existsSync(npmPath)) {
-      app.import(npmPath);
+      app.import(npmPath,{
+        using: [
+          { transformation: 'fastboot-safe'}
+        ]
+      });
     } else {
       throw new Error(
         "Unable to locate ember-template-compiler.js. ember/ember-source not found in node_modules"

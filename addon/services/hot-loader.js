@@ -125,7 +125,7 @@ export default Service.extend(Evented, {
     return this.owner.lookup(`route:${path}`);
   },
   reloadWindow() {
-    if (this.get('isFastboot')) {
+    if (this.get('isFastBoot')) {
       return;
     }
     return window.location.reload();
@@ -282,12 +282,12 @@ export default Service.extend(Evented, {
     }
     return COMPONENT_NAMES_CACHE[name];
   },
-  isFastboot: computed(function() {
+  isFastBoot: computed(function() {
     const fastboot = this.owner.lookup('service:fastboot');
     if (!fastboot) {
       return false;
     }
-    return getWithDefault(fastboot, 'isFastboot', false);
+    return getWithDefault(fastboot, 'isFastBoot', false);
   }),
   isHelper(name) {
     if (!hasValidHelperName(name)) {
