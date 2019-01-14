@@ -9,7 +9,7 @@ module('Acceptance | index', function(hooks) {
     await visit('/');
     const hotLoaderService = this.owner.lookup('service:hot-loader');
     assert.equal(hotLoaderService._willHotReloadCallbacksCount(), hotLoaderService._willLiveReloadCallbacksCount());
-    assert.equal(hotLoaderService._willLiveReloadCallbacksCount(), 20);
+    assert.equal(hotLoaderService._willLiveReloadCallbacksCount(), 36);
     assert.equal(currentURL(), '/');
   });
 });
