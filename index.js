@@ -40,8 +40,8 @@ module.exports = {
     registry.add("htmlbars-ast-plugin", pluginObj);
   },
 
-  _buildPlugin(opts) {
-    console.log('_buildPlugin', opts);
+  _buildPlugin() {
+    // console.log('_buildPlugin', opts);
     return {
       name: "ember-ast-hot-load-babel-plugin",
       plugin: require("./lib/ast-transform"),
