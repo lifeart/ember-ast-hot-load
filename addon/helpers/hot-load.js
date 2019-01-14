@@ -57,6 +57,7 @@ export default Helper.extend({
     hotLoader.unregisterWillLiveReload(this.binded__willLiveReload);
   },
   compute([name, context = {}, maybePropertyValue = undefined, astStringName = '']) {
+
     const hotLoader = get(this, 'hotLoader');
     const safeAstName = String(astStringName || '');
     const renderComponentName = hotLoader.normalizeComponentName(name);

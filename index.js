@@ -30,28 +30,21 @@ module.exports = {
     if (!this.isEnabled()) {
       return;
     }
-    let pluginObj = this._buildPlugin();
+    // console.log('type', type);
+    let pluginObj = this._buildPlugin(this._OPTIONS);
     pluginObj.parallelBabel = {
       requireFile: __filename,
       buildUsing: "_buildPlugin",
-      params: {}
+      params: { }
     };
     registry.add("htmlbars-ast-plugin", pluginObj);
   },
 
-  _buildPlugin() {
-    const _this = this;
+  _buildPlugin(opts) {
+    console.log('_buildPlugin', opts);
     return {
       name: "ember-ast-hot-load-babel-plugin",
-      plugin(env) {
-        if (!_this._OPTIONS.enabled) {
-          return function () {};
-        }
-        if (!_this.isEnabled()) {
-          return function () {};
-        }
-        return require("./lib/ast-transform").call(this, env, _this._OPTIONS);
-      },
+      plugin: require("./lib/ast-transform"),
       baseDir() {
         return __dirname;
       }
