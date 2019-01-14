@@ -60,10 +60,13 @@
     "configPath": "tests/dummy/config",
     "after": [
       "ember-template-component-import",
-      "ember-angle-bracket-invocation-polyfill",
       "ember-holy-futuristic-template-namespacing-batman",
       "ember-template-compiler"
     ],
-    "before": "proxy-server-middleware"
+    "before": [
+      "proxy-server-middleware",
+      "ember-angle-bracket-invocation-polyfill",
+      "ember-let-polyfill"
+    ]
   }
 }
