@@ -118,7 +118,10 @@ module.exports = {
       templateCompilerPath = undefined
     } = currentOptions;
     if (env === 'test' || env === 'production') {
-      enabled = false;
+      // allow test/prod addon usage only for app, named "dummy" (addon test app)
+      if (app.name !== 'dummy') {
+        enabled = false;
+      }
     }
     this._OPTIONS = Object.assign(this._OPTIONS, {
       helpers,
@@ -216,9 +219,6 @@ module.exports = {
   //   }
   // },
   treeForVendor(rawVendorTree) {
-    if (this._ENV && this._ENV === 'production') {
-      this._isDisabled = true;
-    }
     if (this.isDisabled()) {
       return this._super.treeForVendor.apply(this, arguments);
     }
