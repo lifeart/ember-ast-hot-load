@@ -30,12 +30,16 @@ module.exports = {
     }
   },
   setupPreprocessorRegistry(type, registry) {
-    let pluginObj = this._buildPlugin({addonContext: this});
+    let pluginObj = this._buildPlugin({addonContext: {
+      _OPTIONS: this._OPTIONS
+    }});
     //parallelBabel proper integration?
     pluginObj.parallelBabel = {
       requireFile: __filename,
       buildUsing: "_buildPlugin",
-      params: { addonContext: this }
+      params: { addonContext: {
+        _OPTIONS: this._OPTIONS
+      }}
     };
     registry.add("htmlbars-ast-plugin", pluginObj);
   },
