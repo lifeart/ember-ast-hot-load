@@ -4,7 +4,11 @@ const EmberAddon = require('ember-cli/lib/broccoli/ember-addon');
 
 module.exports = function(defaults) {
   let app = new EmberAddon(defaults, {
-	// Add options here
+  // Add options here
+    'ember-ast-hot-load': {
+      helpers: ["my-zoo"],
+      enabled: true
+    }
   });
 
   if (app.env === 'test') {

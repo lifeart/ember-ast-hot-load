@@ -30,21 +30,21 @@ module.exports = {
     if (!this.isEnabled()) {
       return;
     }
-    // console.log('type', type);
-    let pluginObj = this._buildPlugin(this._OPTIONS);
+    let pluginObj = this._buildPlugin({addonContext: this});
+    //parallelBabel proper integration?
     pluginObj.parallelBabel = {
       requireFile: __filename,
       buildUsing: "_buildPlugin",
-      params: { }
+      params: { addonContext: this }
     };
     registry.add("htmlbars-ast-plugin", pluginObj);
   },
 
-  _buildPlugin() {
-    // console.log('_buildPlugin', opts);
+  _buildPlugin({addonContext}) {
+    const plugin = require("./lib/ast-transform")({addonContext});
     return {
       name: "ember-ast-hot-load-babel-plugin",
-      plugin: require("./lib/ast-transform"),
+      plugin,
       baseDir() {
         return __dirname;
       }
@@ -141,6 +141,7 @@ module.exports = {
     };
   },
   included(app) {
+    // console.log('included');
     this._super.included.apply(this, arguments);
     let host = this._findHost();
     this._assignOptions(host);
