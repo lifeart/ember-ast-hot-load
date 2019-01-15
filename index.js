@@ -120,12 +120,13 @@ module.exports = {
     if (env === 'test' || env === 'production') {
       enabled = false;
     }
-    this._OPTIONS = {
+    this._OPTIONS = Object.assign(this._OPTIONS, {
       helpers,
       enabled,
       watch,
       templateCompilerPath
-    };
+    });
+    this._OPTIONS.initialized = true;
     this._isDisabled = !enabled;
   },
   importTransforms() {
