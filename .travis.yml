@@ -35,7 +35,9 @@ jobs:
         - yarn lint:hbs
         - yarn lint:js
         - yarn test
-
+    - name: "Jest AST Transformations Test"
+      script:
+        - yarn test:jest
     - name: "Floating Dependencies"
       script:
         - yarn test
