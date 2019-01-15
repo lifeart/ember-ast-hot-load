@@ -30,7 +30,7 @@ jobs:
     - stage: "Tests"
       name: "Tests"
       install:
-        - yarn install --non-interactive --ignore-engine
+        - yarn install --non-interactive --ignore-engines
       script:
         - yarn lint:hbs
         - yarn lint:js
