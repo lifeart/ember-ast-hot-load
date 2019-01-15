@@ -1,5 +1,9 @@
 <h2 id="title">Welcome to Ember</h2>
-
+<style>
+  table td {
+    border: 1px solid black;
+  }
+</style>
 <table>
   <thead>
     <tr>
@@ -13,24 +17,48 @@
       <td>{{template-only}}</td>
     </tr>
     <tr>
+      <td>angle-bracket template-only</td>
+      <td><TemplateOnly /></td>
+    </tr>
+    <tr>
       <td>arg-wrapper itemComponentName="x-test-wrapper"</td>
       <td>{{arg-wrapper itemComponentName="x-test-wrapper"}}</td>
+    </tr>
+    <tr>
+      <td>angle-bracket  arg-wrapper itemComponentName="x-test-wrapper"</td>
+      <td><ArgWrapper @itemComponentName="x-test-wrapper" /></td>
     </tr>
     <tr>
       <td>name-wrapper</td>
       <td>{{name-wrapper}}</td>
     </tr>
     <tr>
+      <td>angle-bracket name-wrapper</td>
+      <td><NameWrapper /></td>
+    </tr>
+    <tr>
       <td>dynamic-component-t</td>
       <td>{{dynamic-component-t}}</td>
+    </tr>
+    <tr>
+      <td>angle-bracket  dynamic-component-t</td>
+      <td><DynamicComponentT /></td>
     </tr>
     <tr>
       <td>x-test-wrapper</td>
       <td>{{x-test-wrapper}}</td>
     </tr>
     <tr>
+      <td>angle-bracket x-test-wrapper</td>
+      <td><XTestWrapper /></td>
+    </tr>
+    <tr>
       <td>test-component</td>
       <td>{{test-component}}</td>
+    </tr>
+    <tr>
+      <td>angle-bracket test-component</td>
+      <td><TestComponent /></td>
     </tr>
     <tr>
       <td>boo-boo 1 2 3 foo="12"</td>
@@ -45,6 +73,10 @@
       <td>{{foo-bar a=true}}</td>
     </tr>
     <tr>
+      <td>angle-bracket foo-bar a=true </td>
+      <td><FooBar @a={{true}} /></td>
+    </tr>
+    <tr>
       <td>
         {#let (hash foo=(component (concat "" "test-component"))) as |bofoo-bar|}
           {bofoo-bar}
@@ -52,7 +84,19 @@
       </td>
       <td>
         {{#let (hash foo=(component (concat "" "test-component"))) as |bofoo-bar|}}
-          {{bofoo-bar}}
+          {{bofoo-bar.foo}}
+        {{/let}}
+      </td>
+    </tr>
+    <tr>
+      <td>
+        {#let (hash foo=(component (concat "" "test-component"))) as |FofooBar|}
+           angle-bracket / FofooBar /
+        {/let}
+      </td>
+      <td>
+        {{#let (hash foo=(component (concat "" "test-component"))) as |FofooBar|}}
+          <FofooBar.foo />
         {{/let}}
       </td>
     </tr>

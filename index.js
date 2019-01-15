@@ -2,6 +2,8 @@
 const path = require("path");
 const fs = require("fs");
 const map = require('broccoli-stew').map;
+const rm = require('broccoli-stew').rm;
+
 const ADDON_NAME = "ember-ast-hot-load";
 
 module.exports = {
@@ -13,45 +15,36 @@ module.exports = {
     helpers: []
   },
   serverMiddleware: function (config) {
-    if (!this._OPTIONS.enabled) {
+    if (this.isDisabled()) {
       return;
+    } else {
+      require("./lib/hot-load-middleware")(
+        config, 
+        this._OPTIONS
+      ).run();
+      
+      require("./lib/hot-reloader")(
+        config.options,
+        this._OPTIONS.watch
+      ).run();
     }
-    require("./lib/hot-load-middleware")(
-      config, 
-      this._OPTIONS
-    ).run();
-    
-    require("./lib/hot-reloader")(
-      config.options,
-      this._OPTIONS.watch
-    ).run();
   },
   setupPreprocessorRegistry(type, registry) {
-    if (!this.isEnabled()) {
-      return;
-    }
-    let pluginObj = this._buildPlugin();
+    let pluginObj = this._buildPlugin({addonContext: this});
+    //parallelBabel proper integration?
     pluginObj.parallelBabel = {
       requireFile: __filename,
       buildUsing: "_buildPlugin",
-      params: {}
+      params: { addonContext: this }
     };
     registry.add("htmlbars-ast-plugin", pluginObj);
   },
 
-  _buildPlugin() {
-    const _this = this;
+  _buildPlugin({addonContext}) {
+    const plugin = require("./lib/ast-transform")({addonContext});
     return {
       name: "ember-ast-hot-load-babel-plugin",
-      plugin(env) {
-        if (!_this._OPTIONS.enabled) {
-          return function () {};
-        }
-        if (!_this.isEnabled()) {
-          return function () {};
-        }
-        return require("./lib/ast-transform").call(this, env, _this._OPTIONS);
-      },
+      plugin,
       baseDir() {
         return __dirname;
       }
@@ -80,6 +73,9 @@ module.exports = {
     };
   },
   _getTemplateCompilerPath() {
+    if (this._OPTIONS && this._OPTIONS["templateCompilerPath"]) {
+      return this._OPTIONS["templateCompilerPath"];
+    }
     const npmCompilerPath = path.join(
       "ember-source",
       "dist",
@@ -105,6 +101,8 @@ module.exports = {
   _assignOptions(app) {
     let appOptions = app.options || {};
     let addonOptions = appOptions[ADDON_NAME] || {};
+    const env = app.env;
+    this._ENV = env;
     let currentOptions = Object.assign({
         enabled: true,
         helpers: [],
@@ -119,12 +117,19 @@ module.exports = {
       watch,
       templateCompilerPath = undefined
     } = currentOptions;
-    this._OPTIONS = {
+    if (env === 'test' || env === 'production') {
+      // allow test/prod addon usage only for app, named "dummy" (addon test app)
+      if (app.name !== 'dummy') {
+        enabled = false;
+      }
+    }
+    this._OPTIONS = Object.assign(this._OPTIONS, {
       helpers,
       enabled,
       watch,
       templateCompilerPath
-    };
+    });
+    this._OPTIONS.initialized = true;
     this._isDisabled = !enabled;
   },
   importTransforms() {
@@ -151,9 +156,12 @@ module.exports = {
     this._super.included.apply(this, arguments);
     let host = this._findHost();
     this._assignOptions(host);
+    if (this.isDisabled()) {
+      return;
+    }
+    // this._setupPreprocessorRegistry('app', app.registry);
     // Require template compiler as in CLI this is only used in build, we need it at runtime
-    const npmPath =
-      this._OPTIONS["templateCompilerPath"] || this._getTemplateCompilerPath();
+    const npmPath = this._getTemplateCompilerPath();
     if (fs.existsSync(npmPath)) {
       app.import(npmPath,{
         using: [
@@ -166,15 +174,52 @@ module.exports = {
       );
     }
   },
-
-  isEnabled() {
-    return !this._isDisabled;
+  isDisabled() {
+    return this._isDisabled;
   },
-  treeForVendor(rawVendorTree) {
-    if (this._ENV && this._ENV === 'production') {
-      this._isDisabled = true;
+  isEnabled() {
+    return !this.isDisabled();
+  },
+  treeFor(name) {
+    if (!this.isDisabled()) {
+      return this._super.treeFor.apply(this, arguments);
     }
-    if (this._isDisabled) {
+    if (name === 'app' || name === 'addon') {
+      return rm(
+        this._super.treeFor.apply(this, arguments), 
+        'ember-ast-hot-load/**', 
+        'components/hot-content.js',
+        'components/hot-placeholder.js',
+        'helpers/hot-load.js',
+        'instance-initializers/hot-loader-livereload-plugin.js',
+        'instance-initializers/resolver-hot-loader-patch.js',
+        'services/hot-loader.js',
+        'utils/cleaners.js',
+        'utils/matchers.js',
+        'utils/normalizers.js'
+      );
+    }
+    return this._super.treeFor.apply(this, arguments);
+  },
+  // treeForAddon(tree) {
+  //   if (this.isDisabled()) {
+  //     const mappedTreee = map(tree, (content, path)=>{
+  //       if (path.endsWith('.js') || path.endsWith('.ts')) {
+  //         if (path.includes('instance-initializers')) {
+  //           return 'export function initialize() {};';
+  //         }
+  //         return 'export default undefined;';
+  //       } else {
+  //         return '';
+  //       }
+  //     });
+  //     return this._super.treeForAddon.call(this, rm(mappedTreee, '*/*'));
+  //   } else {
+  //     return this._super.treeForAddon.call(this, tree);
+  //   }
+  // },
+  treeForVendor(rawVendorTree) {
+    if (this.isDisabled()) {
       return this._super.treeForVendor.apply(this, arguments);
     }
     if (!rawVendorTree) {

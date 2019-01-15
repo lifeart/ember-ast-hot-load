@@ -216,6 +216,12 @@ export default Service.extend(Evented, {
       this.willLiveReloadRouteTemplate(attrs);
     }
   },
+  _willHotReloadCallbacksCount() {
+    return willHotReloadCallbacks.length;
+  },
+  _willLiveReloadCallbacksCount() {
+    return willLiveReloadCallbacks.length;
+  },
   registerWillHotReload(fn) {
     willHotReloadCallbacks.push(fn);
   },
