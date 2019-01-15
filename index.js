@@ -101,6 +101,8 @@ module.exports = {
   _assignOptions(app) {
     let appOptions = app.options || {};
     let addonOptions = appOptions[ADDON_NAME] || {};
+    const env = app.env;
+    this._ENV = env;
     let currentOptions = Object.assign({
         enabled: true,
         helpers: [],
@@ -115,6 +117,9 @@ module.exports = {
       watch,
       templateCompilerPath = undefined
     } = currentOptions;
+    if (env === 'test' || env === 'production') {
+      enabled = false;
+    }
     this._OPTIONS = {
       helpers,
       enabled,
