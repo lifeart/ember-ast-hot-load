@@ -2,6 +2,8 @@
 const path = require("path");
 const fs = require("fs");
 const map = require('broccoli-stew').map;
+const rm = require('broccoli-stew').rm;
+
 const ADDON_NAME = "ember-ast-hot-load";
 
 module.exports = {
@@ -13,23 +15,21 @@ module.exports = {
     helpers: []
   },
   serverMiddleware: function (config) {
-    if (!this._OPTIONS.enabled) {
+    if (this.isDisabled()) {
       return;
+    } else {
+      require("./lib/hot-load-middleware")(
+        config, 
+        this._OPTIONS
+      ).run();
+      
+      require("./lib/hot-reloader")(
+        config.options,
+        this._OPTIONS.watch
+      ).run();
     }
-    require("./lib/hot-load-middleware")(
-      config, 
-      this._OPTIONS
-    ).run();
-    
-    require("./lib/hot-reloader")(
-      config.options,
-      this._OPTIONS.watch
-    ).run();
   },
   setupPreprocessorRegistry(type, registry) {
-    if (!this.isEnabled()) {
-      return;
-    }
     let pluginObj = this._buildPlugin({addonContext: this});
     //parallelBabel proper integration?
     pluginObj.parallelBabel = {
@@ -73,6 +73,9 @@ module.exports = {
     };
   },
   _getTemplateCompilerPath() {
+    if (this._OPTIONS && this._OPTIONS["templateCompilerPath"]) {
+      return this._OPTIONS["templateCompilerPath"];
+    }
     const npmCompilerPath = path.join(
       "ember-source",
       "dist",
@@ -141,13 +144,15 @@ module.exports = {
     };
   },
   included(app) {
-    // console.log('included');
     this._super.included.apply(this, arguments);
     let host = this._findHost();
     this._assignOptions(host);
+    if (this.isDisabled()) {
+      return;
+    }
+    // this._setupPreprocessorRegistry('app', app.registry);
     // Require template compiler as in CLI this is only used in build, we need it at runtime
-    const npmPath =
-      this._OPTIONS["templateCompilerPath"] || this._getTemplateCompilerPath();
+    const npmPath = this._getTemplateCompilerPath();
     if (fs.existsSync(npmPath)) {
       app.import(npmPath,{
         using: [
@@ -160,15 +165,55 @@ module.exports = {
       );
     }
   },
-
-  isEnabled() {
-    return !this._isDisabled;
+  isDisabled() {
+    return this._isDisabled;
   },
+  isEnabled() {
+    return !this.isDisabled();
+  },
+  treeFor(name) {
+    if (!this.isDisabled()) {
+      return this._super.treeFor.apply(this, arguments);
+    }
+    if (name === 'app' || name === 'addon') {
+      return rm(
+        this._super.treeFor.apply(this, arguments), 
+        'ember-ast-hot-load/**', 
+        'components/hot-content.js',
+        'components/hot-placeholder.js',
+        'helpers/hot-load.js',
+        'instance-initializers/hot-loader-livereload-plugin.js',
+        'instance-initializers/resolver-hot-loader-patch.js',
+        'services/hot-loader.js',
+        'utils/cleaners.js',
+        'utils/matchers.js',
+        'utils/normalizers.js'
+      );
+    }
+    return this._super.treeFor.apply(this, arguments);
+  },
+  // treeForAddon(tree) {
+  //   if (this.isDisabled()) {
+  //     const mappedTreee = map(tree, (content, path)=>{
+  //       if (path.endsWith('.js') || path.endsWith('.ts')) {
+  //         if (path.includes('instance-initializers')) {
+  //           return 'export function initialize() {};';
+  //         }
+  //         return 'export default undefined;';
+  //       } else {
+  //         return '';
+  //       }
+  //     });
+  //     return this._super.treeForAddon.call(this, rm(mappedTreee, '*/*'));
+  //   } else {
+  //     return this._super.treeForAddon.call(this, tree);
+  //   }
+  // },
   treeForVendor(rawVendorTree) {
     if (this._ENV && this._ENV === 'production') {
       this._isDisabled = true;
     }
-    if (this._isDisabled) {
+    if (this.isDisabled()) {
       return this._super.treeForVendor.apply(this, arguments);
     }
     if (!rawVendorTree) {

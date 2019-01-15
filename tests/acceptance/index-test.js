@@ -8,8 +8,10 @@ module('Acceptance | index', function(hooks) {
   test('visiting /index', async function(assert) {
     await visit('/');
     const hotLoaderService = this.owner.lookup('service:hot-loader');
-    assert.equal(hotLoaderService._willHotReloadCallbacksCount(), hotLoaderService._willLiveReloadCallbacksCount());
-    assert.equal(hotLoaderService._willLiveReloadCallbacksCount() >= 36, true);
+    const cbCount = hotLoaderService._willLiveReloadCallbacksCount();
+    assert.equal(hotLoaderService._willHotReloadCallbacksCount(), cbCount);
+    assert.equal(cbCount >= 36, true);
+    assert.ok(cbCount, 'callbacks must exist '+ cbCount);
     assert.equal(currentURL(), '/');
   });
 });
