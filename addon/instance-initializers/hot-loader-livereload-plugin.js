@@ -36,7 +36,7 @@ function createPlugin(appName, hotReloadService, rootURL) {
         }, 10);
       };
       const originalVendorFileURL = `${rootURL}assets/${appName}.js`;
-      const customVendorFileURL =  `${rootURL}_hot-load/${normalizeAppName(appName)}.js?t=${Date.now()}&components=${encodeURIComponent(cancelableEvent.components.join(','))}&file=${encodeURIComponent(path.split('\\').join('/'))}`;
+      const customVendorFileURL =  `/_hot-load/${normalizeAppName(appName)}.js?t=${Date.now()}&components=${encodeURIComponent(cancelableEvent.components.join(','))}&file=${encodeURIComponent(path.split('\\').join('/'))}`;
       script.onerror = function() {
         hotReloadService.incrementProperty('scriptDownloadErrors');
         if (hotReloadService.scriptDownloadErrors > 3) {
