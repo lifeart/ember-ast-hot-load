@@ -38,7 +38,7 @@ export function matchingComponent(rawComponentName, path) {
   ];
   let possibleEndings = possibleExtensions.map(ext => componentName + ext);
   
-  const classicIgnores = ['app/controllers/','app/helpers/','app/services/','app/utils/', 'app/adapters/', 'app/models/'];
+  const classicIgnores = ['app/controllers/','app/helpers/','app/services/','app/utils/', 'app/adapters/', 'app/models/', 'app/routes/'];
   let result = possibleEndings.filter((name) => {
     return normalizedPath.endsWith('/' + name) && classicIgnores.filter((substr) => normalizedPath.includes(substr)).length === 0;
   }).length;

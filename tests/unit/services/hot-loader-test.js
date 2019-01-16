@@ -45,6 +45,7 @@ module('Unit | Service | hot-loader', function(hooks) {
     assert.equal(match('query-builder', 'app\\utils\\protected\\query-builder.ts'), false, 'should skip utils path');
     assert.equal(match('query-builder', 'app\\adapters\\protected\\query-builder.ts'), false, 'should skip adapters path');
     assert.equal(match('query-builder', 'app\\models\\protected\\query-builder.ts'), false, 'should skip models path');
+    assert.equal(match('query-builder', 'app\\routes\\protected\\query-builder.ts'), false, 'should skip routes path');
   });
 
   test('triggers must be callable', function(assert) {
