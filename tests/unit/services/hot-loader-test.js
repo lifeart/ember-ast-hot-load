@@ -39,7 +39,12 @@ module('Unit | Service | hot-loader', function(hooks) {
     assert.equal(match('component-name','components/ComponentName.js'), true, 'shoul handle camelCased paths');
     assert.equal(match('ComponentName','components/ComponentName.js'), true, 'shoul handle camelCased components and paths');
     assert.equal(match('ComponentName','components/component-name.js'), true, 'shoul handle camelCased components and normal paths');
-    assert.equal(match('query-builder', 'app\\controllers\\protected\\query-builder.ts'), false, 'should skip controllers path' );
+    assert.equal(match('query-builder', 'app\\controllers\\protected\\query-builder.ts'), false, 'should skip controllers path');
+    assert.equal(match('query-builder', 'app\\helpers\\protected\\query-builder.ts'), false, 'should skip helpers path');
+    assert.equal(match('query-builder', 'app\\services\\protected\\query-builder.ts'), false, 'should skip services path');
+    assert.equal(match('query-builder', 'app\\utils\\protected\\query-builder.ts'), false, 'should skip utils path');
+    assert.equal(match('query-builder', 'app\\adapters\\protected\\query-builder.ts'), false, 'should skip adapters path');
+    assert.equal(match('query-builder', 'app\\models\\protected\\query-builder.ts'), false, 'should skip models path');
   });
 
   test('triggers must be callable', function(assert) {
