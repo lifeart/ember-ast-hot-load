@@ -38,8 +38,8 @@ module('Unit | Service | hot-loader', function(hooks) {
     
     assert.equal(match('component-name','components/ComponentName.js'), true, 'shoul handle camelCased paths');
     assert.equal(match('ComponentName','components/ComponentName.js'), true, 'shoul handle camelCased components and paths');
-	assert.equal(match('ComponentName','components/component-name.js'), true, 'shoul handle camelCased components and normal paths');
-	assert.equal(match('query-builder', 'app\\controllers\\protected\\query-builder.ts'), false, 'should skip controllers path' );
+    assert.equal(match('ComponentName','components/component-name.js'), true, 'shoul handle camelCased components and normal paths');
+    assert.equal(match('query-builder', 'app\\controllers\\protected\\query-builder.ts'), false, 'should skip controllers path' );
   });
 
   test('triggers must be callable', function(assert) {
