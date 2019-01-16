@@ -37,8 +37,10 @@ export function matchingComponent(rawComponentName, path) {
     "/template.hbs"
   ];
   let possibleEndings = possibleExtensions.map(ext => componentName + ext);
-  let result = possibleEndings.filter(name => {
-    return normalizedPath.endsWith('/' + name);
+  
+  const classicIgnores = ['app/controllers/','app/helpers/','app/services/','app/utils/', 'app/adapters/', 'app/models/'];
+  let result = possibleEndings.filter((name) => {
+    return normalizedPath.endsWith('/' + name) && classicIgnores.filter((substr) => normalizedPath.includes(substr)).length === 0;
   }).length;
 
   return result;
