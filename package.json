@@ -3,7 +3,14 @@
   "version": "0.0.76",
   "description": "Ember components hot-reload addon",
   "keywords": [
-    "ember-addon"
+    "ember-addon",
+    "ast",
+    "dev-tools",
+    "hot-loading",
+    "hot-reloading",
+    "development",
+    "reloading",
+    "live-reload"
   ],
   "repository": "https://github.com/lifeart/ember-ast-hot-load",
   "license": "MIT",
