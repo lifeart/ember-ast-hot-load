@@ -575,11 +575,26 @@
   dependencies:
     "@glimmer/wire-format" "^0.36.5"
 
+"@glimmer/interfaces@^0.39.0":
+  version "0.39.0"
+  resolved "https://registry.yarnpkg.com/@glimmer/interfaces/-/interfaces-0.39.0.tgz#2434cec92cf4f3b521dbd2d317c5184dc0b61883"
+  integrity sha512-b0frYIFMBGsEP/BkRDgLOrg9QENuHk0JJBe8ywlxLqwc0eofwbdWGW8vxkoebskNo/Q+lK9XZXzp4pYYbDiXzQ==
+
 "@glimmer/resolver@^0.4.1":
   version "0.4.3"
   resolved "https://registry.yarnpkg.com/@glimmer/resolver/-/resolver-0.4.3.tgz#b1baae5c3291b4621002ccf8d7870466097e841d"
   dependencies:
     "@glimmer/di" "^0.2.0"
+
+"@glimmer/syntax@0.39.0":
+  version "0.39.0"
+  resolved "https://registry.yarnpkg.com/@glimmer/syntax/-/syntax-0.39.0.tgz#70c3376b444c2255e95a53a85c68b79f7b0d63b5"
+  integrity sha512-RFfV+O3Uovrp7hjGmKcuPLc2AcdGLc9hZtvczD0PCdhseD8cx8sVGt6DyMUNdFNAivCHZkWtvwcc9a9whd7xow==
+  dependencies:
+    "@glimmer/interfaces" "^0.39.0"
+    "@glimmer/util" "^0.39.0"
+    handlebars "^4.0.6"
+    simple-html-tokenizer "^0.5.7"
 
 "@glimmer/syntax@^0.36.5":
   version "0.36.5"
@@ -593,6 +608,11 @@
 "@glimmer/util@^0.36.5":
   version "0.36.5"
   resolved "https://registry.yarnpkg.com/@glimmer/util/-/util-0.36.5.tgz#829f393ef0bf791df5b287f104f0fd76e456182c"
+
+"@glimmer/util@^0.39.0":
+  version "0.39.0"
+  resolved "https://registry.yarnpkg.com/@glimmer/util/-/util-0.39.0.tgz#a8f55d36b3d4ab51183c6c1d0cfd2dc66d22a3c8"
+  integrity sha512-ZG0RN6iogC8AgfuoKmMCPRWffRBS2zlY+1OMTcxZ2nHWIl5bcyW7bTKwmS54/DgGM3/AedM7vPEMo8lE82ygBA==
 
 "@glimmer/wire-format@^0.36.5":
   version "0.36.5"
@@ -7679,9 +7699,10 @@ simple-dom@^1.0.0:
     "@simple-dom/serializer" "^1.4.0"
     "@simple-dom/void-map" "^1.4.0"
 
-simple-html-tokenizer@^0.5.6:
+simple-html-tokenizer@^0.5.6, simple-html-tokenizer@^0.5.7:
   version "0.5.7"
   resolved "https://registry.yarnpkg.com/simple-html-tokenizer/-/simple-html-tokenizer-0.5.7.tgz#8eca336ecfbe2b3c6166cbb31b2682088de79f40"
+  integrity sha512-APW9iYbkJ5cijjX4Ljhf3VG8SwYPUJT5gZrwci/wieMabQxWFiV5VwsrP5c6GMRvXKEQMGkAB1d9dvW66dTqpg==
 
 sisteransi@^0.1.1:
   version "0.1.1"
