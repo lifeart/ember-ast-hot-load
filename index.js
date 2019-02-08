@@ -1,8 +1,8 @@
 "use strict";
 const path = require("path");
 const fs = require("fs");
-const map = require('broccoli-stew').map;
-const rm = require('broccoli-stew').rm;
+const map = require("broccoli-stew").map;
+const rm = require("broccoli-stew").rm;
 
 const ADDON_NAME = "ember-ast-hot-load";
 
@@ -14,41 +14,57 @@ module.exports = {
     watch: ["components"],
     helpers: []
   },
-  serverMiddleware: function (config) {
+  serverMiddleware: function(config) {
     if (this.isDisabled()) {
       return;
     } else {
-      require("./lib/hot-load-middleware")(
-        config, 
-        this._OPTIONS
-      ).run();
-      
-      require("./lib/hot-reloader")(
-        config.options,
-        this._OPTIONS.watch
-      ).run();
+      require("./lib/hot-load-middleware")(config, this._OPTIONS).run();
+
+      require("./lib/hot-reloader")(config.options, this._OPTIONS.watch).run();
     }
   },
   setupPreprocessorRegistry(type, registry) {
-    let pluginObj = this._buildPlugin({addonContext: {
-      _OPTIONS: this._OPTIONS
-    }});
+    let pluginObj = this._buildPlugin({
+      addonContext: {
+        _OPTIONS: this._OPTIONS
+      }
+    });
     //parallelBabel proper integration?
     pluginObj.parallelBabel = {
       requireFile: __filename,
       buildUsing: "_buildPlugin",
-      params: { addonContext: {
-        _OPTIONS: this._OPTIONS
-      }}
+      params: {
+        addonContext: {
+          _OPTIONS: this._OPTIONS
+        }
+      }
     };
     registry.add("htmlbars-ast-plugin", pluginObj);
   },
 
-  _buildPlugin({addonContext}) {
-    const plugin = require("./lib/ast-transform")({addonContext});
+  _buildPlugin({ addonContext }) {
+    const plugin = require("./lib/ast-transform")({ addonContext });
     return {
       name: "ember-ast-hot-load-babel-plugin",
       plugin,
+      cacheKey() {
+        const hasher = function(str) {
+          var hash = 0;
+          if (str.length == 0) {
+            return hash;
+          }
+          for (var i = 0; i < str.length; i++) {
+            var char = str.charCodeAt(i);
+            hash = (hash << 5) - hash + char;
+            hash = hash & hash; // Convert to 32bit integer
+          }
+          return hash;
+        };
+        const key = hasher(
+          JSON.stringify(this.parallelBabel.params.addonContext._OPTIONS)
+        );
+        return 'ast-hot-'+ key;
+      },
       baseDir() {
         return __dirname;
       }
@@ -89,14 +105,25 @@ module.exports = {
     let root = this.project.root;
     try {
       resolvedPath = path.relative(root, require.resolve(npmCompilerPath));
-    } catch(e) {
+    } catch (e) {
       try {
-        resolvedPath = path.relative(root, require.resolve(path.join(root, 'node_modules', npmCompilerPath)));
+        resolvedPath = path.relative(
+          root,
+          require.resolve(path.join(root, "node_modules", npmCompilerPath))
+        );
       } catch (ee) {
         try {
-          resolvedPath = path.relative(root, require.resolve(path.join(root, '../node_modules', npmCompilerPath)));
+          resolvedPath = path.relative(
+            root,
+            require.resolve(path.join(root, "../node_modules", npmCompilerPath))
+          );
         } catch (eee) {
-          resolvedPath = path.relative(root, require.resolve(path.join(root, '../../node_modules', npmCompilerPath)));
+          resolvedPath = path.relative(
+            root,
+            require.resolve(
+              path.join(root, "../../node_modules", npmCompilerPath)
+            )
+          );
         }
       }
     }
@@ -107,7 +134,8 @@ module.exports = {
     let addonOptions = appOptions[ADDON_NAME] || {};
     const env = app.env;
     this._ENV = env;
-    let currentOptions = Object.assign({
+    let currentOptions = Object.assign(
+      {
         enabled: true,
         helpers: [],
         watch: ["components"],
@@ -121,9 +149,9 @@ module.exports = {
       watch,
       templateCompilerPath = undefined
     } = currentOptions;
-    if (env === 'test' || env === 'production') {
+    if (env === "test" || env === "production") {
       // allow test/prod addon usage only for app, named "dummy" (addon test app)
-      if (app.name !== 'dummy') {
+      if (app.name !== "dummy") {
         enabled = false;
       }
     }
@@ -138,9 +166,9 @@ module.exports = {
   },
   importTransforms() {
     return {
-      'fastboot-safe': {
+      "fastboot-safe": {
         transform(tree) {
-          return map(tree, (content)=>{
+          return map(tree, content => {
             return `
               ;if (typeof FastBoot === 'undefined') {
                 ${content}
@@ -152,8 +180,8 @@ module.exports = {
         processOptions(assetPath, entry, options) {
           options[assetPath] = {};
           return options;
-        },
-      },
+        }
+      }
     };
   },
   included(app) {
@@ -167,10 +195,8 @@ module.exports = {
     // Require template compiler as in CLI this is only used in build, we need it at runtime
     const npmPath = this._getTemplateCompilerPath();
     if (fs.existsSync(npmPath)) {
-      app.import(npmPath,{
-        using: [
-          { transformation: 'fastboot-safe'}
-        ]
+      app.import(npmPath, {
+        using: [{ transformation: "fastboot-safe" }]
       });
     } else {
       throw new Error(
@@ -188,19 +214,19 @@ module.exports = {
     if (!this.isDisabled()) {
       return this._super.treeFor.apply(this, arguments);
     }
-    if (name === 'app' || name === 'addon') {
+    if (name === "app" || name === "addon") {
       return rm(
-        this._super.treeFor.apply(this, arguments), 
-        'ember-ast-hot-load/**', 
-        'components/hot-content.js',
-        'components/hot-placeholder.js',
-        'helpers/hot-load.js',
-        'instance-initializers/hot-loader-livereload-plugin.js',
-        'instance-initializers/resolver-hot-loader-patch.js',
-        'services/hot-loader.js',
-        'utils/cleaners.js',
-        'utils/matchers.js',
-        'utils/normalizers.js'
+        this._super.treeFor.apply(this, arguments),
+        "ember-ast-hot-load/**",
+        "components/hot-content.js",
+        "components/hot-placeholder.js",
+        "helpers/hot-load.js",
+        "instance-initializers/hot-loader-livereload-plugin.js",
+        "instance-initializers/resolver-hot-loader-patch.js",
+        "services/hot-loader.js",
+        "utils/cleaners.js",
+        "utils/matchers.js",
+        "utils/normalizers.js"
       );
     }
     return this._super.treeFor.apply(this, arguments);
