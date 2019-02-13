@@ -8,7 +8,12 @@ module.exports = function(defaults) {
     'ember-ast-hot-load': {
       helpers: ["my-zoo"],
       enabled: true
-    }
+	},
+	fingerprint: {
+		enabled: false,
+		generateAssetMap: false,
+		fingerprintAssetMap: false
+	}  
   });
 
   if (app.env === 'test') {
