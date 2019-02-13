@@ -25,7 +25,7 @@
     "lint:js": "eslint .",
     "start": "ember serve",
     "test": "ember test",
-    "test:jest": "jest",
+    "test:jest": "jest --no-watchman",
     "test:all": "ember try:each"
   },
   "dependencies": {
