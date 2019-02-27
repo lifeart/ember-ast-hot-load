@@ -9,7 +9,7 @@ This addon is continuation of the project [ember-cli-hot-loader](https://github.
 
 Many thanks to [Toran Billups / @toranb](https://github.com/toranb) for this huge work, support and inspiration!
 
-* `ember-cli-hot-loader` implemented using middleware for  `ember-resolver` and `wrapping` components. 
+* `ember-cli-hot-loader` implemented using middleware for  `ember-resolver` and `wrapping` components.
 * `ember-ast-hot-load` implemented using compile-time templates `ast` transformations.
 
 | Point  		      | ember-ast-hot-load | ember-cli-hot-loader |
@@ -47,14 +47,14 @@ ember install ember-ast-hot-load
 
 It should just works after install. Without any config.
 
-After the ember install simply run `ember serve` as you normally would. Any changes to component JS/HBS files will result in a hot reload (not a full page reload). If you alter a route, service, controller or controller template ember-cli will do a full page reload.
+After the ember install simply run `ember serve` as you normally would. Any changes to component JS/HBS files will result in a hot reload (not a full page reload). If you alter a route, service, or controller ember-cli will do a full page reload.
 
 Helpers looks like components, but we don't support component-like helpers hot-reload.
 So, you need to exclude helpers from hot-loader pipeline.
 
 If you don't specify `helpers` in config addon will continue to work, but with `helper` -> `dynamic component` -> `helper` wrapper (you can check it in `ember-inspector` components tab, wrapper will have name like `helper "you-app-helper-name"`).
 
-Let's copy all applications' hot-reload confusing helpers. 
+Let's copy all applications' hot-reload confusing helpers.
 ```js
 var componentLikeHelpers = Object.keys(require.entries)
     .filter(name=>(name.includes('/helpers/')|| name.includes('/helper')))
@@ -62,7 +62,7 @@ var componentLikeHelpers = Object.keys(require.entries)
         let path = name.split('/helpers/');
         return path.pop();
     }).filter(name=>!name.includes('/')).uniq();
-	
+
 copy(JSON.stringify(componentLikeHelpers))
 ```
 
@@ -83,8 +83,8 @@ also, we need to exclude `ember-ast-hot-load` from production builds (to avoid u
 ```js
 const environment = EmberApp.env();
 // ...
-const addonsToIgnoreInProdBuilds = [ 
-  environment === 'production' ? 'ember-ast-hot-load' : null 
+const addonsToIgnoreInProdBuilds = [
+  environment === 'production' ? 'ember-ast-hot-load' : null
 ].filter(name => name !== null);
 
 new EmberApp(defaults, {
