@@ -7,6 +7,9 @@ Main Idea of this addon - ability to reload changed components without applicati
 
 This addon is continuation of the project [ember-cli-hot-loader](https://github.com/adopted-ember-addons/ember-cli-hot-loader) and  includes part of it's codebase.
 
+* __ember-cli__ >= `2.15.1`
+* __ember-source__ >= `2.16`
+
 Many thanks to [Toran Billups / @toranb](https://github.com/toranb) for this huge work, support and inspiration!
 
 * `ember-cli-hot-loader` implemented using middleware for  `ember-resolver` and `wrapping` components.
