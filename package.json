@@ -35,7 +35,7 @@
     "ember-cli-htmlbars": "*"
   },
   "devDependencies": {
-    "@glimmer/syntax": "0.40.0",
+    "@glimmer/syntax": "0.40.1",
     "@ember/optional-features": "^0.7.0",
     "broccoli-asset-rev": "^3.0.0",
     "ember-cli": "~3.9.0",
