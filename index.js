@@ -60,8 +60,15 @@ module.exports = {
           }
           return hash;
         };
+        const options = () => {
+          try {
+            return this.parallelBabel.params.addonContext._OPTIONS;
+          } catch(e) {
+            return addonContext ? addonContext._OPTIONS : '_UNKNOWN_';
+          }
+        }
         const key = hasher(
-          JSON.stringify(this.parallelBabel.params.addonContext._OPTIONS)
+          JSON.stringify(options())
         );
         return 'ast-hot-'+ key;
       },
