@@ -51,7 +51,7 @@ export function looksLikeRouteTemplate(path) {
   if (path.includes('/src/ui/')) {
     return path.includes('/routes/') && path.endsWith('/template.hbs') && !path.includes('/-components/');
   }
-  return !path.includes('component') && path.endsWith('.hbs');
+  return !path.includes('component') && path.endsWith('.hbs') && !path.endsWith('-loading.hbs');
 }
 
 
