@@ -50,17 +50,20 @@ function clear(context, owner, name, originalName) {
   }
 
   if (owner.__container__) {
-    clearIfHasProperty(owner.base.__container__.cache, name, originalName);
-    clearIfHasProperty(
-      owner.base.__container__.factoryCache,
-      name,
-      originalName
-    );
-    clearIfHasProperty(
-      owner.base.__container__.factoryManagerCache,
-      name,
-      originalName
-    );
+    if (owner.base.__container__) {
+      clearIfHasProperty(owner.base.__container__.cache, name, originalName);
+      clearIfHasProperty(
+        owner.base.__container__.factoryCache,
+        name,
+        originalName
+      );
+      clearIfHasProperty(
+        owner.base.__container__.factoryManagerCache,
+        name,
+        originalName
+      );
+    }
+
     clearIfHasProperty(
       owner.base.__registry__._resolveCache,
       name,
