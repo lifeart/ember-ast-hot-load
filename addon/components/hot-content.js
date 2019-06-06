@@ -11,5 +11,7 @@ export default Component.extend({
     // }
     return this.get('hotReloadCUSTOMhlProperty');
   }),
-  tagName: ''
+  tagName: '',
+  // Support ember-test-selectors https://github.com/simplabs/ember-test-selectors#usage-with-tagless-components
+  supportsDataTestProperties: true
 });
