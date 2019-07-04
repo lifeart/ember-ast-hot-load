@@ -765,10 +765,10 @@
   dependencies:
     "@glimmer/wire-format" "^0.36.5"
 
-"@glimmer/interfaces@^0.40.1":
-  version "0.40.1"
-  resolved "https://registry.yarnpkg.com/@glimmer/interfaces/-/interfaces-0.40.1.tgz#eb767718c47872243db50c993700a385940c2cb2"
-  integrity sha512-gk+3Ij3hrJHPBJpCQE1wF54sh4M/NRx/JOJOhCzsyrf488IDnw2v93ZDEwBd7O3EcQDaRZMOQq6M3FNh/0YZpw==
+"@glimmer/interfaces@^0.41.3":
+  version "0.41.3"
+  resolved "https://registry.yarnpkg.com/@glimmer/interfaces/-/interfaces-0.41.3.tgz#33cc6e0e1d7c2696ad59c1b68d723e9c1ea944ec"
+  integrity sha512-EgJYw+2YyMztC2O2yuhRfb2SlAxXGBx6ug4b6qnjLrpypsKFZEE17/2gDi+f8lPFQct96uQW8ja4w9RQI85vMw==
 
 "@glimmer/resolver@^0.4.1":
   version "0.4.3"
@@ -777,13 +777,13 @@
   dependencies:
     "@glimmer/di" "^0.2.0"
 
-"@glimmer/syntax@0.40.1":
-  version "0.40.1"
-  resolved "https://registry.yarnpkg.com/@glimmer/syntax/-/syntax-0.40.1.tgz#6c387ca8d3080350c039092586adba37ba2bf351"
-  integrity sha512-lZ0xv9wNBVt1tteWszQy+PZbVi8v1vmlYjCTU9s/q2H1khrnVe6VYvicVapGATqlMQ84reRqJkQKdgfpy+ig6A==
+"@glimmer/syntax@0.41.3":
+  version "0.41.3"
+  resolved "https://registry.yarnpkg.com/@glimmer/syntax/-/syntax-0.41.3.tgz#f8feab2a6f24c922a8950992ca56bb9980d2b571"
+  integrity sha512-sHNqAGNMX4vs7gqRCye3F2COxu5sZKB/45Uclyn58GMVkIcRXYGyggKxMEH+m5fOvoAjhQPawjRBnsi/ccfR1A==
   dependencies:
-    "@glimmer/interfaces" "^0.40.1"
-    "@glimmer/util" "^0.40.1"
+    "@glimmer/interfaces" "^0.41.3"
+    "@glimmer/util" "^0.41.3"
     handlebars "^4.0.13"
     simple-html-tokenizer "^0.5.7"
 
@@ -802,10 +802,10 @@
   resolved "https://registry.yarnpkg.com/@glimmer/util/-/util-0.36.5.tgz#829f393ef0bf791df5b287f104f0fd76e456182c"
   integrity sha512-RcDsxxuKGnIc6Ro6wZGFMUZ/E8L3Rbcd5E5F2WOSa59RYHel146fhQtctGrpGxQUZwfxMEMs91GJIaKeukd84g==
 
-"@glimmer/util@^0.40.1":
-  version "0.40.1"
-  resolved "https://registry.yarnpkg.com/@glimmer/util/-/util-0.40.1.tgz#e4bd667d36422261248df039dd46bfe963655bd3"
-  integrity sha512-YuV7hhjrPi/2YYc+GCyOBzrG1xSolQ4Fg/dkQdpDkTA03UkC9BiCQRxbOK4SjlV9IuBSEIv/Is6BOfkQ8hhX2g==
+"@glimmer/util@^0.41.3":
+  version "0.41.3"
+  resolved "https://registry.yarnpkg.com/@glimmer/util/-/util-0.41.3.tgz#52e34c0c4dc0fdf56f8e4bda3f119269067b0887"
+  integrity sha512-CdrBBJVfQNhy6YX7itj65lI4q29SW5BGaPFR9WgOMd5snFQ4CbSymdFAdiV8QNRBs2Ax27FKrC3ciGZ9qtZ6Ew==
 
 "@glimmer/wire-format@^0.36.5":
   version "0.36.5"
