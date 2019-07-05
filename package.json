@@ -30,7 +30,7 @@
   },
   "dependencies": {
     "babel-plugin-ember-modules-api-polyfill": ">=2.0.1",
-    "broccoli-stew": "^2.0.1",
+    "broccoli-stew": "^3.0.0",
     "ember-cli-babel": ">=6.6.0",
     "ember-cli-htmlbars": "*"
   },
