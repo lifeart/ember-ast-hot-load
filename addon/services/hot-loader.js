@@ -20,7 +20,6 @@ import {
 
 import Ember from "ember";
 /* eslint-disable ember/new-module-imports */
-const compileTemplate = Ember.HTMLBars.compile;
 const COMPONENT_NAMES_CACHE = {};
 const DYNAMIC_HELPERS_WRAPPERS_COMPONENTS = {};
 const REQUIRE_CLEAR_CACHE = [];
@@ -29,6 +28,13 @@ var willHotReloadCallbacks = [];
 var willLiveReloadCallbacks = [];
 var matchingResults = {};
 
+function compileTemplate(templateString, options) {
+  let template = Ember.HTMLBars.template;
+  let precompile = Ember.HTMLBars.precompile;
+  let precompiledTemplateString = precompile(templateString, options);
+  let templateJS = JSON.parse(precompiledTemplateString);
+  return template(templateJS);
+}
 
 function stripRouteTemplatePostfix(name) {
   return name.endsWith('.template') ? name.replace('.template', '') : name;
