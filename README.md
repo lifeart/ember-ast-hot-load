@@ -49,30 +49,18 @@ ember install ember-ast-hot-load
 ## How to use this addon
 
 
-It should just works after install. Without any config.
+It should just work without any config.
 
-After the ember install simply run `ember serve` as you normally would. Any changes to component JS/HBS files will result in a hot reload (not a full page reload). If you alter a route, service, or controller ember-cli will do a full page reload.
+After the installing, simply run `ember serve` as you normally would. Any changes to component JS/HBS files will result in a hot reload (not a full page reload). If you alter a route, service, or controller ember-cli will do a full page reload.
 
-Helpers looks like components, but we don't support component-like helpers hot-reload.
-So, you need to exclude helpers from hot-loader pipeline.
+Hot-reloading Ember [helpers](https://guides.emberjs.com/v3.10.0/templates/writing-helpers/) is not supported.
 
-If you don't specify `helpers` in config addon will continue to work, but with `helper` -> `dynamic component` -> `helper` wrapper (you can check it in `ember-inspector` components tab, wrapper will have name like `helper "you-app-helper-name"`).
+Because helpers look like components (in the AST) they will be unnecessarily wrapped, e.g. `helper` -> `dynamic component` -> `helper`
 
-Let's copy all applications' hot-reload confusing helpers.
-```js
-var componentLikeHelpers = Object.keys(require.entries)
-    .filter(name=>(name.includes('/helpers/')|| name.includes('/helper')))
-    .filter(name=>!name.includes('/-')).map(name=>{
-        let path = name.split('/helpers/');
-        return path.pop();
-    }).filter(name=>!name.includes('/')).uniq();
-
-copy(JSON.stringify(componentLikeHelpers))
-```
-
-in `ember-cli-build.js` you need to specify this helpers
+To prevent this from happening, you can exclude helpers from the hot-loader pipeline by specifying a list of helper names in the add-on config.
 
 ```js
+// ember-cli-build.js
 new EmberApp(defaults, {
   'ember-ast-hot-load': {
     helpers: ["foo-bar", "liquid-if", ... ],
@@ -82,9 +70,25 @@ new EmberApp(defaults, {
 
 ```
 
-also, we need to exclude `ember-ast-hot-load` from production builds (to avoid unnecessary calculations)
+If you don't specify `helpers` in the config the addon will continue to work, but with it will also wrap all your helpers (you can see this in the `ember-inspector` components tab, e.g. `helper "you-app-helper-name"`).
+
+To get a list of all the helpers in your app that hot-reload might think are components, run this script in a debug console in your browner. You can then use this list to configure the add-on.
 
 ```js
+var componentLikeHelpers = Object.keys(require.entries)
+    .filter(name=>(name.includes('/helpers/')|| name.includes('/helper')))
+    .filter(name=>!name.includes('/-')).map(name=>{
+        let path = name.split('/helpers/');
+        return path.pop();
+    }).filter(name=>!name.includes('/')).uniq();
+
+console.log(JSON.stringify(componentLikeHelpers))
+```
+
+You should also exclude `ember-ast-hot-load` from production builds (to avoid unnecessary calculations)
+
+```js
+// ember-cli-build.js
 const environment = EmberApp.env();
 // ...
 const addonsToIgnoreInProdBuilds = [
@@ -100,15 +104,27 @@ new EmberApp(defaults, {
 
 ### Public API?
 
-  `service('hot-loader')`
+```js
+service('hot-loader')
+```
 
-  `.registerWillHotReload(onHotReload)` `.unregisterWillHotReload(onHotReload)`
+```js
+.registerWillHotReload(onHotReload)
+```
 
-  `.registerWillLiveReload(onLiveReload)` `.unregisterWillLiveReload(onLiveReload)`
+```js
+.unregisterWillHotReload(onHotReload)
+```
 
- ```javascript
+```js
+.registerWillLiveReload(onLiveReload)
+```
 
+```js
+.unregisterWillLiveReload(onLiveReload)
+```
 
+ ```js
   // we need to prevent full app refresh if we can hande changed file.
  function onLiveReload(event) {
     if (event.modulePath.includes('redusers')) {
@@ -127,9 +143,22 @@ new EmberApp(defaults, {
  }
  ```
 
-
-
 ## Known Compatibility Workarounds
+
+#### Serving your Ember app from a different backend (e.g. Rails)
+
+In most development environments, Ember applications are served directly from Ember's development server, e.g. http://localhost:4200.
+If you are using a different way of service your Ember app, you may need to override the URL that we use to reload your changes.
+
+```js
+  // config/enironment.js
+
+  if (environment === 'development') {
+    ENV['ember-ast-hot-load'] = {
+      baseUrl: 'http://app.mydomain.test:4200'
+    }
+  }
+```
 
 #### Content Security Policy
 
@@ -145,7 +174,7 @@ following Content Security Policy directive: "script-src ...
 
 To workaround this issue, in the `config/environment.js` file, add `"unsafe-eval"` to the Development and Test environment sections. Do NOT just add `"unsafe-eval"` to the CSP that goes to Production as this will defeat one of the main safeguards that comes from using a CSP. Here is sample code to add to the CSP in the proper environments only:
 
-```
+```js
   // config/environment.js
   ENV.contentSecurityPolicy = {
     // normal CSP for Production here
