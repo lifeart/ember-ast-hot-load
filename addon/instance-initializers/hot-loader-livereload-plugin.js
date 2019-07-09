@@ -3,7 +3,7 @@ function normalizeAppName(appName) {
 	// it can be @foo/bar
 	return appName.split('/').join('---');
 }
-function createPlugin(appName, hotReloadService, rootURL) {
+function createPlugin(appName, hotReloadService, rootUrl, baseUrl) {
   function Plugin(window, host) {
     this.window = window;
     this.host = host;
@@ -35,8 +35,8 @@ function createPlugin(appName, hotReloadService, rootURL) {
           hotReloadService.triggerInRunLoop("willHotReload", path);
         }, 10);
       };
-      const originalVendorFileURL = `${rootURL}assets/${appName}.js`;
-      const customVendorFileURL =  `/_hot-load/${normalizeAppName(appName)}.js?t=${Date.now()}&components=${encodeURIComponent(cancelableEvent.components.join(','))}&file=${encodeURIComponent(path.split('\\').join('/'))}`;
+      const originalVendorFileURL = `${baseUrl}${rootUrl}assets/${appName}.js`;
+      const customVendorFileURL = `${baseUrl}/_hot-load/${normalizeAppName(appName)}.js?t=${Date.now()}&components=${encodeURIComponent(cancelableEvent.components.join(','))}&file=${encodeURIComponent(path.split('\\').join('/'))}`;
       script.onerror = function() {
         hotReloadService.incrementProperty('scriptDownloadErrors');
         if (hotReloadService.scriptDownloadErrors > 3) {
@@ -93,12 +93,11 @@ function getAppName(appInstance) {
   );
 }
 
-function getRootUrl(appName) {
+function getConfig(appName) {
   let modulePath = `${appName}/config/environment`;
   if (require._eak_seen[modulePath]) {
-    return require(modulePath).default.rootURL || "/";
+    return require(modulePath).default;
   }
-  return "/";
 }
 
 export function initialize(appInstance) {
@@ -120,12 +119,11 @@ export function initialize(appInstance) {
   if (!appName) {
     appName = "dummy";
   }
-  let rootURL = getRootUrl(appName);
-  const Plugin = createPlugin(
-    appName,
-    hotLoadService,
-    rootURL
-  );
+  const appConfig = getConfig(appName);
+  const baseUrl =
+    (appConfig['ember-ast-hot-load'] && appConfig['ember-ast-hot-load'].baseUrl) || '';
+  const rootUrl = appConfig.rootURL || '/';
+  const Plugin = createPlugin(appName, hotLoadService, rootUrl, baseUrl);
   window.LiveReload.addPlugin(Plugin);
 }
 
