@@ -33,6 +33,9 @@ export function matchingComponent(rawComponentName, path) {
     ".js",
     ".hbs",
     "/component.ts",
+    "/index.js",
+    "/index.ts",
+    "/index.hbs",
     "/component.js",
     "/template.hbs"
   ];

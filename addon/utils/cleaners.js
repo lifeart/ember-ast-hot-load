@@ -118,6 +118,11 @@ export function clearRequirejsCache(context, componentName) {
   // Invalidate regular module
   requireUnsee(`${modulePrefix}/components/${componentName}`);
   requireUnsee(`${modulePrefix}/templates/components/${componentName}`);
+
+
+  // Invalidate collocated templates and components
+  requireUnsee(`${modulePrefix}/components/${componentName}/index`);
+
   // classic route template
   requireUnsee(`${modulePrefix}/templates/${componentName}`);
 
