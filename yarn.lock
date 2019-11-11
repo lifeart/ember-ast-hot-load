@@ -705,10 +705,10 @@
   dependencies:
     "@glimmer/wire-format" "^0.36.5"
 
-"@glimmer/interfaces@^0.42.0":
-  version "0.42.0"
-  resolved "https://registry.yarnpkg.com/@glimmer/interfaces/-/interfaces-0.42.0.tgz#525f5352dd78011eef7b3eb0e3fb61b981c94319"
-  integrity sha512-lZlydeRRK3yL6pco0gCstPVuC5XYjBUtql1vSvWTRd+MUO0Chg8kxIvduFVg6f+Xfr1kqWd2YQq1MCMdmfzfvg==
+"@glimmer/interfaces@^0.44.0":
+  version "0.44.0"
+  resolved "https://registry.yarnpkg.com/@glimmer/interfaces/-/interfaces-0.44.0.tgz#0896204815f05fd8907b5703cbaee9d1b9edf5d3"
+  integrity sha512-O1VBrB1uhWh/XpBRaMbT5zncZiJJNTAqe0rnhRr4JicrlmNoIC4/5ADRgDORj5oBxuENjuZ+6UTul3WCOHETiw==
 
 "@glimmer/resolver@^0.4.1":
   version "0.4.3"
@@ -717,14 +717,14 @@
   dependencies:
     "@glimmer/di" "^0.2.0"
 
-"@glimmer/syntax@0.42.0":
-  version "0.42.0"
-  resolved "https://registry.yarnpkg.com/@glimmer/syntax/-/syntax-0.42.0.tgz#65d38f6f6339e0e00cfbb34bc08ed3ff94f080c6"
-  integrity sha512-H0vydEQjlSqlVyjUmQxOy9BMBdL8OAII4GQjTXHWOQKmQBreZ05Dpr2EbXusiby6E2lMgbcPOqxGXdB/VVUBew==
+"@glimmer/syntax@0.44.0":
+  version "0.44.0"
+  resolved "https://registry.yarnpkg.com/@glimmer/syntax/-/syntax-0.44.0.tgz#66a4d0a5047becb210259e7678b6efa9c14dbc6f"
+  integrity sha512-B/kLng2z9Cf/7jbfY7p50Q/3ouUouVT5jBgGVVTJJHvtCbrNszdMj3XY0v3hLxB83TASXf1dwJh3CNni82JnOQ==
   dependencies:
-    "@glimmer/interfaces" "^0.42.0"
-    "@glimmer/util" "^0.42.0"
-    handlebars "^4.0.13"
+    "@glimmer/interfaces" "^0.44.0"
+    "@glimmer/util" "^0.44.0"
+    handlebars "^4.5.1"
     simple-html-tokenizer "^0.5.8"
 
 "@glimmer/syntax@^0.36.5":
@@ -742,10 +742,10 @@
   resolved "https://registry.yarnpkg.com/@glimmer/util/-/util-0.36.5.tgz#829f393ef0bf791df5b287f104f0fd76e456182c"
   integrity sha512-RcDsxxuKGnIc6Ro6wZGFMUZ/E8L3Rbcd5E5F2WOSa59RYHel146fhQtctGrpGxQUZwfxMEMs91GJIaKeukd84g==
 
-"@glimmer/util@^0.42.0":
-  version "0.42.0"
-  resolved "https://registry.yarnpkg.com/@glimmer/util/-/util-0.42.0.tgz#3f3a647ecaa16bbe4fc0545923d3b0a527319d78"
-  integrity sha512-rvXxKVb7BoQUvdrEQgxyvIeqGRUFM4LZAc7X1OmIpMnoaEh3fyx/e8Bz0blF0Yk6QvHpfV/GKirhlGmfum/ISA==
+"@glimmer/util@^0.44.0":
+  version "0.44.0"
+  resolved "https://registry.yarnpkg.com/@glimmer/util/-/util-0.44.0.tgz#45df98d73812440206ae7bda87cfe04aaae21ed9"
+  integrity sha512-duAsm30uVK9jSysElCbLyU6QQYO2X9iLDLBIBUcCqck9qN1o3tK2qWiHbGK5d6g8E2AJ4H88UrfElkyaJlGrwg==
 
 "@glimmer/wire-format@^0.36.5":
   version "0.36.5"
@@ -4996,10 +4996,10 @@ growly@^1.3.0:
   resolved "https://registry.yarnpkg.com/growly/-/growly-1.3.0.tgz#f10748cbe76af964b7c96c93c6bcc28af120c081"
   integrity sha1-8QdIy+dq+WS3yWyTxrzCivEgwIE=
 
-handlebars@^4.0.11, handlebars@^4.0.13, handlebars@^4.0.3, handlebars@^4.0.4, handlebars@^4.0.6:
-  version "4.1.2"
-  resolved "https://registry.yarnpkg.com/handlebars/-/handlebars-4.1.2.tgz#b6b37c1ced0306b221e094fc7aca3ec23b131b67"
-  integrity sha512-nvfrjqvt9xQ8Z/w0ijewdD/vvWDTOweBUm96NTr66Wfvo1mJenBLwcYmPs3TIBP5ruzYGD7Hx/DaM9RmhroGPw==
+handlebars@^4.0.11, handlebars@^4.0.3, handlebars@^4.0.4, handlebars@^4.0.6, handlebars@^4.5.1:
+  version "4.5.1"
+  resolved "https://registry.yarnpkg.com/handlebars/-/handlebars-4.5.1.tgz#8a01c382c180272260d07f2d1aa3ae745715c7ba"
+  integrity sha512-C29UoFzHe9yM61lOsIlCE5/mQVGrnIOrOq7maQl76L7tYPCgC1og0Ajt6uWnX4ZTxBPnjw+CUvawphwCfJgUnA==
   dependencies:
     neo-async "^2.6.0"
     optimist "^0.6.1"
@@ -8566,12 +8566,7 @@ simple-dom@^1.4.0:
     "@simple-dom/serializer" "^1.4.0"
     "@simple-dom/void-map" "^1.4.0"
 
-simple-html-tokenizer@^0.5.6:
-  version "0.5.7"
-  resolved "https://registry.yarnpkg.com/simple-html-tokenizer/-/simple-html-tokenizer-0.5.7.tgz#8eca336ecfbe2b3c6166cbb31b2682088de79f40"
-  integrity sha512-APW9iYbkJ5cijjX4Ljhf3VG8SwYPUJT5gZrwci/wieMabQxWFiV5VwsrP5c6GMRvXKEQMGkAB1d9dvW66dTqpg==
-
-simple-html-tokenizer@^0.5.8:
+simple-html-tokenizer@^0.5.6, simple-html-tokenizer@^0.5.8:
   version "0.5.8"
   resolved "https://registry.yarnpkg.com/simple-html-tokenizer/-/simple-html-tokenizer-0.5.8.tgz#3417382f75954ee34515cc4fd32d9918e693f173"
   integrity sha512-0Sq4FvLlQEQODVA6PH2MIrc7tzYO0KT2HzzwvaVLYClWgIsuvaNUOrhrAvTi1pZHrcq7GDB4WiI3ukjqBMxcGQ==
