@@ -720,10 +720,12 @@
   resolved "https://registry.yarnpkg.com/@glimmer/interfaces/-/interfaces-0.43.0.tgz#a7a38c2476f87d68d6dc894840df17bc8b92de33"
   integrity sha512-rWu6WHVo6tuFFOKOSJWAWsFfXZgkdnKDnvhl3tAb20njW/0uBZ2nx7GZ3lImvBeG0HoxyzYA7pD299ps03TemA==
 
-"@glimmer/interfaces@^0.44.0":
-  version "0.44.0"
-  resolved "https://registry.yarnpkg.com/@glimmer/interfaces/-/interfaces-0.44.0.tgz#0896204815f05fd8907b5703cbaee9d1b9edf5d3"
-  integrity sha512-O1VBrB1uhWh/XpBRaMbT5zncZiJJNTAqe0rnhRr4JicrlmNoIC4/5ADRgDORj5oBxuENjuZ+6UTul3WCOHETiw==
+"@glimmer/interfaces@^0.46.0":
+  version "0.46.0"
+  resolved "https://registry.yarnpkg.com/@glimmer/interfaces/-/interfaces-0.46.0.tgz#977a16a8396ea7124f4f5f14391136baa22f50a9"
+  integrity sha512-jcf5Xlgvdp9yurkLCoN5wwTOcyYEpe+eakpf2lP8PQ9DHJX33uAE3vjIm+aP0fY95eCnvDWGTU63FKZTsJMZ1A==
+  dependencies:
+    "@simple-dom/interface" "^1.4.0"
 
 "@glimmer/resolver@^0.4.1":
   version "0.4.3"
@@ -732,13 +734,13 @@
   dependencies:
     "@glimmer/di" "^0.2.0"
 
-"@glimmer/syntax@0.44.0":
-  version "0.44.0"
-  resolved "https://registry.yarnpkg.com/@glimmer/syntax/-/syntax-0.44.0.tgz#66a4d0a5047becb210259e7678b6efa9c14dbc6f"
-  integrity sha512-B/kLng2z9Cf/7jbfY7p50Q/3ouUouVT5jBgGVVTJJHvtCbrNszdMj3XY0v3hLxB83TASXf1dwJh3CNni82JnOQ==
+"@glimmer/syntax@0.46.0":
+  version "0.46.0"
+  resolved "https://registry.yarnpkg.com/@glimmer/syntax/-/syntax-0.46.0.tgz#e80224219f7c42d878b94c9a2c1eb3a687e49ec7"
+  integrity sha512-gYGTJa7rYYq3+c91J4wAtOSt4G23EJD4D8Wo/GbAba4Hf8AD+C9U52RRHXVWVOFSaH6fsc3UCAh55aKjaN32VA==
   dependencies:
-    "@glimmer/interfaces" "^0.44.0"
-    "@glimmer/util" "^0.44.0"
+    "@glimmer/interfaces" "^0.46.0"
+    "@glimmer/util" "^0.46.0"
     handlebars "^4.5.1"
     simple-html-tokenizer "^0.5.8"
 
@@ -757,10 +759,12 @@
   resolved "https://registry.yarnpkg.com/@glimmer/util/-/util-0.43.0.tgz#dd28cd1a233c25427032437b9050c6fa6d098e2c"
   integrity sha512-RtjHU8/rhysOugu+Q0j6dQ3G67J4h45tQgKPEwVPxu8P+hqijqnz/lBLxTdVg/1zKmlqUkyngTr8H4Jpg2yF/g==
 
-"@glimmer/util@^0.44.0":
-  version "0.44.0"
-  resolved "https://registry.yarnpkg.com/@glimmer/util/-/util-0.44.0.tgz#45df98d73812440206ae7bda87cfe04aaae21ed9"
-  integrity sha512-duAsm30uVK9jSysElCbLyU6QQYO2X9iLDLBIBUcCqck9qN1o3tK2qWiHbGK5d6g8E2AJ4H88UrfElkyaJlGrwg==
+"@glimmer/util@^0.46.0":
+  version "0.46.0"
+  resolved "https://registry.yarnpkg.com/@glimmer/util/-/util-0.46.0.tgz#7157f1c5d6f55b66873f5e2621e8c4854f7fdb91"
+  integrity sha512-MprttA+DxXmJK5Bdkz/NP2kFSv9+ljhQCey1xwby0m9QwoXOc5P7erDVt0P9QlV2kQJRcpGVzDGAywZotJlc3Q==
+  dependencies:
+    "@simple-dom/interface" "^1.4.0"
 
 "@jest/console@^24.7.1", "@jest/console@^24.9.0":
   version "24.9.0"
