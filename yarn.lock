@@ -938,15 +938,22 @@
   resolved "https://registry.yarnpkg.com/@glimmer/di/-/di-0.2.1.tgz#5286b6b32040232b751138f6d006130c728d4b3d"
   integrity sha512-0D53YVuEgGdHfTl9LGWDZqVzGhn4cT0CXqyAuOYkKFLvqboJXz6SnkRhQNPhhA2hLVrPnvUz3+choQmPhHLGGQ==
 
+"@glimmer/env@0.1.7":
+  version "0.1.7"
+  resolved "https://registry.yarnpkg.com/@glimmer/env/-/env-0.1.7.tgz#fd2d2b55a9029c6b37a6c935e8c8871ae70dfa07"
+  integrity sha1-/S0rVakCnGs3psk16MiHGucN+gc=
+
 "@glimmer/interfaces@^0.43.0":
   version "0.43.0"
   resolved "https://registry.yarnpkg.com/@glimmer/interfaces/-/interfaces-0.43.0.tgz#a7a38c2476f87d68d6dc894840df17bc8b92de33"
   integrity sha512-rWu6WHVo6tuFFOKOSJWAWsFfXZgkdnKDnvhl3tAb20njW/0uBZ2nx7GZ3lImvBeG0HoxyzYA7pD299ps03TemA==
 
-"@glimmer/interfaces@^0.44.0":
-  version "0.44.0"
-  resolved "https://registry.yarnpkg.com/@glimmer/interfaces/-/interfaces-0.44.0.tgz#0896204815f05fd8907b5703cbaee9d1b9edf5d3"
-  integrity sha512-O1VBrB1uhWh/XpBRaMbT5zncZiJJNTAqe0rnhRr4JicrlmNoIC4/5ADRgDORj5oBxuENjuZ+6UTul3WCOHETiw==
+"@glimmer/interfaces@^0.50.2":
+  version "0.50.2"
+  resolved "https://registry.yarnpkg.com/@glimmer/interfaces/-/interfaces-0.50.2.tgz#5637beb45242b9c23b1b82b404ad085f1827ce16"
+  integrity sha512-SbrEspWDHQ6j0DI0inYpg29SMlfEEUS895apZWxMzC2RyGHy5SKmZJ4xjishaq7A0E1AaTfDKYnE/wfWrQZSsw==
+  dependencies:
+    "@simple-dom/interface" "^1.4.0"
 
 "@glimmer/resolver@^0.4.1":
   version "0.4.3"
@@ -955,15 +962,15 @@
   dependencies:
     "@glimmer/di" "^0.2.0"
 
-"@glimmer/syntax@0.44.0":
-  version "0.44.0"
-  resolved "https://registry.yarnpkg.com/@glimmer/syntax/-/syntax-0.44.0.tgz#66a4d0a5047becb210259e7678b6efa9c14dbc6f"
-  integrity sha512-B/kLng2z9Cf/7jbfY7p50Q/3ouUouVT5jBgGVVTJJHvtCbrNszdMj3XY0v3hLxB83TASXf1dwJh3CNni82JnOQ==
+"@glimmer/syntax@0.50.2":
+  version "0.50.2"
+  resolved "https://registry.yarnpkg.com/@glimmer/syntax/-/syntax-0.50.2.tgz#e69731df2fb9069d30469c700eb9bae79e51c257"
+  integrity sha512-kmMZK4bN674sUhphLuads1RQNm3pzEuNcW7SHQiDJJz3zDsMFQ69YPtgYBrpJZtPgF6Oj/QgwUcD0d+ql5/cpw==
   dependencies:
-    "@glimmer/interfaces" "^0.44.0"
-    "@glimmer/util" "^0.44.0"
+    "@glimmer/interfaces" "^0.50.2"
+    "@glimmer/util" "^0.50.2"
     handlebars "^4.5.1"
-    simple-html-tokenizer "^0.5.8"
+    simple-html-tokenizer "^0.5.9"
 
 "@glimmer/syntax@^0.43.0":
   version "0.43.0"
@@ -980,10 +987,14 @@
   resolved "https://registry.yarnpkg.com/@glimmer/util/-/util-0.43.0.tgz#dd28cd1a233c25427032437b9050c6fa6d098e2c"
   integrity sha512-RtjHU8/rhysOugu+Q0j6dQ3G67J4h45tQgKPEwVPxu8P+hqijqnz/lBLxTdVg/1zKmlqUkyngTr8H4Jpg2yF/g==
 
-"@glimmer/util@^0.44.0":
-  version "0.44.0"
-  resolved "https://registry.yarnpkg.com/@glimmer/util/-/util-0.44.0.tgz#45df98d73812440206ae7bda87cfe04aaae21ed9"
-  integrity sha512-duAsm30uVK9jSysElCbLyU6QQYO2X9iLDLBIBUcCqck9qN1o3tK2qWiHbGK5d6g8E2AJ4H88UrfElkyaJlGrwg==
+"@glimmer/util@^0.50.2":
+  version "0.50.2"
+  resolved "https://registry.yarnpkg.com/@glimmer/util/-/util-0.50.2.tgz#1519064c2722143871964a183ceb825b5c24f5d3"
+  integrity sha512-FG3gWONYZWUBwZojvuYdPALu6DWKzc2QGBzb6zBgY5vO2otAqLsi8WlfGP8ekkFsEHUtlPGeUAOqr+lSox+DQw==
+  dependencies:
+    "@glimmer/env" "0.1.7"
+    "@glimmer/interfaces" "^0.50.2"
+    "@simple-dom/interface" "^1.4.0"
 
 "@jest/console@^24.7.1", "@jest/console@^24.9.0":
   version "24.9.0"
@@ -9099,10 +9110,10 @@ simple-dom@^1.4.0:
     "@simple-dom/serializer" "^1.4.0"
     "@simple-dom/void-map" "^1.4.0"
 
-simple-html-tokenizer@^0.5.8:
-  version "0.5.8"
-  resolved "https://registry.yarnpkg.com/simple-html-tokenizer/-/simple-html-tokenizer-0.5.8.tgz#3417382f75954ee34515cc4fd32d9918e693f173"
-  integrity sha512-0Sq4FvLlQEQODVA6PH2MIrc7tzYO0KT2HzzwvaVLYClWgIsuvaNUOrhrAvTi1pZHrcq7GDB4WiI3ukjqBMxcGQ==
+simple-html-tokenizer@^0.5.8, simple-html-tokenizer@^0.5.9:
+  version "0.5.9"
+  resolved "https://registry.yarnpkg.com/simple-html-tokenizer/-/simple-html-tokenizer-0.5.9.tgz#1a83fe97f5a3e39b335fddf71cfe9b0263b581c2"
+  integrity sha512-w/3FEDN94r4JQ9WoYrIr8RqDIPZdyNkdpbK9glFady1CAEyD97XWCv8HFetQO21w81e7h7Nh59iYTyG1mUJftg==
 
 sisteransi@^1.0.3:
   version "1.0.4"
