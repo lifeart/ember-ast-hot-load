@@ -1,7 +1,6 @@
 import Helper from "@ember/component/helper";
 import { inject as service } from "@ember/service";
 import { later, cancel } from "@ember/runloop";
-import { get } from "@ember/object";
 
 function hasPropertyNameInContext(prop, ctx) {
   if (typeof ctx !== 'object') {
@@ -20,13 +19,13 @@ export default Helper.extend({
     this.binded__rerenderOnTemplateUpdate = this.__rerenderOnTemplateUpdate.bind(
       this
     );
-    const hotLoader = get(this, 'hotLoader');
+    const hotLoader = this.hotLoader;
     this.binded__willLiveReload = this.__willLiveReload.bind(this);
     hotLoader.registerWillHotReload(this.binded__rerenderOnTemplateUpdate);
     hotLoader.registerWillLiveReload(this.binded__willLiveReload);
   },
   __rerenderOnTemplateUpdate(path) {
-    const hotLoader = get(this, 'hotLoader');
+    const hotLoader = this.hotLoader;
     if (hotLoader.isMatchingComponent(this.firstComputeName, path)) {
       hotLoader.forgetComponent(this.firstComputeName);
       cancel(this.timer);
@@ -36,7 +35,7 @@ export default Helper.extend({
     }
   },
   __willLiveReload(event) {
-    const hotLoader = get(this, 'hotLoader');
+    const hotLoader = this.hotLoader;
     if (hotLoader.isMatchingComponent(this.firstComputeName, event.modulePath)) {
       event.cancel = true;
       (this.possibleNames || []).forEach((computedName)=>{
@@ -50,14 +49,14 @@ export default Helper.extend({
   willDestroy() {
     this._super(...arguments);
     cancel(this.timer);
-    const hotLoader = get(this, 'hotLoader');
+    const hotLoader = this.hotLoader;
     hotLoader.unregisterWillHotReload(
       this.binded__rerenderOnTemplateUpdate
     );
     hotLoader.unregisterWillLiveReload(this.binded__willLiveReload);
   },
   compute([name, context = {}, maybePropertyValue = undefined, astStringName = '']) {
-    const hotLoader = get(this, 'hotLoader');
+    const hotLoader = this.hotLoader;
     const safeAstName = String(astStringName || '');
     const renderComponentName = hotLoader.normalizeComponentName(name);
     const isComponent = hotLoader.isComponent(renderComponentName, context);
@@ -88,7 +87,7 @@ export default Helper.extend({
         return hotLoader.dynamicComponentNameForHelperWrapper(name);
       } else {
         return hotLoader.renderDynamicComponentHelper(name, context, maybePropertyValue);
-      }    
+      }
     }
     if (renderComponentName === this.firstCompute) {
       this.firstCompute = false;

@@ -8,6 +8,7 @@
 
 # dependencies
 /bower_components/
+/node_modules/
 
 # misc
 /coverage/
@@ -17,3 +18,8 @@
 /.node_modules.ember-try/
 /bower.json.ember-try
 /package.json.ember-try
+
+
+#
+tests/dummy/app/app.js
+tests/dummy/app/router.js
