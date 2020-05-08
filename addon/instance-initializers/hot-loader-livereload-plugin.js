@@ -11,6 +11,7 @@ function createPlugin(appName, hotReloadService, rootUrl, baseUrl) {
   Plugin.identifier = "ember-hot-reload";
   Plugin.version = "1.0"; // Just following the example, this might not be even used
   Plugin.prototype.reload = function(path) {
+    let crossOrigin;
     const cancelableEvent = { modulePath: path, cancel: false, components: [] };
     hotReloadService.triggerInRunLoop("willLiveReload", cancelableEvent);
     if (cancelableEvent.cancel) {
@@ -24,6 +25,9 @@ function createPlugin(appName, hotReloadService, rootUrl, baseUrl) {
           tags[i].getAttribute("src") != null &&
           tags[i].getAttribute("src").indexOf(appName) !== -1
         ) {
+          if(new RegExp(`${appName}\\.js$`).test(tags[i].getAttribute("src"))) {
+            crossOrigin = tags[i].getAttribute("crossorigin")
+          }
           tags[i].parentNode.removeChild(tags[i]);
         }
       }
@@ -53,6 +57,11 @@ function createPlugin(appName, hotReloadService, rootUrl, baseUrl) {
         script.src = originalVendorFileURL;
       }
       script.type = "text/javascript";
+
+      if(crossOrigin) {
+        script.crossOrigin = crossOrigin
+      }
+
       if (hotReloadService.get('useOriginalVendorFile')) {
         script.src = originalVendorFileURL;
       } else {
