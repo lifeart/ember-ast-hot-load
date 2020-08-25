@@ -10,10 +10,10 @@ import {
   clearContainerCache
 } from "ember-ast-hot-load/utils/cleaners";
 import { matchingComponent, hasValidHelperName,
-  getMUScopedComponents, 
+  getMUScopedComponents,
   getRouteScopedComponents } from "ember-ast-hot-load/utils/matchers";
-import { 
-  normalizeComponentName, 
+import {
+  normalizeComponentName,
   getPossibleRouteTemplateMeta,
   componentNameFromClassName
  } from "ember-ast-hot-load/utils/normalizers";
@@ -47,7 +47,7 @@ function shouldRenderTemplate(currentRouteName, possibleRouteName) {
     return true;
   } else if (currentRouteName === 'index' && possibleRouteName === 'application') {
     return true;
-  } else { 
+  } else {
     return false;
   }
 }
@@ -131,7 +131,7 @@ export default Service.extend(Evented, {
     return this.owner.lookup(`route:${path}`);
   },
   reloadWindow() {
-    if (this.get('isFastBoot')) {
+    if (this.isFastBoot) {
       return;
     }
     return window.location.reload();
@@ -241,7 +241,7 @@ export default Service.extend(Evented, {
     willLiveReloadCallbacks = willLiveReloadCallbacks.filter(f => f !== fn);
   },
   forgetComponent(name, isMU = true) {
-    const cacheKey = this.get('iterationId') + '/' + name + '/' + isMU;
+    const cacheKey = this.iterationId + '/' + name + '/' + isMU;
     if (FORGET_CACHE.includes(cacheKey)) {
       return;
     }
@@ -255,7 +255,7 @@ export default Service.extend(Evented, {
     FORGET_CACHE.push(cacheKey);
   },
   clearRequirejs(name) {
-    const cacheKey = this.get('iterationId') + '/' + name;
+    const cacheKey = this.iterationId + '/' + name;
     if (REQUIRE_CLEAR_CACHE.includes(cacheKey)) {
       return;
     }
@@ -294,7 +294,7 @@ export default Service.extend(Evented, {
     }
     return COMPONENT_NAMES_CACHE[name];
   },
-  isFastBoot: computed(function() {
+  isFastBoot: computed('owner', function() {
     const fastboot = this.owner.lookup('service:fastboot');
     if (!fastboot) {
       return false;
@@ -310,9 +310,9 @@ export default Service.extend(Evented, {
   // for mu support components like src/components/tabs/tab
   extractNamesFromContext(context, result = []) {
     if (
-      typeof context !== 'object' 
-      || context === null 
-      || !context.args 
+      typeof context !== 'object'
+      || context === null
+      || !context.args
       || !context.args.hotReloadCUSTOMName) {
       return result;
     } else {
@@ -423,6 +423,7 @@ export default Service.extend(Evented, {
     this.addDynamicHelperWrapperComponent(name);
     const component = Component.extend({
       tagName: "",
+      // eslint-disable-next-line ember/require-computed-property-dependencies
       layout: computed(function() {
       let positionalParams = (this._params || []).map((param, index)=>{
         return `(get this._params "${index}")`;
@@ -455,7 +456,7 @@ export default Service.extend(Evented, {
 	to fix this issue, add "${name}" into "ember-cli-build.js" in application config section
 
 	/////////////////////////////////////
-	
+
 	let app = new EmberApp(defaults, {
 	  'ember-ast-hot-load': {
         helpers: ["${name}"],
