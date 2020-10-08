@@ -19,8 +19,7 @@ module.exports = {
       return;
     } else {
       require("./lib/hot-load-middleware")(config, this._OPTIONS).run();
-
-      require("./lib/hot-reloader")(config.options, this._OPTIONS.watch).run();
+      require("./lib/hot-reloader")(config.options).run();
     }
   },
   setupPreprocessorRegistry(type, registry) {
