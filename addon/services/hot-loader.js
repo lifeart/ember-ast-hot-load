@@ -2,7 +2,7 @@ import Service from "@ember/service";
 import Evented from "@ember/object/evented";
 import Component from "@ember/component";
 import { getOwner } from "@ember/application";
-import { get, computed, getWithDefault } from "@ember/object";
+import { get, computed } from "@ember/object";
 import { camelize, capitalize } from "@ember/string";
 // import { compileTemplate } from "@ember/template-compilation";
 import {
@@ -299,7 +299,7 @@ export default Service.extend(Evented, {
     if (!fastboot) {
       return false;
     }
-    return getWithDefault(fastboot, 'isFastBoot', false);
+    return fastboot.isFastBoot || false;
   }),
   isHelper(name) {
     if (!hasValidHelperName(name)) {
