@@ -1,4 +1,4 @@
-import { 
+import {
   hasValidHelperName,
   isValidComponentExtension,
   matchingComponent,
@@ -55,11 +55,14 @@ module('Unit | Utility | matchers', function() {
         `ui/components/${name}/component.ts`,
         `ui/routes/route-${name}/-components/${name}/template.hbs`,
         `ui/routes/route-${name}/-components/${name}/component.js`,
-        `ui/routes/route-${name}/-components/${name}/component.ts`
+        `ui/routes/route-${name}/-components/${name}/component.ts`,
+        `ui/routes/route-${name}/${name}/${name}/template.hbs`,
+        `ui/routes/route-${name}/${name}/${name}/component.js`,
+        `ui/routes/route-${name}/${name}/${name}/component.ts`
       ];
       return [].concat(locations, locations.map((location)=>location.toString().replace(/\//gi,'\\')));
     }
-    
+
     validLocations('foo').forEach((path)=>{
       assert.equal(matchingComponent('foo', path), true, `foo should match ${path}`);
       assert.equal(matchingComponent('food', path), false, `food should not match ${path}`);
@@ -80,11 +83,11 @@ module('Unit | Utility | matchers', function() {
     });
   });
 
-  test('looksLikeRouteTemplate should return true for classic, pods and mu strictire', function(assert){
+  test('looksLikeRouteTemplate should return true for classic, pods and mu structure', function(assert){
     function validLocations(name) {
       const locations =  [
         `ui/routes/${name}/template.hbs`,
-        `app/pods/${name}/template.hbs`,
+        `app/pods/route-${name}/template.hbs`,
         `app/routes/${name}/template.hbs`,
         `app/templates/${name}.hbs`
       ];
@@ -94,16 +97,17 @@ module('Unit | Utility | matchers', function() {
       const locations =  [
         `ui/routes/${name}/-components/foo/template.hbs`,
         `app/pods/components/${name}/template.hbs`,
+        `app/pods/route-${name}/${name}/template.hbs`,
         `app/routes/${name}/template.js`,
         `app/templates/components/${name}.hbs`
       ];
       return [].concat(locations, locations.map((location)=>location.toString().replace(/\//gi,'\\')));
     }
     validLocations('foo-bar').forEach((location)=>{
-      assert.equal(looksLikeRouteTemplate(location), true, `location ${location} should looks like route template`);
+      assert.equal(looksLikeRouteTemplate(location), true, `location ${location} should look like route template`);
     });
     invalidLocations('foo-bar').forEach((location)=>{
-      assert.equal(looksLikeRouteTemplate(location), false, `location ${location} should not looks like route template`);
+      assert.equal(looksLikeRouteTemplate(location, true), false, `location ${location} should not look like route template`);
     });
   });
 });
