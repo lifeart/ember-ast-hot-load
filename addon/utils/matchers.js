@@ -49,23 +49,34 @@ export function matchingComponent(rawComponentName, path) {
   return result;
 }
 
-const templateStartRegExp = /^[\s\S]*([/\\]pods[/\\])/i;
+const stringEscapeRegExp = /[.*+?^${}()|[\]\\]/g;
 const templateEndRegExp = /template\.hbs$/i;
 const windowsSeparatorRegExp = /\\/g;
+const regExpCache = {};
 
-export function looksLikeRouteTemplate(path) {
+function cachePodRegExp(podModulePrefix) {
+  regExpCache[podModulePrefix] = regExpCache[podModulePrefix] ||
+    new RegExp(`^[\\s\\S]*([/\\\\]${podModulePrefix.replace(stringEscapeRegExp, '\\$&')}[/\\\\])`, 'i')
+
+  return regExpCache[podModulePrefix];
+}
+
+export function looksLikeRouteTemplate(path, podModulePrefix = 'pods') {
   // mu app case
   if (path.includes('/src/ui/')) {
     return path.includes('/routes/') && path.endsWith('/template.hbs') && !path.includes('/-components/');
   }
 
   // Strip pod paths
-  const templatePath = path.replace(templateStartRegExp, '$1').replace(templateEndRegExp, '');
+  const templatePath = normalizePath(path).replace(cachePodRegExp(podModulePrefix), '$1').replace(templateEndRegExp, '');
   const reverseSeparatorPath = templatePath.replace(windowsSeparatorRegExp, '/');
+
   const hasComponent = Object.keys(window.requirejs ? window.requirejs.entries : {})
     .some(name => name.endsWith(`${templatePath}component`) || name.endsWith(`${reverseSeparatorPath}component`));
 
-  return !path.includes('component') && path.endsWith('.hbs') && !path.endsWith('-loading.hbs') && !hasComponent;
+  return !path.includes('component') && path.endsWith('.hbs') &&
+         !path.endsWith('-loading.hbs') && !path.endsWith('-error.hbs') &&
+         !hasComponent;
 }
 
 

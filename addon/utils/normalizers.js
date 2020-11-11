@@ -53,7 +53,7 @@ export function normalizeComponentName(name) {
   }
 }
 
-export function getPossibleRouteTemplateMeta(maybeString = '') {
+export function getPossibleRouteTemplateMeta(maybeString = '', podModulePrefix) {
   const rawPath = String(maybeString || '');
   const path = normalizePath(rawPath).split('/').join('.').replace('.hbs', '');
   const MU_PATH = '.src.ui';
@@ -67,7 +67,7 @@ export function getPossibleRouteTemplateMeta(maybeString = '') {
   const possibleRouteName = maybeRouteName.replace('templates.', '').replace('routes.','');
 
   return {
-    looksLikeRouteTemplate: looksLikeRouteTemplate(normalizePath(rawPath)),
+    looksLikeRouteTemplate: looksLikeRouteTemplate(normalizePath(rawPath), podModulePrefix),
     possibleRouteName,
     possibleTemplateName: possibleRouteName.split('.').join('/'),
     maybeClassicPath,

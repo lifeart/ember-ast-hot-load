@@ -107,7 +107,29 @@ module('Unit | Utility | matchers', function() {
       assert.equal(looksLikeRouteTemplate(location), true, `location ${location} should look like route template`);
     });
     invalidLocations('foo-bar').forEach((location)=>{
-      assert.equal(looksLikeRouteTemplate(location, true), false, `location ${location} should not look like route template`);
+      assert.equal(looksLikeRouteTemplate(location), false, `location ${location} should not look like route template`);
+    });
+  });
+
+  test('looksLikeRouteTemplate should return true for classic, pods and mu structure with custom pods location', function(assert){
+    function validLocations(name) {
+      const locations =  [
+        `app/foo-pods/pods/route-${name}/template.hbs`,
+      ];
+      return [].concat(locations, locations.map((location)=>location.toString().replace(/\//gi,'\\')));
+    }
+    function invalidLocations(name) {
+      const locations =  [
+        `app/foo-pods/pods/components/${name}/template.hbs`,
+        `app/foo-pods/pods/route-${name}/${name}/template.hbs`,
+      ];
+      return [].concat(locations, locations.map((location)=>location.toString().replace(/\//gi,'\\')));
+    }
+    validLocations('foo-bar').forEach((location)=>{
+      assert.equal(looksLikeRouteTemplate(location, 'foo-pods/pods'), true, `location ${location} should look like route template`);
+    });
+    invalidLocations('foo-bar').forEach((location)=>{
+      assert.equal(looksLikeRouteTemplate(location, 'foo-pods/pods'), false, `location ${location} should not look like route template`);
     });
   });
 });

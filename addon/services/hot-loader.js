@@ -137,7 +137,7 @@ export default Service.extend(Evented, {
     return window.location.reload();
   },
   willHotReloadRouteTemplate(attrs) {
-    const meta = getPossibleRouteTemplateMeta(attrs);
+    const meta = getPossibleRouteTemplateMeta(attrs, this.podModulePrefix);
     if (!meta.looksLikeRouteTemplate) {
       return;
     }
@@ -193,7 +193,7 @@ export default Service.extend(Evented, {
     }
   },
   willLiveReloadRouteTemplate(attrs) {
-    const meta = getPossibleRouteTemplateMeta(attrs.modulePath);
+    const meta = getPossibleRouteTemplateMeta(attrs.modulePath, this.podModulePrefix);
     if (meta.looksLikeRouteTemplate) {
       attrs.cancel  = true;
       this.clearRequirejs(meta.possibleTemplateName);
