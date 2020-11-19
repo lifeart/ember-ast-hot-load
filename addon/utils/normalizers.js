@@ -23,33 +23,29 @@ export function normalizePath(path) {
   return dasherizePath(path.split("\\").join("/"));
 }
 
+// Take from https://github.com/emberjs/ember.js/blob/b31998b6a0cccd22a8fb6fab21d24e5e7f2cb70d/packages/ember-template-compiler/lib/system/dasherize-component-name.ts
 // we need this because Ember.String.dasherize('XTestWrapper') -> xtest-wrapper, not x-test-wrapper
+const SIMPLE_DASHERIZE_REGEXP = /[A-Z]|::/g;
+const ALPHA = /[A-Za-z0-9]/;
 export function dasherizeName(name = '') {
-	const result = [];
-	const nameSize = name.length;
-	if (!nameSize) {
-		return '';
-	}
-	result.push(name.charAt(0));
-	for (let i = 1; i < nameSize; i++) {
-		let char = name.charAt(i);
-		if (char === char.toUpperCase()) {
-			if (char !== '-' && char !== '/' && char !== '_') {
-				if (result[result.length - 1] !== '-' && result[result.length - 1] !== '/') {
-					result.push('-');
-				}
-			}
-		}
-		result.push(char);
-	}
-	return result.join('');
+  return name.replace(SIMPLE_DASHERIZE_REGEXP, (char, index) => {
+    if (char === '::') {
+      return '/';
+    }
+
+    if (index === 0 || !ALPHA.test(name[index - 1])) {
+      return char.toLowerCase();
+    }
+
+    return `-${char.toLowerCase()}`;
+  })
 }
 
 export function normalizeComponentName(name) {
   if (typeof name !== 'string') {
     return name;
   } else {
-    return dasherizeName(name).toLowerCase();
+    return dasherizeName(name);
   }
 }
 
