@@ -16,6 +16,7 @@ module('Unit | Utility | normalizers', function() {
     assert.equal(componentNameFromClassName('FooBarClass'), 'foo-bar');
     assert.equal(componentNameFromClassName('FooBarComponent'), 'foo-bar');
     assert.equal(componentNameFromClassName('XFooBarClassComponent'), 'x-foo-bar');
+    assert.equal(componentNameFromClassName('FooV2'), 'foo-v2');
   });
 
   test('dasherizePath should dasherize camelized paths', function(assert){
@@ -27,10 +28,10 @@ module('Unit | Utility | normalizers', function() {
   });
 
   test('dasherizeName should convert component names to valid form', function(assert) {
-    assert.equal(dasherizeName('XFooBar'), 'X-Foo-Bar');
-    assert.equal(dasherizeName('XFooBar/BooBaz'), 'X-Foo-Bar/Boo-Baz');
-    assert.equal(dasherizeName('FooBar/BooBaz'), 'Foo-Bar/Boo-Baz');
-    assert.equal(dasherizeName('Foo/Boo'), 'Foo/Boo');
+    assert.equal(dasherizeName('XFooBar'), 'x-foo-bar');
+    assert.equal(dasherizeName('XFooBar/BooBaz'), 'x-foo-bar/boo-baz');
+    assert.equal(dasherizeName('FooBar/BooBaz'), 'foo-bar/boo-baz');
+    assert.equal(dasherizeName('Foo/Boo'), 'foo/boo');
   });
 
   test('normalizeComponentName should convert component name to valid lowercased form', function(assert){
