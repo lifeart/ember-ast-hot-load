@@ -88,7 +88,7 @@ function requireUnsee(module) {
 // }
 
 function addonComponents(modulePrefix) {
-  return Object.keys(window.require.entries).filter(
+  return Object.keys(window.requirejs.entries).filter(
     name => !name.startsWith(modulePrefix)
   );
 }
