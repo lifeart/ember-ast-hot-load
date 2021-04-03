@@ -1,5 +1,5 @@
-import { dasherize } from "@ember/string";
-import { looksLikeRouteTemplate } from "ember-ast-hot-load/utils/matchers";
+import { dasherize } from '@ember/string';
+import { looksLikeRouteTemplate } from 'ember-ast-hot-load/utils/matchers';
 
 export default function normalizers() {
   return true;
@@ -7,20 +7,16 @@ export default function normalizers() {
 
 export function componentNameFromClassName(name) {
   return normalizeComponentName(name)
-  .replace('-component', '')
-  .replace('-class','');
+    .replace('-component', '')
+    .replace('-class', '');
 }
 
-export function dasherizePath(str = "") {
-  return str
-    .split("/")
-    .map(dasherize)
-    .join("/")
-    .trim();
+export function dasherizePath(str = '') {
+  return str.split('/').map(dasherize).join('/').trim();
 }
 
 export function normalizePath(path) {
-  return dasherizePath(path.split("\\").join("/"));
+  return dasherizePath(path.split('\\').join('/'));
 }
 
 // Take from https://github.com/emberjs/ember.js/blob/b31998b6a0cccd22a8fb6fab21d24e5e7f2cb70d/packages/ember-template-compiler/lib/system/dasherize-component-name.ts
@@ -38,7 +34,7 @@ export function dasherizeName(name = '') {
     }
 
     return `-${char.toLowerCase()}`;
-  })
+  });
 }
 
 export function normalizeComponentName(name) {
@@ -49,7 +45,10 @@ export function normalizeComponentName(name) {
   }
 }
 
-export function getPossibleRouteTemplateMeta(maybeString = '', podModulePrefix) {
+export function getPossibleRouteTemplateMeta(
+  maybeString = '',
+  podModulePrefix
+) {
   const rawPath = String(maybeString || '');
   const path = normalizePath(rawPath).split('/').join('.').replace('.hbs', '');
   const MU_PATH = '.src.ui';
@@ -59,15 +58,20 @@ export function getPossibleRouteTemplateMeta(maybeString = '', podModulePrefix) 
   const paths = path.split(relativeAppEntrypoint);
   paths.shift();
   const maybeRouteName = paths.join(relativeAppEntrypoint);
-  const maybeClassicPath =  maybeRouteName.startsWith('templates.');
-  const possibleRouteName = maybeRouteName.replace('templates.', '').replace('routes.','');
+  const maybeClassicPath = maybeRouteName.startsWith('templates.');
+  const possibleRouteName = maybeRouteName
+    .replace('templates.', '')
+    .replace('routes.', '');
 
   return {
-    looksLikeRouteTemplate: looksLikeRouteTemplate(normalizePath(rawPath), podModulePrefix),
+    looksLikeRouteTemplate: looksLikeRouteTemplate(
+      normalizePath(rawPath),
+      podModulePrefix
+    ),
     possibleRouteName,
     possibleTemplateName: possibleRouteName.split('.').join('/'),
     maybeClassicPath,
     maybePodsPath,
-    isMU: relativeAppEntrypoint === MU_PATH
-  }
+    isMU: relativeAppEntrypoint === MU_PATH,
+  };
 }

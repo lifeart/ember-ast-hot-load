@@ -4,25 +4,28 @@ import { initialize } from 'dummy/instance-initializers/resolver-hot-loader-patc
 import { module, test } from 'qunit';
 import { run } from '@ember/runloop';
 
-module('Unit | Instance Initializer | resolver-hot-loader-patch', function(hooks) {
-  hooks.beforeEach(function() {
-    this.TestApplication = Application.extend();
-    this.TestApplication.instanceInitializer({
-      name: 'initializer under test',
-      initialize
+module(
+  'Unit | Instance Initializer | resolver-hot-loader-patch',
+  function (hooks) {
+    hooks.beforeEach(function () {
+      this.TestApplication = Application.extend();
+      this.TestApplication.instanceInitializer({
+        name: 'initializer under test',
+        initialize,
+      });
+      this.application = this.TestApplication.create({ autoboot: false });
+      this.instance = this.application.buildInstance();
     });
-    this.application = this.TestApplication.create({ autoboot: false });
-    this.instance = this.application.buildInstance();
-  });
-  hooks.afterEach(function() {
-    run(this.application, 'destroy');
-    run(this.instance, 'destroy');
-  });
+    hooks.afterEach(function () {
+      run(this.application, 'destroy');
+      run(this.instance, 'destroy');
+    });
 
-  // Replace this with your real tests.
-  test('it works', async function(assert) {
-    await this.instance.boot();
+    // Replace this with your real tests.
+    test('it works', async function (assert) {
+      await this.instance.boot();
 
-    assert.ok(true);
-  });
-});
+      assert.ok(true);
+    });
+  }
+);

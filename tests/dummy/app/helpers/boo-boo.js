@@ -1,6 +1,6 @@
 import { helper } from '@ember/component/helper';
 
-export function booBoo(params/*, hash*/) {
+export function booBoo(params /*, hash*/) {
   return params;
 }
 

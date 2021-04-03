@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 const getChannelURL = require('ember-source-channel-url');
 
@@ -23,7 +23,7 @@ module.exports = async function () {
         },
       },
       {
-        name: "ember-release",
+        name: 'ember-release',
         npm: {
           devDependencies: {
             'ember-source': await getChannelURL('release'),
@@ -31,7 +31,7 @@ module.exports = async function () {
         },
       },
       {
-        name: "ember-beta",
+        name: 'ember-beta',
         npm: {
           devDependencies: {
             'ember-source': await getChannelURL('beta'),
@@ -39,7 +39,7 @@ module.exports = async function () {
         },
       },
       {
-        name: "ember-canary",
+        name: 'ember-canary',
         npm: {
           devDependencies: {
             'ember-source': await getChannelURL('canary'),
@@ -47,7 +47,7 @@ module.exports = async function () {
         },
       },
       {
-        name: "ember-default-with-jquery",
+        name: 'ember-default-with-jquery',
         env: {
           EMBER_OPTIONAL_FEATURES: JSON.stringify({
             'jquery-integration': true,
@@ -60,7 +60,7 @@ module.exports = async function () {
         },
       },
       {
-        name: "ember-classic",
+        name: 'ember-classic',
         env: {
           EMBER_OPTIONAL_FEATURES: JSON.stringify({
             'application-template-wrapper': true,

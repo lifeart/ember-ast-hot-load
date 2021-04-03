@@ -1,19 +1,31 @@
-import { getOwner } from "@ember/application";
-import { get } from "@ember/object";
+import { getOwner } from '@ember/application';
+import { get } from '@ember/object';
 
 function isMUTemplateOrComponent(name, componentName) {
-  if (!name.includes("component:") && !name.includes("template:")) {
+  if (!name.includes('component:') && !name.includes('template:')) {
     return false;
   }
-  const isRouteTemplateName = (name === `template:` + componentName);
-  const isMURouteTemplateName = name.includes("template:") && name.endsWith('/routes/' + componentName + '/template.hbs');
-  const isMURouteScopedComponent = name.includes('/-components/') && (name.split('-components').pop().includes(componentName.split('-components').pop()));
-  return name.endsWith("/" + componentName) || isRouteTemplateName || isMURouteTemplateName || isMURouteScopedComponent;
+  const isRouteTemplateName = name === `template:` + componentName;
+  const isMURouteTemplateName =
+    name.includes('template:') &&
+    name.endsWith('/routes/' + componentName + '/template.hbs');
+  const isMURouteScopedComponent =
+    name.includes('/-components/') &&
+    name
+      .split('-components')
+      .pop()
+      .includes(componentName.split('-components').pop());
+  return (
+    name.endsWith('/' + componentName) ||
+    isRouteTemplateName ||
+    isMURouteTemplateName ||
+    isMURouteScopedComponent
+  );
 }
 
 function clearIfHasProperty(obj, propertyName, componentName) {
   if (obj) {
-    const itemsToForget = Object.keys(obj).filter(name => {
+    const itemsToForget = Object.keys(obj).filter((name) => {
       return (
         isMUTemplateOrComponent(name, componentName) || propertyName === name
       );
@@ -21,7 +33,7 @@ function clearIfHasProperty(obj, propertyName, componentName) {
 
     //component:/emberfest/routes/application/-components/footer-prompt
     //template:/emberfest/routes/index/-components/conference-day/conference-session: FactoryManager
-    itemsToForget.forEach(item => {
+    itemsToForget.forEach((item) => {
       obj[item] = undefined;
     });
   }
@@ -41,7 +53,7 @@ function clear(context, owner, name, originalName) {
     var optionsRuntimeResolver = optionsTimeLookup.resolver;
     optionsRuntimeResolver.componentDefinitionCache.clear();
   } else {
-    var environment = owner.lookup("service:-glimmer-environment");
+    var environment = owner.lookup('service:-glimmer-environment');
     if (environment) {
       environment._definitionCache &&
         environment._definitionCache.store &&
@@ -73,7 +85,7 @@ function clear(context, owner, name, originalName) {
 }
 
 function requireUnsee(module) {
-  if (typeof window !== "object") {
+  if (typeof window !== 'object') {
     return;
   }
   if (window.requirejs.has(module)) {
@@ -89,7 +101,7 @@ function requireUnsee(module) {
 
 function addonComponents(modulePrefix) {
   return Object.keys(window.requirejs.entries).filter(
-    name => !name.startsWith(modulePrefix)
+    (name) => !name.startsWith(modulePrefix)
   );
 }
 
@@ -106,19 +118,23 @@ export function clearContainerCache(context, componentName) {
   // case for route template
   clear(context, owner, routeTemplateFullName, componentName);
   // clear route template for pods
-  clear(context, owner, routeTemplateFullName.split('.').join('/'), componentName.split('.').join('/'));
+  clear(
+    context,
+    owner,
+    routeTemplateFullName.split('.').join('/'),
+    componentName.split('.').join('/')
+  );
 }
 
 export function clearRequirejsCache(context, componentName) {
   const owner = getOwner(context);
-  const config = owner.resolveRegistration("config:environment");
+  const config = owner.resolveRegistration('config:environment');
 
-  const modulePrefix = get(config, "modulePrefix") || "dummy";
-  const podModulePrefix = get(config, "podModulePrefix") || modulePrefix;
+  const modulePrefix = get(config, 'modulePrefix') || 'dummy';
+  const podModulePrefix = get(config, 'podModulePrefix') || modulePrefix;
   // Invalidate regular module
   requireUnsee(`${modulePrefix}/components/${componentName}`);
   requireUnsee(`${modulePrefix}/templates/components/${componentName}`);
-
 
   // Invalidate collocated templates and components
   requireUnsee(`${modulePrefix}/components/${componentName}/index`);
@@ -150,7 +166,7 @@ export function clearRequirejsCache(context, componentName) {
     const relativeComponentName = paths[1];
     let routePath = paths[0].replace(`${podModulePrefix}/routes/`, '');
     if (routePath.startsWith('/')) {
-      routePath = routePath.replace('/','');
+      routePath = routePath.replace('/', '');
     }
     // "shiny-components/src/ui/routes/patterns/inheritance/-components/modal/component"
     // `/${podModulePrefix}/routes/${scope}/-components/`;
@@ -182,12 +198,12 @@ export function clearRequirejsCache(context, componentName) {
 
   addonComponents(modulePrefix)
     .filter(
-      name =>
-        name.endsWith(componentName + "/component") ||
-        name.endsWith(componentName + "/template") ||
+      (name) =>
+        name.endsWith(componentName + '/component') ||
+        name.endsWith(componentName + '/template') ||
         name.endsWith(componentName)
     )
-    .forEach(item => {
+    .forEach((item) => {
       requireUnsee(item);
     });
 }

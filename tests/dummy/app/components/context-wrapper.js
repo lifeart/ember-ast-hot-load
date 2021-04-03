@@ -3,5 +3,5 @@ import layout from '../templates/components/context-wrapper';
 
 export default Component.extend({
   layout,
-  xTestWrapper: 'x-test-wrapper'
+  xTestWrapper: 'x-test-wrapper',
 });

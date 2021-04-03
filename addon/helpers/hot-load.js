@@ -1,6 +1,6 @@
-import Helper from "@ember/component/helper";
-import { inject as service } from "@ember/service";
-import { later, cancel } from "@ember/runloop";
+import Helper from '@ember/component/helper';
+import { inject as service } from '@ember/service';
+import { later, cancel } from '@ember/runloop';
 
 function hasPropertyNameInContext(prop, ctx) {
   if (typeof ctx !== 'object') {
@@ -9,7 +9,7 @@ function hasPropertyNameInContext(prop, ctx) {
   if (ctx === null) {
     return false;
   }
-  return (prop in ctx);
+  return prop in ctx;
 }
 
 export default Helper.extend({
@@ -36,9 +36,11 @@ export default Helper.extend({
   },
   __willLiveReload(event) {
     const hotLoader = this.hotLoader;
-    if (hotLoader.isMatchingComponent(this.firstComputeName, event.modulePath)) {
+    if (
+      hotLoader.isMatchingComponent(this.firstComputeName, event.modulePath)
+    ) {
       event.cancel = true;
-      (this.possibleNames || []).forEach((computedName)=>{
+      (this.possibleNames || []).forEach((computedName) => {
         if (!event.components.includes(computedName)) {
           event.components.push(computedName);
         }
@@ -50,17 +52,22 @@ export default Helper.extend({
     this._super(...arguments);
     cancel(this.timer);
     const hotLoader = this.hotLoader;
-    hotLoader.unregisterWillHotReload(
-      this.binded__rerenderOnTemplateUpdate
-    );
+    hotLoader.unregisterWillHotReload(this.binded__rerenderOnTemplateUpdate);
     hotLoader.unregisterWillLiveReload(this.binded__willLiveReload);
   },
-  compute([name, context = {}, maybePropertyValue = undefined, astStringName = '']) {
+  compute([
+    name,
+    context = {},
+    maybePropertyValue = undefined,
+    astStringName = '',
+  ]) {
     const hotLoader = this.hotLoader;
     const safeAstName = String(astStringName || '');
     const renderComponentName = hotLoader.normalizeComponentName(name);
     const isComponent = hotLoader.isComponent(renderComponentName, context);
-    this.possibleNames = [ renderComponentName ].concat(hotLoader.scopedComponentNames(renderComponentName, context));
+    this.possibleNames = [renderComponentName].concat(
+      hotLoader.scopedComponentNames(renderComponentName, context)
+    );
 
     // console.log('compute', {
     //   name, context, maybePropertyValue, astStringName,
@@ -68,14 +75,26 @@ export default Helper.extend({
     //   isHelper: hotLoader.isHelper(name)
     // });
     const hasPropInComponentContext = hasPropertyNameInContext(name, context);
-    const isArgument = safeAstName.charAt(0) === '@' || safeAstName.startsWith('attrs.');
-    if (!isArgument && (hasPropInComponentContext || (typeof maybePropertyValue !== 'undefined'))) {
-      if (!hasPropInComponentContext && !isComponent && !hotLoader.isHelper(name)) {
+    const isArgument =
+      safeAstName.charAt(0) === '@' || safeAstName.startsWith('attrs.');
+    if (
+      !isArgument &&
+      (hasPropInComponentContext || typeof maybePropertyValue !== 'undefined')
+    ) {
+      if (
+        !hasPropInComponentContext &&
+        !isComponent &&
+        !hotLoader.isHelper(name)
+      ) {
         // if it's not component, not in scope and not helper - dunno, we need to render placeholder with value;
         if (hotLoader.get('isFastBoot')) {
           return hotLoader.placeholderComponentName();
         }
-        return hotLoader.renderDynamicComponentHelper(name, context, maybePropertyValue);
+        return hotLoader.renderDynamicComponentHelper(
+          name,
+          context,
+          maybePropertyValue
+        );
       }
     }
     if (!isComponent) {
@@ -86,7 +105,11 @@ export default Helper.extend({
         hotLoader.registerDynamicComponent(name);
         return hotLoader.dynamicComponentNameForHelperWrapper(name);
       } else {
-        return hotLoader.renderDynamicComponentHelper(name, context, maybePropertyValue);
+        return hotLoader.renderDynamicComponentHelper(
+          name,
+          context,
+          maybePropertyValue
+        );
       }
     }
     if (renderComponentName === this.firstCompute) {
@@ -107,5 +130,5 @@ export default Helper.extend({
     }
 
     return renderComponentName;
-  }
+  },
 });
