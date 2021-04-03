@@ -4,7 +4,7 @@ import { computed } from '@ember/object';
 
 export default Component.extend({
   layout,
-  doubleValue: computed('value', function(){
-	return (this.value || 0) * 2;
-  })
+  doubleValue: computed('value', function () {
+    return (this.value || 0) * 2;
+  }),
 });

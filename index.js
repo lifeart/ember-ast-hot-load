@@ -1,53 +1,53 @@
-"use strict";
-const path = require("path");
-const fs = require("fs");
-const map = require("broccoli-stew").map;
-const rm = require("broccoli-stew").rm;
+'use strict';
+const path = require('path');
+const fs = require('fs');
+const map = require('broccoli-stew').map;
+const rm = require('broccoli-stew').rm;
 
-const ADDON_NAME = "ember-ast-hot-load";
+const ADDON_NAME = 'ember-ast-hot-load';
 
 module.exports = {
   name: ADDON_NAME,
   // attempt to fix unknown options bug
   _OPTIONS: {
     enabled: true,
-    watch: ["components"],
-    helpers: []
+    watch: ['components'],
+    helpers: [],
   },
-  serverMiddleware: function(config) {
+  serverMiddleware: function (config) {
     if (this.isDisabled()) {
       return;
     } else {
-      require("./lib/hot-load-middleware")(config, this._OPTIONS).run();
-      require("./lib/hot-reloader")(config.options).run();
+      require('./lib/hot-load-middleware')(config, this._OPTIONS).run();
+      require('./lib/hot-reloader')(config.options).run();
     }
   },
   setupPreprocessorRegistry(type, registry) {
     let pluginObj = this._buildPlugin({
       addonContext: {
-        _OPTIONS: this._OPTIONS
-      }
+        _OPTIONS: this._OPTIONS,
+      },
     });
     //parallelBabel proper integration?
     pluginObj.parallelBabel = {
       requireFile: __filename,
-      buildUsing: "_buildPlugin",
+      buildUsing: '_buildPlugin',
       params: {
         addonContext: {
-          _OPTIONS: this._OPTIONS
-        }
-      }
+          _OPTIONS: this._OPTIONS,
+        },
+      },
     };
-    registry.add("htmlbars-ast-plugin", pluginObj);
+    registry.add('htmlbars-ast-plugin', pluginObj);
   },
 
   _buildPlugin({ addonContext }) {
-    const plugin = require("./lib/ast-transform")({ addonContext });
+    const plugin = require('./lib/ast-transform')({ addonContext });
     return {
-      name: "ember-ast-hot-load-babel-plugin",
+      name: 'ember-ast-hot-load-babel-plugin',
       plugin,
       cacheKey() {
-        const hasher = function(str) {
+        const hasher = function (str) {
           var hash = 0;
           if (str.length == 0) {
             return hash;
@@ -62,18 +62,16 @@ module.exports = {
         const options = () => {
           try {
             return this.parallelBabel.params.addonContext._OPTIONS;
-          } catch(e) {
+          } catch (e) {
             return addonContext ? addonContext._OPTIONS : '_UNKNOWN_';
           }
-        }
-        const key = hasher(
-          JSON.stringify(options())
-        );
-        return 'ast-hot-'+ key;
+        };
+        const key = hasher(JSON.stringify(options()));
+        return 'ast-hot-' + key;
       },
       baseDir() {
         return __dirname;
-      }
+      },
     };
   },
   _ensureFindHost() {
@@ -92,20 +90,20 @@ module.exports = {
     this._ENV = environment;
     return {
       [ADDON_NAME]: {
-        enabled: environment !== "production",
-        watch: ["components"],
-        helpers: []
-      }
+        enabled: environment !== 'production',
+        watch: ['components'],
+        helpers: [],
+      },
     };
   },
   _getTemplateCompilerPath() {
-    if (this._OPTIONS && this._OPTIONS["templateCompilerPath"]) {
-      return this._OPTIONS["templateCompilerPath"];
+    if (this._OPTIONS && this._OPTIONS['templateCompilerPath']) {
+      return this._OPTIONS['templateCompilerPath'];
     }
     const npmCompilerPath = path.join(
-      "ember-source",
-      "dist",
-      "ember-template-compiler.js"
+      'ember-source',
+      'dist',
+      'ember-template-compiler.js'
     );
     let resolvedPath = null;
     let root = this.project.root;
@@ -115,19 +113,19 @@ module.exports = {
       try {
         resolvedPath = path.relative(
           root,
-          require.resolve(path.join(root, "node_modules", npmCompilerPath))
+          require.resolve(path.join(root, 'node_modules', npmCompilerPath))
         );
       } catch (ee) {
         try {
           resolvedPath = path.relative(
             root,
-            require.resolve(path.join(root, "../node_modules", npmCompilerPath))
+            require.resolve(path.join(root, '../node_modules', npmCompilerPath))
           );
         } catch (eee) {
           resolvedPath = path.relative(
             root,
             require.resolve(
-              path.join(root, "../../node_modules", npmCompilerPath)
+              path.join(root, '../../node_modules', npmCompilerPath)
             )
           );
         }
@@ -144,8 +142,8 @@ module.exports = {
       {
         enabled: true,
         helpers: [],
-        watch: ["components"],
-        templateCompilerPath: undefined
+        watch: ['components'],
+        templateCompilerPath: undefined,
       },
       addonOptions
     );
@@ -153,11 +151,11 @@ module.exports = {
       enabled,
       helpers,
       watch,
-      templateCompilerPath = undefined
+      templateCompilerPath = undefined,
     } = currentOptions;
-    if (env === "test" || env === "production") {
+    if (env === 'test' || env === 'production') {
       // allow test/prod addon usage only for app, named "dummy" (addon test app)
-      if (app.name !== "dummy") {
+      if (app.name !== 'dummy') {
         enabled = false;
       }
     }
@@ -165,16 +163,16 @@ module.exports = {
       helpers,
       enabled,
       watch,
-      templateCompilerPath
+      templateCompilerPath,
     });
     this._OPTIONS.initialized = true;
     this._isDisabled = !enabled;
   },
   importTransforms() {
     return {
-      "fastboot-safe": {
+      'fastboot-safe': {
         transform(tree) {
-          return map(tree, content => {
+          return map(tree, (content) => {
             return `
               ;if (typeof FastBoot === 'undefined') {
                 ${content}
@@ -186,8 +184,8 @@ module.exports = {
         processOptions(assetPath, entry, options) {
           options[assetPath] = {};
           return options;
-        }
-      }
+        },
+      },
     };
   },
   included(app) {
@@ -202,11 +200,11 @@ module.exports = {
     const npmPath = this._getTemplateCompilerPath();
     if (fs.existsSync(npmPath)) {
       app.import(npmPath, {
-        using: [{ transformation: "fastboot-safe" }]
+        using: [{ transformation: 'fastboot-safe' }],
       });
     } else {
       throw new Error(
-        "Unable to locate ember-template-compiler.js. ember/ember-source not found in node_modules"
+        'Unable to locate ember-template-compiler.js. ember/ember-source not found in node_modules'
       );
     }
   },
@@ -220,19 +218,19 @@ module.exports = {
     if (!this.isDisabled()) {
       return this._super.treeFor.apply(this, arguments);
     }
-    if (name === "app" || name === "addon") {
+    if (name === 'app' || name === 'addon') {
       return rm(
         this._super.treeFor.apply(this, arguments),
-        "ember-ast-hot-load/**",
-        "components/hot-content.js",
-        "components/hot-placeholder.js",
-        "helpers/hot-load.js",
-        "instance-initializers/hot-loader-livereload-plugin.js",
-        "instance-initializers/resolver-hot-loader-patch.js",
-        "services/hot-loader.js",
-        "utils/cleaners.js",
-        "utils/matchers.js",
-        "utils/normalizers.js"
+        'ember-ast-hot-load/**',
+        'components/hot-content.js',
+        'components/hot-placeholder.js',
+        'helpers/hot-load.js',
+        'instance-initializers/hot-loader-livereload-plugin.js',
+        'instance-initializers/resolver-hot-loader-patch.js',
+        'services/hot-loader.js',
+        'utils/cleaners.js',
+        'utils/matchers.js',
+        'utils/normalizers.js'
       );
     }
     return this._super.treeFor.apply(this, arguments);
@@ -263,16 +261,16 @@ module.exports = {
     }
 
     let babelAddon = this.addons.find(
-      addon => addon.name === "ember-cli-babel"
+      (addon) => addon.name === 'ember-cli-babel'
     );
 
     let transpiledVendorTree = babelAddon.transpileTree(rawVendorTree, {
       babel: this.options.babel,
-      "ember-cli-babel": {
-        compileModules: false
-      }
+      'ember-cli-babel': {
+        compileModules: false,
+      },
     });
 
     return transpiledVendorTree;
-  }
+  },
 };

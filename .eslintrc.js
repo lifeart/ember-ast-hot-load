@@ -1,4 +1,3 @@
-/* global module */
 'use strict';
 
 module.exports = {
@@ -11,15 +10,16 @@ module.exports = {
     },
   },
   plugins: ['ember'],
-  extends: [
-    'eslint:recommended',
-    'plugin:ember/recommended',
-    'plugin:prettier/recommended',
-  ],
+  extends: ['eslint:recommended', 'plugin:prettier/recommended'],
   env: {
     browser: true,
   },
-  rules: {},
+  rules: {
+    'ember/no-classic-components': 'off',
+    'ember/no-classic-classes': 'off',
+    'ember/require-tagless-components': 'off',
+    'ember/no-get': 'off',
+  },
   overrides: [
     // node files
     {
@@ -30,6 +30,7 @@ module.exports = {
         'ember-cli-build.js',
         'index.js',
         'testem.js',
+        'lib/**/*.js',
         'blueprints/*/index.js',
         'config/**/*.js',
         'tests/dummy/config/**/*.js',

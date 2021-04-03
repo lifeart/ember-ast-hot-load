@@ -7,5 +7,5 @@ export default Component.extend({
   value: computed.reads('hotReloadCUSTOMhlProperty'),
   tagName: '',
   // Support ember-test-selectors https://github.com/simplabs/ember-test-selectors#usage-with-tagless-components
-  supportsDataTestProperties: true
+  supportsDataTestProperties: true,
 });
