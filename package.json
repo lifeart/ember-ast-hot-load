@@ -43,7 +43,7 @@
     "@ember/optional-features": "^2.0.0",
     "@ember/test-helpers": "^2.2.0",
     "@glimmer/component": "^1.0.3",
-    "@glimmer/syntax": "0.44.0",
+    "@glimmer/syntax": "0.79.2",
     "@glimmer/tracking": "^1.0.3",
     "ember-modifier": "2.1.1",
     "broccoli-asset-rev": "^3.0.0",
