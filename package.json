@@ -42,7 +42,7 @@
   "devDependencies": {
     "@ember/optional-features": "^2.0.0",
     "@ember/test-helpers": "^2.2.5",
-    "@embroider/test-setup": "^0.41.0",
+    "@embroider/test-setup": "^1.8.3",
     "@glimmer/component": "^1.0.4",
     "@glimmer/syntax": "0.44.0",
     "@glimmer/tracking": "^1.0.4",
